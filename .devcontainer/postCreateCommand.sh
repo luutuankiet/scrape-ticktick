@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-apt-get update && apt-get install -y python3-venv
+apt-get update && apt-get install -y python3-venv ipykernel
 
 # init then source env vars
 . ./env_init.sh
