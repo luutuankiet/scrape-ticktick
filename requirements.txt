@@ -1,0 +1,3 @@
+ticktick-py
+ipykernel
+dotenv
