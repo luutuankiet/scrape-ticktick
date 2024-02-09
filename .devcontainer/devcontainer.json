@@ -47,6 +47,7 @@
 				"python.terminal.activateEnvInCurrentTerminal": true,
 				"python.defaultInterpreterPath": "./.venv/bin/python",
 				"terminal.integrated.defaultProfile.linux#": "/bin/bash",
+				"python.languageServer": "Pylance"
 				// "editor.defaultFormatter": "dorzey.vscode-sqlfluff",
 				// "sqlfluff.executablePath": ".venv/bin/sqlfluff",
 				// "sqlfluff.config": "./.sqlfluff",
