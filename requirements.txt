@@ -1,3 +1,4 @@
 ticktick-py==2.0.3
 ipykernel==6.29.2
 pandas==2.2.0
+python-dotenv
