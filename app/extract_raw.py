@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import json
 import os
 from datetime import datetime, timedelta
+import logging
 
 # setup 
 load_dotenv('../.secrets')
@@ -26,8 +27,21 @@ completed_tasks=[]
 start = datetime(2022, 7, 23)
 file_path = 'raw/all_tasks.json'
 
-def get_completed_tasks(start=start, end=datetime.now(), full_load=True):
-    print('start loading tasks')
+def get_completed_tasks(start=start, end=datetime.now(), full_load=True) -> list:
+    """_summary_
+    uses tickpy to grab completed tasks from start > end.
+    `start` has a default value 2022/07/23 which is the start of my ticktick interactions
+    `end` defaults to the runtime date.
+
+    Args:
+        start (_type_, optional): _description_. Defaults to start.
+        end (_type_, optional): _description_. Defaults to datetime.now().
+        full_load (bool, optional): _description_. Defaults to True.
+
+    Returns:
+        list: all the completed tasks in the interval.
+    """
+    logging.info('start loading tasks')
     if full_load:
         current_date = start
     else: 
@@ -57,7 +71,3 @@ def dump_raw():
         json.dump(all_tasks,f,indent=4)
 
 
-
-if __name__ == '__main__':
-    get_completed_tasks()
-    dump_raw()
