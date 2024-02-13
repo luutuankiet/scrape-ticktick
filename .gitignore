@@ -1,2 +1,6 @@
 .venv
 .env
+history
+logs
+storage
+schedules

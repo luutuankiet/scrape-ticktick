@@ -1,0 +1,194 @@
+[
+    {
+        "id": "636db118cd19f1086e0c6377",
+        "etag": "yj2xez68",
+        "name": "\ud83d\udce5lvl2 - organized inbox",
+        "showAll": true,
+        "sortOrder": -9223090562146500590,
+        "viewMode": "list",
+        "deleted": 0,
+        "userId": 120295392,
+        "sortType": "project",
+        "sortOption": {
+            "groupBy": "project",
+            "orderBy": "dueDate"
+        },
+        "teamId": null,
+        "timeline": {
+            "range": null,
+            "sortType": "project",
+            "sortOption": {
+                "groupBy": "project",
+                "orderBy": "sortOrder"
+            }
+        }
+    },
+    {
+        "id": "17fb4e87b1d72177f31edb30",
+        "etag": "c2x3zpq3",
+        "name": "\ud83c\udfdalvl2 - Personal",
+        "showAll": true,
+        "sortOrder": 2413980260952596565,
+        "viewMode": "list",
+        "deleted": 0,
+        "userId": 120295392,
+        "sortType": "project",
+        "sortOption": {
+            "groupBy": "project",
+            "orderBy": "dueDate"
+        },
+        "teamId": null,
+        "timeline": {
+            "range": null,
+            "sortType": "project",
+            "sortOption": {
+                "groupBy": "project",
+                "orderBy": "sortOrder"
+            }
+        }
+    },
+    {
+        "id": "63e76763041dd61d8659c665",
+        "etag": "yjwabu3n",
+        "name": "\ud83d\udcb5lvl2 - Finance",
+        "showAll": true,
+        "sortOrder": 2413980260969373781,
+        "viewMode": "list",
+        "deleted": 0,
+        "userId": 120295392,
+        "sortType": "project",
+        "sortOption": {
+            "groupBy": "project",
+            "orderBy": "dueDate"
+        },
+        "teamId": null,
+        "timeline": {
+            "range": null,
+            "sortType": "project",
+            "sortOption": {
+                "groupBy": "project",
+                "orderBy": "sortOrder"
+            }
+        }
+    },
+    {
+        "id": "645ff4022ac97c330ac5efa3",
+        "etag": "9weysvdc",
+        "name": "\ud83d\ude80SOMEDAY lists",
+        "showAll": true,
+        "sortOrder": 5765196311719663013,
+        "viewMode": "list",
+        "deleted": 0,
+        "userId": 120295392,
+        "sortType": "project",
+        "sortOption": {
+            "groupBy": "project",
+            "orderBy": "dueDate"
+        },
+        "teamId": null,
+        "timeline": {
+            "range": null,
+            "sortType": "project",
+            "sortOption": {
+                "groupBy": "sortOrder",
+                "orderBy": "sortOrder"
+            }
+        }
+    },
+    {
+        "id": "2843425faae40e6deeb4b829",
+        "etag": "2cgolv2v",
+        "name": "\ud83d\udcbblvl2 - Professional",
+        "showAll": true,
+        "sortOrder": 2413980260933722197,
+        "viewMode": "list",
+        "deleted": 0,
+        "userId": 120295392,
+        "sortType": "project",
+        "sortOption": {
+            "groupBy": "project",
+            "orderBy": "dueDate"
+        },
+        "teamId": null,
+        "timeline": {
+            "range": null,
+            "sortType": "project",
+            "sortOption": {
+                "groupBy": "project",
+                "orderBy": "sortOrder"
+            }
+        }
+    },
+    {
+        "id": "848f466799573f3546cb0286",
+        "etag": "p08tp6n9",
+        "name": "\ud83d\udca4on hold lists",
+        "showAll": true,
+        "sortOrder": 2413980260971470933,
+        "viewMode": null,
+        "deleted": 0,
+        "userId": 120295392,
+        "sortType": "project",
+        "sortOption": {
+            "groupBy": "project",
+            "orderBy": "dueDate"
+        },
+        "teamId": null,
+        "timeline": {
+            "range": null,
+            "sortType": "project",
+            "sortOption": {
+                "groupBy": "project",
+                "orderBy": "sortOrder"
+            }
+        }
+    },
+    {
+        "id": "63ea3f987c410b20407b70b6",
+        "etag": "6ha55whe",
+        "name": "\u25b6\ufe0flvl2 - Innovature",
+        "showAll": true,
+        "sortOrder": 2305894686678756098,
+        "viewMode": "list",
+        "deleted": 0,
+        "userId": 120295392,
+        "sortType": "project",
+        "sortOption": {
+            "groupBy": "project",
+            "orderBy": "dueDate"
+        },
+        "teamId": null,
+        "timeline": {
+            "range": null,
+            "sortType": "project",
+            "sortOption": {
+                "groupBy": "project",
+                "orderBy": "sortOrder"
+            }
+        }
+    },
+    {
+        "id": "63e760c8041dd66a5a05fb0b",
+        "etag": "dgiupqrn",
+        "name": "\ud83d\udee9Horizon of focus",
+        "showAll": true,
+        "sortOrder": 5765196311776286117,
+        "viewMode": "list",
+        "deleted": 0,
+        "userId": 120295392,
+        "sortType": "project",
+        "sortOption": {
+            "groupBy": "project",
+            "orderBy": "dueDate"
+        },
+        "teamId": null,
+        "timeline": {
+            "range": null,
+            "sortType": "project",
+            "sortOption": {
+                "groupBy": "project",
+                "orderBy": "sortOrder"
+            }
+        }
+    }
+]

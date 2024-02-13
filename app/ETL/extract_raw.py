@@ -10,27 +10,41 @@ import json
 import os
 from datetime import datetime, timedelta,timezone
 import logging
+from dagster import asset, AssetIn
 
-# setup 
-load_dotenv('../.secrets')
+# setup paths
+current_dir=os.path.dirname(os.path.abspath(__file__))
+dotenv_path=os.path.join(current_dir,'..','env')
+secrets_path = os.path.join(dotenv_path,'.secrets')
+cache_path=os.path.join(dotenv_path,'.token-oauth')
+
+
+raw_file_path = os.path.join(current_dir,'raw')
+tasks_file_path = os.path.join(raw_file_path,'all_tasks.json')
+lists_file_path = os.path.join(raw_file_path,'all_lists.json')
+folders_file_path = os.path.join(raw_file_path,'all_folders.json')
+
+
+
+load_dotenv(secrets_path)
 client_id=environ.get('client_id')
 client_secret=environ.get('client_secret')
 username=environ.get('username')
 password=environ.get('password')
 redirect_uri=environ.get('redirect_uri')
+# import pdb; pdb.set_trace()
 
 auth_client = OAuth2(client_id=client_id,
                      client_secret=client_secret,
-                     redirect_uri=redirect_uri)
+                     redirect_uri=redirect_uri,
+                     cache_path=cache_path
+                     )
 
 client = TickTickClient(username, password, auth_client)
 
 
 
 default_start = datetime(2022, 7, 23,tzinfo=timezone.utc)
-tasks_file_path = 'raw/all_tasks.json'
-lists_file_path = 'raw/all_lists.json'
-folders_file_path = 'raw/all_folders.json'
 date_format = '%Y-%m-%dT%H:%M:%S.%f%z'
 
 
@@ -114,6 +128,7 @@ def get_new_tasks() -> list:
     new_tasks=client.state['tasks']
     return new_tasks
 
+@asset
 def get_all_tasks() -> list:
     new=get_new_tasks()
     logging.info(f'new tasks : {len(new)}')
@@ -122,12 +137,18 @@ def get_all_tasks() -> list:
     all_tasks=new+completed
     return all_tasks
 
-def get_lists_and_folders():
+@asset
+def get_lists():
     lists = client.state['projects']
-    folders = client.state['project_folders']
-    return lists, folders
+    return lists
 
-def dump_to_file(source:list, target:str):
+@asset
+def get_folders():
+    folders = client.state['project_folders']
+    return folders
+
+
+def _dump_to_file(source:list, target:str):
     """
     takes source then dumps to json raw file 
     """
@@ -135,11 +156,16 @@ def dump_to_file(source:list, target:str):
     with open(target,'w') as f:
         json.dump(source,f,indent=4,)
 
-lists,folders = get_lists_and_folders()
-tasks=get_all_tasks()
+@asset(deps=[get_lists,get_folders,get_all_tasks])
+def dump_to_file():
+    _dump_to_file(get_lists(),lists_file_path)
+    _dump_to_file(get_folders(),folders_file_path)
+    _dump_to_file(get_all_tasks(),tasks_file_path)
+    return None
+
+# lists,folders = get_lists_and_folders()
+# tasks=get_all_tasks()
 
 
-dump_to_file(lists,lists_file_path)
-dump_to_file(folders,folders_file_path)
-dump_to_file(tasks,tasks_file_path)
+
 
