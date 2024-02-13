@@ -10,7 +10,7 @@ import json
 import os
 from datetime import datetime, timedelta,timezone
 import logging
-from dagster import asset, AssetIn
+from dagster import asset
 
 # setup paths
 current_dir=os.path.dirname(os.path.abspath(__file__))
@@ -156,11 +156,11 @@ def _dump_to_file(source:list, target:str):
     with open(target,'w') as f:
         json.dump(source,f,indent=4,)
 
-@asset(deps=[get_lists,get_folders,get_all_tasks])
-def dump_to_file():
-    _dump_to_file(get_lists(),lists_file_path)
-    _dump_to_file(get_folders(),folders_file_path)
-    _dump_to_file(get_all_tasks(),tasks_file_path)
+@asset
+def dump_to_file(get_lists,get_folders,get_all_tasks):
+    _dump_to_file(get_lists,lists_file_path)
+    _dump_to_file(get_folders,folders_file_path)
+    _dump_to_file(get_all_tasks,tasks_file_path)
     return None
 
 # lists,folders = get_lists_and_folders()
