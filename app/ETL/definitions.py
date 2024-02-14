@@ -20,3 +20,4 @@ defs = Definitions(
     #     "dbt": DbtCliResource(project_dir=os.fspath(dbt_project_dir)),
     # },
 )
+

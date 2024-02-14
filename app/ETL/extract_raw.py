@@ -11,20 +11,10 @@ import os
 from datetime import datetime, timedelta,timezone
 import logging
 from dagster import asset
+from helper.source_env import dotenv_path,secrets_path
 
-# setup paths
-current_dir=os.path.dirname(os.path.abspath(__file__))
-dotenv_path=os.path.join(current_dir,'..','env')
-secrets_path = os.path.join(dotenv_path,'.secrets')
+
 cache_path=os.path.join(dotenv_path,'.token-oauth')
-
-
-raw_file_path = os.path.join(current_dir,'raw')
-tasks_file_path = os.path.join(raw_file_path,'all_tasks.json')
-lists_file_path = os.path.join(raw_file_path,'all_lists.json')
-folders_file_path = os.path.join(raw_file_path,'all_folders.json')
-
-
 
 load_dotenv(secrets_path)
 client_id=environ.get('client_id')
@@ -32,6 +22,17 @@ client_secret=environ.get('client_secret')
 username=environ.get('username')
 password=environ.get('password')
 redirect_uri=environ.get('redirect_uri')
+
+
+
+current_dir=os.path.dirname(os.path.abspath(__file__))
+raw_file_path = os.path.join(current_dir,'raw')
+tasks_file_path = os.path.join(raw_file_path,'all_tasks.json')
+lists_file_path = os.path.join(raw_file_path,'all_lists.json')
+folders_file_path = os.path.join(raw_file_path,'all_folders.json')
+
+
+
 # import pdb; pdb.set_trace()
 
 auth_client = OAuth2(client_id=client_id,
