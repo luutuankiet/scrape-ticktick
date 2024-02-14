@@ -10,7 +10,7 @@ import json
 import os
 from datetime import datetime, timedelta,timezone
 import logging
-from dagster import asset
+from dagster import asset,AssetExecutionContext
 from helper.source_env import dotenv_path,secrets_path
 
 
@@ -93,6 +93,7 @@ def _get_completed_tasks(start=None, end=datetime.now(timezone.utc), full_load=T
             for task in tasks:
                 completed_tasks.append(task)
             logging.info(f'loaded {len(tasks)} new tasks from {current_date}. next interation...')
+            
         current_date += timedelta(days=1)
     # completed_tasks=json.dumps(completed_tasks)
     return completed_tasks
@@ -108,13 +109,15 @@ def get_completed_task() -> list:
             last_cached_date=[item['completedTime'] for item in cached if 'completedTime' in item]
             last_cached_date=max(last_cached_date)
             last_cached_date=datetime.strptime(last_cached_date,date_format)
-            # last_cached_date=last_cached_date - timedelta(days=1)
+            last_cached_date=last_cached_date - timedelta(days=1)
             full_load=False
+            metadata=last_cached_date
     except FileNotFoundError:
         logging.info('no cache found. doing full load...')
         cached_completed=[]
         last_cached_date=None
         full_load=True
+        metadata=None
     
     # checks existing and append to cached list 
     net_new=_get_completed_tasks(start=last_cached_date,full_load=full_load)
@@ -122,7 +125,7 @@ def get_completed_task() -> list:
     # concatenate final completed list
     all_completed_tasks=net_new+cached_completed
     all_completed_tasks=deduplicate(all_completed_tasks)
-    return all_completed_tasks
+    return all_completed_tasks,metadata
     
 
 def get_new_tasks() -> list:
@@ -130,11 +133,11 @@ def get_new_tasks() -> list:
     return new_tasks
 
 @asset
-def get_all_tasks() -> list:
+def get_all_tasks(context: AssetExecutionContext) -> list:
     new=get_new_tasks()
-    logging.info(f'new tasks : {len(new)}')
-    completed=get_completed_task()
-    logging.info(f'completed tasks : {len(completed)}')
+    context.log.info(f'new tasks : {len(new)}')
+    completed,metadata=get_completed_task()
+    context.log.info(f'completed tasks : {len(completed)}. cached from : {metadata}')
     all_tasks=new+completed
     return all_tasks
 
