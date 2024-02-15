@@ -125,7 +125,7 @@ def get_new_tasks() -> list:
     new_tasks=client.state['tasks']
     return new_tasks
 
-@asset
+@asset(compute_kind='Python')
 def get_all_tasks(context: AssetExecutionContext) -> list:
     new=get_new_tasks()
     context.log.info(f'new tasks : {len(new)}')
@@ -135,12 +135,12 @@ def get_all_tasks(context: AssetExecutionContext) -> list:
     context.log.info(f'all tasks : {len(all_tasks)}')
     return all_tasks
 
-@asset
+@asset(compute_kind='Python')
 def get_lists():
     lists = client.state['projects']
     return lists
 
-@asset
+@asset(compute_kind='Python')
 def get_folders():
     folders = client.state['project_folders']
     return folders
@@ -154,7 +154,7 @@ def _dump_to_file(source:list, target:str):
     with open(target,'w') as f:
         json.dump(source,f,indent=4,)
 
-@asset
+@asset(compute_kind='Python')
 def dump_to_file(get_lists,get_folders,get_all_tasks):
     _dump_to_file(get_lists,lists_file_path)
     _dump_to_file(get_folders,folders_file_path)
@@ -162,7 +162,7 @@ def dump_to_file(get_lists,get_folders,get_all_tasks):
     return None
 
 
-@asset(deps=[dump_to_file])
+@asset(deps=[dump_to_file],compute_kind='Python')
 def dump_to_motherduck(context: AssetExecutionContext):
     motherduck_token=os.environ.get('motherduck_token')
 

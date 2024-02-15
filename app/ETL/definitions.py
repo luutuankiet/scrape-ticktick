@@ -7,7 +7,7 @@ from dagster import Definitions
 # from .EL import *
 # from .constants import dbt_project_dir
 
-from .extract_raw import get_all_tasks,dump_to_file,get_lists,get_folders,dump_to_motherduck
+from .EL import get_all_tasks,dump_to_file,get_lists,get_folders,dump_to_motherduck
 
 defs = Definitions(
     assets=[
