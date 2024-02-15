@@ -11,12 +11,11 @@ import os
 from datetime import datetime, timedelta,timezone
 import logging
 from dagster import asset,AssetExecutionContext
-from helper.source_env import dotenv_path,secrets_path
+from helper.source_env import dotenv_path,raw_path
 
 
 cache_path=os.path.join(dotenv_path,'.token-oauth')
 
-load_dotenv(secrets_path)
 client_id=environ.get('client_id')
 client_secret=environ.get('client_secret')
 username=environ.get('username')
@@ -24,12 +23,9 @@ password=environ.get('password')
 redirect_uri=environ.get('redirect_uri')
 
 
-
-current_dir=os.path.dirname(os.path.abspath(__file__))
-raw_file_path = os.path.join(current_dir,'raw')
-tasks_file_path = os.path.join(raw_file_path,'all_tasks.json')
-lists_file_path = os.path.join(raw_file_path,'all_lists.json')
-folders_file_path = os.path.join(raw_file_path,'all_folders.json')
+tasks_file_path = os.path.join(raw_path,'all_tasks.json')
+lists_file_path = os.path.join(raw_path,'all_lists.json')
+folders_file_path = os.path.join(raw_path,'all_folders.json')
 
 
 
@@ -139,6 +135,7 @@ def get_all_tasks(context: AssetExecutionContext) -> list:
     completed,metadata=get_completed_task()
     context.log.info(f'completed tasks : {len(completed)}. cached from : {metadata}')
     all_tasks=new+completed
+    context.log.info(f'all tasks : {len(all_tasks)}')
     return all_tasks
 
 @asset
