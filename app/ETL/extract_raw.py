@@ -1,11 +1,6 @@
-from doctest import debug
-from enum import unique
-from unittest.util import strclass
-from pytz import utc
 from ticktick.oauth2 import OAuth2        # OAuth2 Manager
 from ticktick.api import TickTickClient   # Main Interface
 from os import environ
-from dotenv import load_dotenv
 import json
 import os
 from datetime import datetime, timedelta,timezone
@@ -23,9 +18,9 @@ password=environ.get('password')
 redirect_uri=environ.get('redirect_uri')
 
 
-tasks_file_path = os.path.join(raw_path,'all_tasks.json')
-lists_file_path = os.path.join(raw_path,'all_lists.json')
-folders_file_path = os.path.join(raw_path,'all_folders.json')
+tasks_file_path = os.path.join(raw_path,'tasks.json')
+lists_file_path = os.path.join(raw_path,'lists.json')
+folders_file_path = os.path.join(raw_path,'folders.json')
 
 
 
