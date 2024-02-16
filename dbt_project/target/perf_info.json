@@ -1,0 +1,57 @@
+{
+    "path_count": 193,
+    "parsed_path_count": 20,
+    "static_analysis_path_count": 19,
+    "static_analysis_parsed_path_count": 12,
+    "is_partial_parse_enabled": true,
+    "is_static_analysis_enabled": true,
+    "read_files_elapsed": 0.02207524900586577,
+    "load_macros_elapsed": 0.0005651180035783909,
+    "parse_project_elapsed": 0.4858662499973434,
+    "patch_sources_elapsed": 0.003323460005049128,
+    "process_manifest_elapsed": 0.0020910690000164323,
+    "load_all_elapsed": 0.6097838920031791,
+    "projects": [
+        {
+            "project_name": "todo_analytics",
+            "elapsed": 0.4856828409974696,
+            "parsers": [
+                {
+                    "parser": "model",
+                    "elapsed": 0.34464239299995825,
+                    "parsed_path_count": 19
+                },
+                {
+                    "parser": "test",
+                    "elapsed": 0.1410279320043628,
+                    "parsed_path_count": 1
+                }
+            ],
+            "parsed_path_count": 20
+        },
+        {
+            "project_name": "dbt_duckdb",
+            "elapsed": 0.0,
+            "parsers": [],
+            "parsed_path_count": 0
+        },
+        {
+            "project_name": "dbt",
+            "elapsed": 0.0,
+            "parsers": [],
+            "parsed_path_count": 0
+        },
+        {
+            "project_name": "codegen",
+            "elapsed": 0.0,
+            "parsers": [],
+            "parsed_path_count": 0
+        },
+        {
+            "project_name": "dbt_utils",
+            "elapsed": 0.0,
+            "parsers": [],
+            "parsed_path_count": 0
+        }
+    ]
+}

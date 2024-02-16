@@ -10,19 +10,19 @@ sources:
         description: raw tasks data from tickpy
         meta:
           dagster:
-            asset_key: ["raw_data"]
+            asset_key: ["dump_to_motherduck"]
       - name: lists_raw
         description: raw lists data from tickpy
         meta:
           dagster:
-            asset_key: ["raw_data"]
+            asset_key: ["dump_to_motherduck"]
       - name: folders_raw
         description: raw folders data from tickpy
         meta:
           dagster:
-            asset_key: ["raw_data"]            
+            asset_key: ["dump_to_motherduck"]            
       - name: date_seed
         description: pre-generated dates
         meta:
           dagster:
-            asset_key: ["raw_data"]
+            asset_key: ["dump_to_motherduck"]
