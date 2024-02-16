@@ -5,3 +5,4 @@ history
 logs
 storage
 schedules
+dbt_project/target
