@@ -1,0 +1,39 @@
+WITH source AS (
+    SELECT
+        id,
+        projectId,
+        title,
+        timezone,
+        reminder,
+        reminders,
+        exDate,
+        status,
+        items,
+        progress,
+        modifiedTime,
+        etag,
+        deleted,
+        createdTime,
+        kind,
+        tags,
+        repeatFrom,
+        repeatTaskId,
+        completedTime,
+        repeatFlag,
+        pinnedTime,
+        startDate,
+        dueDate,
+        deletedTime,
+        repeatFirstdate,
+        parentId,
+        remindTime
+    FROM
+        {{ source (
+            'raw_data',
+            'tasks_raw'
+        ) }}
+)
+SELECT
+    *
+FROM
+    source

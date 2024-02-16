@@ -1,0 +1,13 @@
+
+    
+    
+    
+    create table "ticktick_gtd"."main"."list_goal_mapping" ("fld_folder_name" text,"l_list_name" text,"goal_ids" text)
+  ;
+    -- dbt seed --
+    
+          COPY "ticktick_gtd"."main"."list_goal_mapping" FROM '/home/ken/dev-main/scrape-ticktick-1/dbt_project/seeds/list_goal_mapping.csv' (FORMAT CSV, HEADER TRUE, DELIMITER ',')
+        
+
+;
+  

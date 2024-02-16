@@ -19,3 +19,5 @@ dbt-duckdb==1.7.1
 duckdb==0.9.2
 sqlfluff
 sqlfluff-templater-dbt
+sqlfmt==0.0.3
+# if encounter the charset / urllib warn : pip install --upgrade requests urllib3 chardet charset_normalizer

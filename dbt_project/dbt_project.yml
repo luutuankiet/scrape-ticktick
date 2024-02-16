@@ -1,0 +1,22 @@
+name: todo_analytics
+
+profile: todo_analytics
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+
+models:
+  todo_analytics:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table
+
+seeds:
+  todo_analytics:
+    +full_refresh: true
+    list_goal_mapping:
+      +column_types:
+        goal_ids: "text"
+
