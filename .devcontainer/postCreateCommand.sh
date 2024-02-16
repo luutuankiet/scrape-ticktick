@@ -4,7 +4,7 @@
 apt-get update && apt-get install -y python3-venv
 
 # init then source env vars
-. ../env_init.sh
+. ./env_init.sh
 source .env
 
 
@@ -15,7 +15,10 @@ python3 -m venv $VIRTUAL_ENV
 export PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # install reqs
+pip install --upgrade pip
 pip install -r requirements.txt
+pip install --upgrade requests urllib3 chardet charset_normalizer # address a bug url lib version incompatibility
 
 # run dbt 
+dbt deps
 dbt build

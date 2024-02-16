@@ -6,7 +6,7 @@
   ;
     -- dbt seed --
     
-          COPY "ticktick_gtd"."main"."list_goal_mapping" FROM '/home/ken/dev-main/scrape-ticktick-1/dbt_project/seeds/list_goal_mapping.csv' (FORMAT CSV, HEADER TRUE, DELIMITER ',')
+          COPY "ticktick_gtd"."main"."list_goal_mapping" FROM '/workspaces/scrape-ticktick-1/dbt_project/seeds/list_goal_mapping.csv' (FORMAT CSV, HEADER TRUE, DELIMITER ',')
         
 
 ;
