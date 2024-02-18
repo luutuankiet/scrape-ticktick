@@ -1,10 +1,9 @@
 #!/bin/bash
 source .venv/bin/activate
 
-# run dagster on tmux sesh
+. ./env_init.sh
+source .env
 
-
-# run streamlit tmux sesh
 
 
 STREAMLIT="streamlit"
