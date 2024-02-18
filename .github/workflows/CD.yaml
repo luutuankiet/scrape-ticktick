@@ -1,7 +1,7 @@
 name: Update Server
 
 on:
-  workflow_distpatch:
+  workflow_dispatch
   # push:
   #   branches:
   #     - main
@@ -24,6 +24,6 @@ jobs:
       run: |
         # Add your commands here to update the server
         # Example: Replace the following with your deployment commands
-        ssh root@boyluu96.ddns.net "cd /path/to/your/local/repo && git fetch origin main && git reset --hard origin/main"
+        ssh root@boyluu96.ddns.net -p 15109 "cd /main/scrape_ticktick && git fetch origin main && git reset --hard origin/main && make deploy"
       env:
         SERVER_HOST_KEY: ${{ secrets.SERVER_HOST_KEY }}

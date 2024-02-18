@@ -4,8 +4,9 @@ source .venv/bin/activate
 . ./env_init.sh
 source .env
 
+pip install -r requirements.txt
 
-
+# setup sessions for service
 STREAMLIT="streamlit"
 
 # Kill the existing session if it exists
