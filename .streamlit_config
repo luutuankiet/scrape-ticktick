@@ -1,0 +1,2 @@
+export primaryColor="#86acff"
+export STREAMLIT_SERVER_PORT=80
