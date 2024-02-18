@@ -4,7 +4,7 @@
 . ./env_init.sh
 . ./.env
 
-pip install -r -q requirements.txt
+pip install -q -r requirements.txt
 
 # setup sessions for service
 STREAMLIT="streamlit"
