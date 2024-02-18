@@ -19,6 +19,10 @@ jobs:
         mkdir -p ~/.ssh
         echo "$SERVER_HOST_KEY" > ~/.ssh/known_hosts
         chmod 600 ~/.ssh/known_hosts
+        echo "$CLIENT_SECRET_KEY" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        eval "$(ssh-agent -s)"
+        ssh-add ~/.ssh/id_ed25519
 
     - name: Update Server
       run: |
@@ -27,3 +31,4 @@ jobs:
         ssh root@boyluu96.ddns.net -p 15109 "cd /main/scrape_ticktick && git fetch origin main && git reset --hard origin/main && make deploy"
       env:
         SERVER_HOST_KEY: ${{ secrets.SERVER_HOST_KEY }}
+        CLIENT_SECRET_KEY: ${{ secrets.CLIENT_SECRET_KEY }}
