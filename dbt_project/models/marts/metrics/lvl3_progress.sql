@@ -10,8 +10,8 @@ progress as (
 select
     goal_id,
     goal_name as lvl3_goal,
-    avg(done_progress) over (partition by goal_name) as lvl3_done_progress,
-    avg(clarify_progress) over (partition by goal_name) as lvl3_clarify_progress,
+    cast(avg(done_progress) over (partition by goal_name) as decimal(10,2)) as lvl3_done_progress,
+    cast(avg(clarify_progress) over (partition by goal_name) as decimal(10,2)) as lvl3_clarify_progress,
     source.l_list_name,
     progress.done_progress as l_done_progress,
     progress.clarify_progress as l_clarify_progress

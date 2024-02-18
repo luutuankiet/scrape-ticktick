@@ -169,8 +169,8 @@ staging AS (
     SELECT
         fld_folder_name,
         l_list_name,
-        done_progress,
-        clarify_progress
+        done_progress::decimal(10,2) as done_progress,
+        clarify_progress::decimal(10,2) as clarify_progress
 
 
     FROM folder_progress
