@@ -3,15 +3,15 @@ WITH pool AS (
     SELECT
         *,
         CASE
-            WHEN td_tags LIKE '%ClarifyMe%' THEN 'not_clarified'
-            WHEN td_tags NOT LIKE '%ClarifyMe%' THEN 'clarified'
+            WHEN td_tags LIKE '%clarifyme%' THEN 'not_clarified'
+            WHEN td_tags NOT LIKE '%clarifyme%' THEN 'clarified'
         END AS progress_type
     FROM
         {{ ref('obt') }}
     WHERE
         --ss_desc ='undone'
-        td_tags NOT LIKE '%SOMEDAY%'
-        AND td_tags NOT LIKE '%WAITING_FOR%'
+        td_tags NOT LIKE '%someday%'
+        AND td_tags NOT LIKE '%waiting_for%'
         AND td_tags NOT LIKE '%tickler%'
         AND td_kind = 'TEXT'
         AND l_is_active = TRUE

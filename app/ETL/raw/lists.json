@@ -6530,5 +6530,42 @@
         "openToTeam": false,
         "teamMemberPermission": null,
         "source": 1
+    },
+    {
+        "id": "65d0685e9626d1e32fc78b56",
+        "name": "dai hoc sis mission control",
+        "isOwner": true,
+        "color": null,
+        "inAll": true,
+        "sortOrder": 2413980260953120852,
+        "sortOption": {
+            "groupBy": "tag",
+            "orderBy": "sortOrder"
+        },
+        "sortType": "tag",
+        "userCount": 1,
+        "etag": "fzkbvluk",
+        "modifiedTime": "2024-02-17T08:07:32.497+0000",
+        "closed": null,
+        "muted": false,
+        "transferred": null,
+        "groupId": "17fb4e87b1d72177f31edb30",
+        "viewMode": null,
+        "notificationOptions": null,
+        "teamId": null,
+        "permission": null,
+        "kind": "TASK",
+        "timeline": {
+            "range": null,
+            "sortType": "sortOrder",
+            "sortOption": {
+                "groupBy": "sortOrder",
+                "orderBy": "sortOrder"
+            }
+        },
+        "needAudit": true,
+        "openToTeam": false,
+        "teamMemberPermission": null,
+        "source": 1
     }
 ]

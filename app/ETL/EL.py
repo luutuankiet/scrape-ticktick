@@ -9,7 +9,9 @@ from dagster import asset,AssetExecutionContext
 import duckdb
 import pandas as pd
 from helper.source_env import dotenv_path,raw_path
+# import requests
 
+# requests_session = requests.session()
 
 cache_path=os.path.join(dotenv_path,'.token-oauth')
 
@@ -34,7 +36,11 @@ auth_client = OAuth2(client_id=client_id,
                      cache_path=cache_path
                      )
 
-client = TickTickClient(username, password, auth_client)
+
+
+client = TickTickClient(
+    username, password, 
+                        auth_client)
 
 
 
