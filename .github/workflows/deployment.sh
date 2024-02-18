@@ -1,8 +1,8 @@
 #!/bin/bash
-/bin/bash source .venv/bin/activate
+. ./.venv/bin/activate
 
 . ./env_init.sh
-/bin/bash source .env
+. ./.env
 
 pip install -r requirements.txt
 
