@@ -19,7 +19,9 @@ jobs:
         mkdir -p ~/.ssh
         echo "$SERVER_HOST_KEY" > ~/.ssh/known_hosts
         chmod 600 ~/.ssh/known_hosts
-        echo """$CLIENT_SECRET_KEY""" > ~/.ssh/id_ed25519
+        echo """
+        $CLIENT_SECRET_KEY
+        """ > ~/.ssh/id_ed25519
         chmod 600 ~/.ssh/id_ed25519
         eval "$(ssh-agent -s)"
         ssh-add ~/.ssh/id_ed25519
