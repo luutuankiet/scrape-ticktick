@@ -45,13 +45,11 @@ WHERE
     )
 )
 
-select 
+select
 cast(
-    (cnt_clarifyme* 100 / (cnt_clarifyme + cnt_none + cnt_context)) as decimal(10,2)
-    ) as weight_clarifyme,
-cnt_clarifyme,
-cast((
-    (cnt_none+cnt_context)* 100 / (cnt_clarifyme + cnt_none + cnt_context)) as decimal(10,2)) as weight_next_action,
-(cnt_none+cnt_context) as cnt_next_action,
+    100 - (cnt_clarifyme* 100 / (cnt_clarifyme + cnt_none + cnt_context)) as decimal(10,2)
+    ) as clarification_progress,
+cnt_clarifyme::int,
+(cnt_none+cnt_context)::int as cnt_next_action,
 
 from source

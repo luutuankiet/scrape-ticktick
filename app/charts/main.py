@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import duckdb
 import os
-from helper.source_env import dbt_models_path
+from helper.source_env import dbt_project_dir
 
 motherduck_token = os.environ.get("motherduck_token")
 con = duckdb.connect(f'md:ticktick_gtd?motherduck_token={motherduck_token}')
@@ -54,34 +54,29 @@ st.write("# at a glance")
 st.write("## count of clarified and next action")
 
 
-analytics_path = os.path.join(dbt_models_path,'analytics')
+analytics_path = os.path.join(dbt_project_dir,'analyses')
 tags_count_path = os.path.join(analytics_path,'active_tags_count.sql')
 
 
-with open(tags_count_path,'r') as f:
-    query = f.read()
-    tags_count = cur.sql(query).df()
-    
-    st.dataframe(
-        tags_count,
-        column_config={
-            "weight_clarifyme": st.column_config.ProgressColumn(
-            "weight_clarifyme",
-            format="%f",
-            min_value=0,
-            max_value=100
-        ),
-        "weight_next_action": st.column_config.ProgressColumn(
-            "weight_next_action",
-            format="%f",
-            min_value=0,
-            max_value=100
-        )
-        },
+query = lambda: open(tags_count_path, 'r').read()    
+tags_count = cur.sql(query()).df()
+colored_tags_count = tags_count.style.map(highlight_text,subset=['clarification_progress'])
+tags_count_final = colored_tags_count
 
-        hide_index=True,
-        use_container_width=True
-        )
+st.dataframe(
+    tags_count_final,
+    column_config={
+        "clarification_progress": st.column_config.ProgressColumn(
+        "clarification_progress",
+        format="%f",
+        min_value=0,
+        max_value=100
+    ),
+    },
+
+    hide_index=True,
+    use_container_width=True
+    )
 
 
 
