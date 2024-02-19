@@ -46,10 +46,10 @@ WHERE
 )
 
 select
+
+cnt_clarifyme::int as cnt_clarifyme,
+(cnt_none+cnt_context)::int as cnt_next_action,
 cast(
     100 - (cnt_clarifyme* 100 / (cnt_clarifyme + cnt_none + cnt_context)) as decimal(10,2)
-    ) as clarification_progress,
-cnt_clarifyme::int,
-(cnt_none+cnt_context)::int as cnt_next_action,
-
+    ) as clarification_progress
 from source
