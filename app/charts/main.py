@@ -58,8 +58,8 @@ analytics_path = os.path.join(dbt_project_dir,'analyses')
 tags_count_path = os.path.join(analytics_path,'active_tags_count.sql')
 
 
-query = lambda: open(tags_count_path, 'r').read()    
-tags_count = cur.sql(query()).df()
+tags_query = lambda: open(tags_count_path, 'r').read()    
+tags_count = cur.sql(tags_query()).df()
 colored_tags_count = tags_count.style.map(highlight_text,subset=['clarification_progress'])
 tags_count_final = colored_tags_count
 
@@ -77,6 +77,30 @@ st.dataframe(
     hide_index=True,
     use_container_width=True
     )
+
+
+
+loops_count_path = os.path.join(analytics_path,'open_loops_count.sql')
+loops_query = lambda: open(loops_count_path, 'r').read()    
+loops_count = cur.sql(loops_query()).df()
+loops = loops_count['content'].loc[0]
+lines = loops.split('\n')
+counter = 0
+compare_clarify = int(tags_count['cnt_clarifyme'].loc[0])
+for line in lines:
+    if line != '':
+        counter+=1 
+st.write("## open loops count (rough estimation)")
+col1,col2,col3 = st.columns(3)
+with col2:
+
+    st.metric(
+        "open loops vs to clarify",
+        value = f"{counter} loops to capture",
+        delta = f"{compare_clarify} vs captured loops to clarify",
+        delta_color="inverse",
+        # help="compared to number of items to clarify"
+        )
 
 
 

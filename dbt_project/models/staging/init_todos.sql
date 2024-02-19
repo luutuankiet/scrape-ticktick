@@ -3,6 +3,7 @@ WITH source AS (
         id,
         projectId,
         title,
+        content,
         timezone,
         reminder,
         reminders,

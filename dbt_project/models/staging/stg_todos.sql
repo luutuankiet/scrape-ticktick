@@ -34,10 +34,6 @@ renamed AS (
             'Default'
         ) :: text AS list_name,
         status :: INT AS status_id,
-        -- sl.list_id::int as list_id,
-        -- fld.folder_id::int as folder_id,
-        -- ss.status_id::int as status_id,
-        -- dd.date_id::text as date_id,
         title :: text AS title,
         timeZone :: text AS timezone,
         reminder,
