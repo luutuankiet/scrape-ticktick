@@ -1,17 +1,57 @@
-select 
-* from 
-(select 
-fld_folder_name
-,l_list_name
-,sum(case when td_tags like '%clarifyme%' then 1 else 0 end) as cnt_clarifyme
-,sum(case when td_tags = '[]' then 1 else 0 end) as cnt_none
-,sum(case when td_tags like '%@%' then 1 else 0 end) as cnt_context
-,sum(case when td_tags like '%someday%' then 1 else 0 end) as cnt_someday
-,sum(case when td_tags like '%waiting_for%' then 1 else 0 end) as cnt_waiting_for
+with source as (
+SELECT
+    SUM(
+        CASE
+            WHEN td_tags LIKE '%clarifyme%' THEN 1
+            ELSE 0
+        END
+    ) AS cnt_clarifyme,
+    SUM(
+        CASE
+            WHEN td_tags = '[]' THEN 1
+            ELSE 0
+        END
+    ) AS cnt_none,
+    SUM(
+        CASE
+            WHEN td_tags LIKE '%@%' THEN 1
+            ELSE 0
+        END
+    ) AS cnt_context,
+    SUM(
+        CASE
+            WHEN td_tags LIKE '%someday%' THEN 1
+            ELSE 0
+        END
+    ) AS cnt_someday,
+    SUM(
+        CASE
+            WHEN td_tags LIKE '%waiting_for%' THEN 1
+            ELSE 0
+        END
+    ) AS cnt_waiting_for
+FROM
+    obt
+WHERE
+    td_kind = 'TEXT'
+    AND ss_desc = 'undone'
+    AND (
+        fld_folder_name NOT IN (
+            '🚀SOMEDAY lists',
+            '🛩Horizon of focus',
+            '💤on hold lists'
+        )
+        OR fld_folder_name IS NULL
+    )
+)
 
-from obt
-where td_kind = 'TEXT' and ss_desc = 'undone'
-group by fld_folder_name
-,l_list_name
-) a where cnt_clarifyme + cnt_none + cnt_context + cnt_someday + cnt_waiting_for <> 0
-order by 1,2
+select 
+cast(
+    (cnt_clarifyme* 100 / (cnt_clarifyme + cnt_none + cnt_context)) as decimal(10,2)
+    ) as weight_clarifyme,
+cnt_clarifyme,
+cast((
+    (cnt_none+cnt_context)* 100 / (cnt_clarifyme + cnt_none + cnt_context)) as decimal(10,2)) as weight_next_action,
+(cnt_none+cnt_context) as cnt_next_action,
+
+from source
