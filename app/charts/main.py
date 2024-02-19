@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import duckdb
 import os
+from helper.source_env import dbt_models_path
 
 motherduck_token = os.environ.get("motherduck_token")
 con = duckdb.connect(f'md:ticktick_gtd?motherduck_token={motherduck_token}')
@@ -40,20 +41,49 @@ def highlight_row(row):
         return [''] * len(row)
 
 st.set_page_config(page_title="MY GTD DASHBOARD", layout="wide", initial_sidebar_state="collapsed", menu_items=None)
-# [theme]
-# base="light"
-# primaryColor="#86acff"
 
-
-
-# df=lvl1_lvl2_progress
-# df=df.style.map(highlight_low_val,subset=['done_progress','clarify_progress'])
 obt=cur.sql("select * from obt").df() 
 
 
 with st.sidebar:
     folders = obt['fld_folder_name'].drop_duplicates().to_list()
     filter_folder = st.multiselect('folders',folders,default=folders)
+
+
+st.write("# at a glance")
+st.write("## count of clarified and next action")
+
+
+analytics_path = os.path.join(dbt_models_path,'analytics')
+tags_count_path = os.path.join(analytics_path,'active_tags_count.sql')
+
+
+with open(tags_count_path,'r') as f:
+    query = f.read()
+    tags_count = cur.sql(query).df()
+    
+    st.dataframe(
+        tags_count,
+        column_config={
+            "weight_clarifyme": st.column_config.ProgressColumn(
+            "weight_clarifyme",
+            format="%f",
+            min_value=0,
+            max_value=100
+        ),
+        "weight_next_action": st.column_config.ProgressColumn(
+            "weight_next_action",
+            format="%f",
+            min_value=0,
+            max_value=100
+        )
+        },
+
+        hide_index=True,
+        use_container_width=True
+        )
+
+
 
 
 st.write("# lvl1-lvl2 analytics")
