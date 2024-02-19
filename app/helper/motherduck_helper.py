@@ -13,3 +13,4 @@ con = duckdb.connect(f'md:?motherduck_token={motherduck_token}')
 
 
 
+# TODO : kill this script.

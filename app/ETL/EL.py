@@ -9,9 +9,11 @@ from dagster import asset,AssetExecutionContext
 import duckdb
 import pandas as pd
 from helper.source_env import dotenv_path,raw_path
-# import requests
 
-# requests_session = requests.session()
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 cache_path=os.path.join(dotenv_path,'.token-oauth')
 
@@ -21,37 +23,54 @@ username=environ.get('username')
 password=environ.get('password')
 redirect_uri=environ.get('redirect_uri')
 
-
 tasks_file_path = os.path.join(raw_path,'tasks.json')
 lists_file_path = os.path.join(raw_path,'lists.json')
 folders_file_path = os.path.join(raw_path,'folders.json')
-
-
-
-# import pdb; pdb.set_trace()
-
-auth_client = OAuth2(client_id=client_id,
-                     client_secret=client_secret,
-                     redirect_uri=redirect_uri,
-                     cache_path=cache_path
-                     )
-
-
-
-client = TickTickClient(
-    username, password, 
-                        auth_client)
-
-
 
 default_start = datetime(2022, 7, 23,tzinfo=timezone.utc)
 date_format = '%Y-%m-%dT%H:%M:%S.%f%z'
 
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+class TickTickClientWrapper:
+    """
+    wrapper so that the ticktick client class wont be triggered by arbitrary server events like dagster webserver checks.
+    goal : create a single client instance that all funcs subscribes to.
+    """
+    _instance = None
+
+
+    # this __new__ func is called whenever this wrapper class is called. 
+    def __new__(cls,client_id,client_secret,username,password,redirect_uri,cache_path):
+        if not cls._instance:
+            cls._instance = super(TickTickClientWrapper, cls).__new__(cls)
+            cls._instance.client_id = client_id
+            cls._instance.client_secret = client_secret
+            cls._instance.username = username
+            cls._instance.password = password
+            cls._instance.redirect_uri = redirect_uri
+            cls._instance.cache_path = cache_path
+            cls._instance.client = None
+        return cls._instance 
+    # this makes sure only a single instance of the class is used across the module whichever func calls this class.
+    # the _instance attribute now holds all the suceeding function's output.
+
+
+    def _initialize_client(self):
+        auth_client = OAuth2(client_id=self.client_id,
+                    client_secret=self.client_secret,
+                    redirect_uri=self.redirect_uri,
+                    cache_path=self.cache_path
+                    )
+        self.client = TickTickClient(self.username, self.password, auth_client)
+    
+    def get_client(self):
+        if self.client is None:
+            self._initialize_client()
+        return self.client
+
+# one time call the client instance.
+wrapper = TickTickClientWrapper(client_id,client_secret,username,password,redirect_uri,cache_path)
+
 
 def deduplicate(source) -> list:
     """
@@ -82,6 +101,8 @@ def _get_completed_tasks(start=None, end=datetime.now(timezone.utc), full_load=T
     
     completed_tasks=[] 
     logging.info('start loading tasks')
+    client=wrapper.get_client()
+
     if full_load:
         current_date=default_start
     elif not full_load: 
@@ -128,6 +149,7 @@ def get_completed_task() -> list:
     
 
 def get_new_tasks() -> list:
+    client = wrapper.get_client()
     new_tasks=client.state['tasks']
     return new_tasks
 
@@ -143,11 +165,13 @@ def get_all_tasks(context: AssetExecutionContext) -> list:
 
 @asset(compute_kind='Python')
 def get_lists():
+    client = wrapper.get_client()
     lists = client.state['projects']
     return lists
 
 @asset(compute_kind='Python')
 def get_folders():
+    client = wrapper.get_client()
     folders = client.state['project_folders']
     return folders
 
