@@ -86,18 +86,21 @@ loops_count = cur.sql(loops_query()).df()
 loops = loops_count['content'].loc[0]
 lines = loops.split('\n')
 counter = 0
-compare_clarify = int(tags_count['cnt_clarifyme'].loc[0])
 for line in lines:
     if line != '':
         counter+=1 
+
+compare_clarify = int(tags_count['cnt_clarifyme'].loc[0])
+counter_delta = counter - compare_clarify        
 st.write("## open loops count (rough estimation)")
+st.write()
 col1,col2,col3 = st.columns(3)
 with col2:
 
     st.metric(
         "open loops vs to clarify",
         value = f"{counter} loops to capture",
-        delta = f"{compare_clarify} vs captured loops to clarify",
+        delta = f"{counter_delta} vs captured loops to clarify",
         delta_color="inverse",
         # help="compared to number of items to clarify"
         )
