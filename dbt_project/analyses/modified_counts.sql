@@ -31,6 +31,7 @@ from source group by day,month,year
 
 select *
 ,(year||'-'||month||'-'||day)::date as key
+,(year||'-'||month||'-'||day) as day_of_year
  from task_level
  
 
