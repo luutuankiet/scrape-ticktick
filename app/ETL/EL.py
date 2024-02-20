@@ -154,26 +154,27 @@ def get_new_tasks() -> list:
     return new_tasks
 
 @asset(compute_kind='Python')
-def get_all_tasks(context: AssetExecutionContext) -> list:
+def extract_json(context: AssetExecutionContext):
+    # task
     new=get_new_tasks()
     context.log.info(f'new tasks : {len(new)}')
     completed,metadata=get_completed_task()
     context.log.info(f'completed tasks : {len(completed)}. cached from : {metadata}')
     all_tasks=new+completed
     context.log.info(f'all tasks : {len(all_tasks)}')
-    return all_tasks
+    
 
-@asset(compute_kind='Python')
-def get_lists():
     client = wrapper.get_client()
+
+    # list
     lists = client.state['projects']
-    return lists
 
-@asset(compute_kind='Python')
-def get_folders():
-    client = wrapper.get_client()
+    # folders
     folders = client.state['project_folders']
-    return folders
+
+    
+    return all_tasks,folders,lists
+
 
 
 def _dump_to_file(source:list, target:str):
@@ -185,10 +186,11 @@ def _dump_to_file(source:list, target:str):
         json.dump(source,f,indent=4,)
 
 @asset(compute_kind='Python')
-def dump_to_file(get_lists,get_folders,get_all_tasks):
-    _dump_to_file(get_lists,lists_file_path)
-    _dump_to_file(get_folders,folders_file_path)
-    _dump_to_file(get_all_tasks,tasks_file_path)
+def dump_to_file(extract_json):
+    all_tasks,folders,lists = extract_json
+    _dump_to_file(lists,lists_file_path)
+    _dump_to_file(folders,folders_file_path)
+    _dump_to_file(all_tasks,tasks_file_path)
     return None
 
 
