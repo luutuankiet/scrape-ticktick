@@ -195,7 +195,7 @@ def dump_to_file(extract_json):
 
 if __name__ == '__main__':
     while True:
-        sleep_time = 60*30
+        sleep_time = 60
         logging.info('start loading...')
         # extract_json()
         dump_to_file(extract_json())
