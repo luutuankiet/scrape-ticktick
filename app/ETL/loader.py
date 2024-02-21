@@ -32,47 +32,6 @@ default_start = datetime(2022, 7, 23,tzinfo=timezone.utc)
 date_format = '%Y-%m-%dT%H:%M:%S.%f%z'
 
 
-# class TickTickClientWrapper:
-#     """
-#     wrapper so that the ticktick client class wont be triggered by arbitrary server events like dagster webserver checks.
-#     goal : create a single client instance that all funcs subscribes to.
-#     """
-#     _instance = None
-
-
-#     # this __new__ func is called whenever this wrapper class is called. 
-#     def __new__(cls,client_id,client_secret,username,password,redirect_uri,cache_path):
-#         if not cls._instance:
-#             cls._instance = super(TickTickClientWrapper, cls).__new__(cls)
-#             cls._instance.client_id = client_id
-#             cls._instance.client_secret = client_secret
-#             cls._instance.username = username
-#             cls._instance.password = password
-#             cls._instance.redirect_uri = redirect_uri
-#             cls._instance.cache_path = cache_path
-#             cls._instance.client = None
-#         return cls._instance 
-#     # this makes sure only a single instance of the class is used across the module whichever func calls this class.
-#     # the _instance attribute now holds all the suceeding function's output.
-
-
-#     def _initialize_client(self):
-#         auth_client = OAuth2(client_id=self.client_id,
-#                     client_secret=self.client_secret,
-#                     redirect_uri=self.redirect_uri,
-#                     cache_path=self.cache_path
-#                     )
-#         self.client = TickTickClient(self.username, self.password, auth_client)
-    
-#     def get_client(self):
-#         if self.client is None:
-#             self._initialize_client()
-#         return self.client
-
-# # one time call the client instance.
-# wrapper = TickTickClientWrapper(client_id,client_secret,username,password,redirect_uri,cache_path)
-
-
 auth_client = OAuth2(client_id=client_id,
                     client_secret=client_secret,
                     redirect_uri=redirect_uri,
@@ -110,7 +69,6 @@ def _get_completed_tasks(start=None, end=datetime.now(timezone.utc), full_load=T
     
     completed_tasks=[] 
     logging.info('start loading tasks')
-    # client=wrapper.get_client()
 
     if full_load:
         current_date=default_start
@@ -124,7 +82,6 @@ def _get_completed_tasks(start=None, end=datetime.now(timezone.utc), full_load=T
             logging.info(f'loaded {len(tasks)} new tasks from {current_date}. next interation...')
             
         current_date += timedelta(days=1)
-    # completed_tasks=json.dumps(completed_tasks)
     return completed_tasks
 
 def get_completed_task() -> list:
@@ -150,6 +107,9 @@ def get_completed_task() -> list:
     
     # checks existing and append to cached list 
     net_new=_get_completed_tasks(start=last_cached_date,full_load=full_load)
+    today = datetime.today()
+    new_today = client.task.get_completed(today)
+    net_new += new_today # manual fix missing today data while loops loads
 
     # concatenate final completed list
     all_completed_tasks=net_new+cached_completed
@@ -158,7 +118,6 @@ def get_completed_task() -> list:
     
 
 def get_new_tasks() -> list:
-    # client = wrapper.get_client()
     new_tasks=client.state['tasks']
     return new_tasks
 
@@ -173,7 +132,6 @@ def extract_json():
     logging.info(f'all tasks : {len(all_tasks)}')
     
 
-    # client = wrapper.get_client()
 
     # list
     lists = client.state['projects']
@@ -203,9 +161,8 @@ def dump_to_file(extract_json):
 
 if __name__ == '__main__':
     while True:
-        sleep_time = 20
+        sleep_time = 60
         logging.info('start loading...')
-        # extract_json()
         dump_to_file(extract_json())
         logging.info(f'done loading. next iteration in {sleep_time} seconds...')
         client.task._client.sync()
