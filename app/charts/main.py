@@ -4,6 +4,7 @@ import os
 import pandas as pd
 from helper.source_env import dbt_project_dir
 import datetime
+import re
 
 motherduck_token = os.environ.get("motherduck_token")
 con = duckdb.connect(f'md:ticktick_gtd?motherduck_token={motherduck_token}')
@@ -101,7 +102,7 @@ loops = loops_count['content'].loc[0]
 lines = loops.split('\n')
 counter = 0
 for line in lines:
-    if line != '':
+    if re.search('[a-z0-9]',line.lower()):
         counter+=1 
 
 compare_clarify = int(tags_count['cnt_clarifyme'].loc[0])
