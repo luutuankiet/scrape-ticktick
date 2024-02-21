@@ -9,7 +9,7 @@ all_assets = load_assets_from_modules([EL,dbt_assets])
 ETL_job = define_asset_job("ETL_job",selection=all_assets)
 ETL_schedule = ScheduleDefinition(
     job=ETL_job,
-    cron_schedule="*/15 11-23,0-2 * * *",execution_timezone="Asia/Bangkok"
+    cron_schedule="*/5 11-23,0-2 * * *",execution_timezone="Asia/Bangkok"
 )
 
 defs = Definitions(
