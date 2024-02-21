@@ -38,3 +38,11 @@ else
     tmux new-session -s $DAGSTER -d
 fi
 
+LOADER="loader"
+
+# Check if the session exists
+if ! tmux has-session -t $LOADER 2>/dev/null; then
+    # Session doesn't exist, create a new one
+    tmux new-session -s $LOADER -d
+fi
+

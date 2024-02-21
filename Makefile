@@ -12,5 +12,9 @@ sleeper:
 
 deploy: init_deploy sleeper dagster streamlit
 
+loader:
+	tmux send-keys -t loader.0 "source .venv/bin/activate && source .env && cd app/ETL && python loader.py" ENTER
+
+
 cancel_deploy:
 	tmux kill-session -t streamlit & tmux kill-session -t dagster

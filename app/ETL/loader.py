@@ -8,9 +8,6 @@ import json
 import os
 from datetime import datetime, timedelta,timezone
 import logging
-from dagster import asset,AssetExecutionContext
-import duckdb
-import pandas as pd
 from helper.source_env import dotenv_path,raw_path
 import time
 
@@ -203,6 +200,5 @@ if __name__ == '__main__':
         # extract_json()
         dump_to_file(extract_json())
         logging.info(f'done loading. next iteration in {sleep_time} seconds...')
-        time.sleep(sleep_time) # test
-        # time.sleep(60*30)
+        time.sleep(sleep_time)
         
