@@ -116,7 +116,7 @@ def _get_completed_tasks(start=None, end=datetime.now(timezone.utc), full_load=T
         current_date=default_start
     elif not full_load: 
         current_date=start
-    while current_date <= end:
+    while current_date <= end+timedelta(days=1):
         tasks=client.task.get_completed(current_date)
         if tasks != []:
             for task in tasks:
