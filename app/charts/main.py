@@ -62,9 +62,12 @@ tab1,tab2,tab3 = st.tabs(['🧑🏽‍💻 daily ops',
 with tab2:
 
 
-    @st.cache_data
+    @st.cache_data(ttl=datetime.timedelta(hours=1))
     def get_table(query):
         return cur.sql(query).df()
+    def get_table_nocache(query):
+        return cur.sql(query).df()
+
 
     obt=get_table("select * from obt")
 
@@ -84,7 +87,7 @@ with tab2:
         tags_query=f.read()
 
         
-    tags_count = get_table(tags_query)
+    tags_count = get_table_nocache(tags_query)
     colored_tags_count = tags_count.style.map(highlight_text,subset=['clarification_progress'])
     tags_count_final = colored_tags_count
 
@@ -152,7 +155,7 @@ with tab1:
         loops_query=f.read()
 
 
-    loops_count = get_table(loops_query)
+    loops_count = get_table_nocache(loops_query)
     loops = loops_count['content'].iloc[0]
     lines = loops.split('\n')
     counter = 0
@@ -169,7 +172,7 @@ with tab1:
     delta_clarifyme = clarifyme_avg - clarifyme_count
     
     
-    today_table = get_table("""
+    today_table = get_table_nocache("""
                                 select 
                                 due_date_id,count(*) as cnt  from 
                             
@@ -199,12 +202,14 @@ with tab1:
     with col1:
           st.metric(
             label="overdue tasks",
-            value=overdue_count
+            value=overdue_count,
+            delta = "reschedule them!!!" if overdue_count > 0 else None,
+            delta_color="inverse"
         )
     with col2:
           st.metric(
             label="tasks lined up",
-            value=overdue_count,
+            value=today_count,
             delta = f"{delta_today} than usual {today_avg} tasks",
             delta_color="inverse",
         )

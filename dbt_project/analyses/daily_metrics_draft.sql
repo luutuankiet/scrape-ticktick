@@ -29,4 +29,3 @@ WHERE
 {# GROUP BY
     due_date_id #}
     order by 1,2,3
-    
