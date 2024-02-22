@@ -21,4 +21,5 @@ sqlfluff-templater-dbt
 sqlfmt==0.0.3
 requests==2.26.0
 streamlit==1.27.0
+altair
 # if encounter the charset / urllib warn : pip install --upgrade requests urllib3 chardet charset_normalizer

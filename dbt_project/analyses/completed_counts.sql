@@ -10,7 +10,7 @@ count(*) as cnt
 from 
 (
 select 
-td_modified_time::timestamp as active,
+td_completed_time::timestamp as active,
 *
 from obt) a
 group by 
@@ -22,7 +22,7 @@ datepart('year',active)
 ),
 
 task_level as (
-select count(*) as tasks_active, day,month,year
+select count(*) as tasks_completed, day,month,year
 
 from source group by day,month,year
 

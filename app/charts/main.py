@@ -5,6 +5,7 @@ import pandas as pd
 from helper.source_env import dbt_project_dir
 import datetime
 import re
+import altair as alt
 
 motherduck_token = os.environ.get("motherduck_token")
 con = duckdb.connect(f'md:ticktick_gtd?motherduck_token={motherduck_token}')
@@ -198,7 +199,7 @@ with tab1:
                                 group by due_date_id
 
                             """
-    today_table = get_table_nocache(today_table_query).reset_index()
+    today_table = get_table_nocache(today_table_query).reset_index(drop=True)
     overdue_count = today_table[today_table['due_date_id'] < pd.to_datetime(datetime.datetime.now().date())]
     overdue_count = overdue_count['cnt'].iloc[0] if overdue_count.shape[0] > 0 else 0
 
@@ -220,9 +221,9 @@ with tab1:
           with st.expander("query"):
               debug_overdue_count=get_table_nocache("""
                             select 
-                            due_date_id,
-                                             td_created_time,
-                                                    td_modified_time,
+                            due_date_id::date as due_date_id,
+                                             td_created_time::timestamp as td_created_time,
+                                                    td_modified_time::timestamp as td_modified_time,
                                              fld_folder_name,
                                              l_list_name,
                                              td_title
@@ -233,23 +234,24 @@ with tab1:
                             and fld_folder_name not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists')
                             and l_list_name not like '%tickler note%' 
                             and due_date_id is not null
-                                """).reset_index()
+                                """).reset_index(drop=True)
               debug_overdue_count = debug_overdue_count[debug_overdue_count['due_date_id'] < pd.to_datetime(datetime.datetime.now().date())] if debug_overdue_count.shape[0] > 0 else None
+              debug_overdue_count.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True,inplace=True)
               st.dataframe(debug_overdue_count,hide_index=True)
               st.code(today_table_query)    
     with col2:
           st.metric(
             label="tasks lined up",
             value=today_count,
-            delta = f"{delta_today} than usual {today_avg} tasks",
-            delta_color="inverse",
+            delta = f"{delta_today} than usual {today_avg} tasks" if today_count > 0 else "all's well.",
+            delta_color="inverse" if today_count > 0 else "off",
         )
           with st.expander("query"):
               debug_today_count=get_table_nocache("""
                             select 
-                            due_date_id,
-                                               td_created_time,
-                                                    td_modified_time,
+                             due_date_id::date as due_date_id,
+                                             td_created_time::timestamp as td_created_time,
+                                                    td_modified_time::timestamp as td_modified_time,
                                              fld_folder_name,
                                              l_list_name,
                                              td_title
@@ -260,8 +262,9 @@ with tab1:
                             and fld_folder_name not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists')
                             and l_list_name not like '%tickler note%' 
                             and due_date_id is not null
-                                """).reset_index()
+                                """).reset_index(drop=True)
               debug_today_count = debug_today_count[debug_today_count['due_date_id'] == pd.to_datetime(datetime.datetime.now().date())]
+              debug_today_count.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True,inplace=True)
               st.dataframe(debug_today_count,hide_index=True)
               st.code(today_table_query)    
             #   st.code(today_table)
@@ -270,16 +273,16 @@ with tab1:
         st.metric(
             "open loops",
             value = counter,
-            delta = f"{counter_delta} than clarify",
-            delta_color="inverse",
+            delta = f"{counter_delta} than clarify" if counter > 0 else "all's well.",
+            delta_color="inverse" if counter > 0 else "off",
             # help="compared to number of items to clarify"
             )
     with col4:
           st.metric(
             label="Clarifyme count",
             value=clarifyme_count,
-            delta=f'{delta_clarifyme} than weekly average {clarifyme_avg}',
-            delta_color="inverse",
+            delta=f'{delta_clarifyme} than weekly average {clarifyme_avg}' if clarifyme_count > 0 else "all's well.",
+            delta_color="inverse" if clarifyme_count > 0 else "off",
         )
 
     st.write('# active plots')
@@ -303,14 +306,14 @@ with tab1:
 
     active_count = get_table(active_query)
     filtered_active_count = active_count[(active_count['key'] >= pd.to_datetime(start)) & (active_count['key'] <= pd.to_datetime(end))]
+    filtered_active_count.sort_values(by=['key'],ascending=True,inplace=True)
     st.write('## 1. number of tasks you modified aka *actively working on*')
-    st.bar_chart(
-        filtered_active_count,
-        x='day_of_year',y='tasks_active'
-    )
+    alt_active_count = alt.Chart(filtered_active_count).mark_bar().encode(
+                        x=alt.X('day_of_year', sort=None, title="Day of week"),
+                        y=alt.Y('tasks_active', title="Count"),
+                    )
 
-
-
+    st.altair_chart(alt_active_count, use_container_width=True)
 
 
 with tab3:
