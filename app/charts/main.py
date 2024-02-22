@@ -178,8 +178,7 @@ with tab1:
     clarifyme_avg = 80 # TODO : count average clarifyme across dataset.
     delta_clarifyme = clarifyme_avg - clarifyme_count
     
-    
-    today_table = get_table_nocache("""
+    today_table_query = """
                                 select 
                                 due_date_id,count(*) as cnt  from 
                             
@@ -194,7 +193,8 @@ with tab1:
                                 where due_date_id is not null
                                 group by due_date_id
 
-                            """)
+                            """
+    today_table = get_table_nocache(today_table_query)
     overdue_count = today_table[today_table['due_date_id'] < pd.to_datetime(datetime.datetime.now().date())]
     overdue_count = overdue_count['cnt'].iloc[0]
 
@@ -213,6 +213,26 @@ with tab1:
             delta = "reschedule them!!!" if overdue_count > 0 else None,
             delta_color="inverse"
         )
+          with st.expander("query"):
+              debug_today__count=get_table_nocache("""
+                            select 
+                            due_date_id,
+                                             completed_date_id,
+                                             fld_folder_name,
+                                             l_list_name,
+                                             td_title
+                                             ,* from obt where 
+                            completed_date_id is null
+                            and l_is_active = '1'
+                            and td_kind = 'TEXT'
+                            and fld_folder_name not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists')
+                            and l_list_name not like '%tickler note%' 
+                            and due_date_id is not null
+                                """)
+              debug_today__count = debug_today__count[debug_today__count['due_date_id'] <= pd.to_datetime(datetime.datetime.now().date())]
+              st.dataframe(debug_today__count)
+              st.code(today_table_query)    
+              st.code(today_table)
     with col2:
           st.metric(
             label="tasks lined up",
