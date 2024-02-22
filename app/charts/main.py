@@ -95,7 +95,10 @@ with tab2:
 
         
     tags_count = get_table_nocache(tags_query)
-    colored_tags_count = tags_count.style.map(highlight_text,subset=['clarification_progress'])
+    try:
+        colored_tags_count = tags_count.style.map(highlight_text,subset=['clarification_progress'])
+    except Exception as e:
+        colored_tags_count = pd.DataFrame()
     tags_count_final = colored_tags_count
 
     st.dataframe(
@@ -170,13 +173,14 @@ with tab1:
         if re.search('[a-z0-9]',line.lower()):
             counter+=1 
 
-    compare_clarify = int(tags_count['cnt_clarifyme'].iloc[0])
+    compare_clarify = int(tags_count['cnt_clarifyme'].iloc[0]) if tags_count.shape[0] > 0 else 0
+        
     counter_delta = counter - compare_clarify        
 
+    clarifyme_count = tags_count['cnt_clarifyme'].iloc[0] if tags_count.shape[0] > 0 else 0
 
-    clarifyme_count = tags_count['cnt_clarifyme'].iloc[0]
     clarifyme_avg = 80 # TODO : count average clarifyme across dataset.
-    delta_clarifyme = clarifyme_avg - clarifyme_count
+    delta_clarifyme =  clarifyme_count - clarifyme_avg
     
     today_table_query = """
                                 select 
@@ -199,7 +203,7 @@ with tab1:
     overdue_count = overdue_count['cnt'].iloc[0] if overdue_count.shape[0] > 0 else 0
 
     today_count = today_table[today_table['due_date_id'] == pd.to_datetime(datetime.datetime.now().date())]
-    today_count = today_count['cnt'].iloc[0]
+    today_count = today_count['cnt'].iloc[0] if today_count.shape[0] > 0 else 0
     today_avg = 8 # TODO : implement average count over dataset.
     delta_today = today_count - today_avg
 
@@ -210,8 +214,8 @@ with tab1:
           st.metric(
             label="overdue tasks",
             value=overdue_count,
-            delta = "reschedule them!!!" if overdue_count > 0 else None,
-            delta_color="inverse"
+            delta = "reschedule them!!!" if overdue_count > 0 else "all's well.",
+            delta_color="inverse" if overdue_count > 0 else "off",
         )
           with st.expander("query"):
               debug_overdue_count=get_table_nocache("""
@@ -231,9 +235,8 @@ with tab1:
                             and due_date_id is not null
                                 """).reset_index()
               debug_overdue_count = debug_overdue_count[debug_overdue_count['due_date_id'] < pd.to_datetime(datetime.datetime.now().date())] if debug_overdue_count.shape[0] > 0 else None
-              st.dataframe(debug_overdue_count)
+              st.dataframe(debug_overdue_count,hide_index=True)
               st.code(today_table_query)    
-            #   st.code(today_table)
     with col2:
           st.metric(
             label="tasks lined up",
@@ -259,7 +262,7 @@ with tab1:
                             and due_date_id is not null
                                 """).reset_index()
               debug_today_count = debug_today_count[debug_today_count['due_date_id'] == pd.to_datetime(datetime.datetime.now().date())]
-              st.dataframe(debug_today_count)
+              st.dataframe(debug_today_count,hide_index=True)
               st.code(today_table_query)    
             #   st.code(today_table)
 
@@ -275,7 +278,8 @@ with tab1:
           st.metric(
             label="Clarifyme count",
             value=clarifyme_count,
-            delta=f'{delta_clarifyme} than weekly average {clarifyme_avg}'
+            delta=f'{delta_clarifyme} than weekly average {clarifyme_avg}',
+            delta_color="inverse",
         )
 
     st.write('# active plots')
