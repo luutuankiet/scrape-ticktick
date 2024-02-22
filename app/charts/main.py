@@ -53,6 +53,8 @@ st.set_page_config(page_title="MY GTD DASHBOARD", layout="wide", initial_sidebar
 
 st.header("🌏 Ken's GTD dashboard",divider="blue")
 
+
+
 tab1,tab2,tab3 = st.tabs(['🧑🏽‍💻 daily ops',
          '📊 analytics',
          'placeholder'
@@ -62,7 +64,7 @@ tab1,tab2,tab3 = st.tabs(['🧑🏽‍💻 daily ops',
 with tab2:
 
 
-    @st.cache_data(ttl=datetime.timedelta(hours=1))
+    @st.cache_data(ttl=datetime.timedelta(hours=1),max_entries=10)
     def get_table(query):
         return cur.sql(query).df()
     def get_table_nocache(query):
@@ -73,6 +75,11 @@ with tab2:
 
 
     with st.sidebar:
+        if st.button("force script reload"):
+            st.rerun()
+
+        if st.button("force cache reload"):
+            st.cache_data.clear()
         folders = obt['fld_folder_name'].drop_duplicates().to_list()
         filter_folder = st.multiselect('folders',folders,default=folders)
 
