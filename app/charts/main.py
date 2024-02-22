@@ -145,34 +145,6 @@ with tab2:
 
 
 
-    st.write('# active plots')
-
-    today = datetime.datetime.now()
-    this_week_begin = today - datetime.timedelta(days=today.weekday())
-
-    start,end = st.date_input(
-        "select the desired week",
-        (this_week_begin,today),
-        max_value=today,
-        format="MM.DD.YYYY"
-    )
-
-
-
-
-    with open(active_count_path, 'r') as f:
-        active_query=f.read()
-
-
-    active_count = get_table(active_query)
-    filtered_active_count = active_count[(active_count['key'] >= pd.to_datetime(start)) & (active_count['key'] <= pd.to_datetime(end))]
-
-    st.bar_chart(
-        filtered_active_count,
-        x='day_of_year',y='tasks_active'
-    )
-
-
 with tab1:
 
 
@@ -222,6 +194,7 @@ with tab1:
     delta_today = today_count - today_avg
 
     st.write("# your main metrics")
+    st.write("*to answer the question, how munch do i have in my head?*")
     col1,col2,col3,col4 = st.columns(4)
     with col1:
           st.metric(
@@ -249,13 +222,35 @@ with tab1:
             label="Clarifyme count",
             value=clarifyme_count,
             delta=f'{delta_clarifyme} than weekly average {clarifyme_avg}'
-
-
-
         )
 
-    # st.write(loops_count,clarifyme_count,overdue_count,today_count)
-    # st.write(pd.to_datetime(today),today_count)
+    st.write('# active plots')
+
+    today = datetime.datetime.now()
+    this_week_begin = today - datetime.timedelta(days=today.weekday())
+
+    start,end = st.date_input(
+        "select the desired week:",
+        (this_week_begin,today),
+        max_value=today,
+        format="MM.DD.YYYY"
+    )
+
+
+
+
+    with open(active_count_path, 'r') as f:
+        active_query=f.read()
+
+
+    active_count = get_table(active_query)
+    filtered_active_count = active_count[(active_count['key'] >= pd.to_datetime(start)) & (active_count['key'] <= pd.to_datetime(end))]
+    st.write('## 1. number of tasks you modified aka *actively working on*')
+    st.bar_chart(
+        filtered_active_count,
+        x='day_of_year',y='tasks_active'
+    )
+
 
 
 
