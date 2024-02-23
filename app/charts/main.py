@@ -26,7 +26,7 @@ st.header("🌏 Ken's GTD dashboard",divider="blue")
 
 
 
-@st.cache_data(ttl=datetime.timedelta(hours=1),max_entries=10)
+@st.cache_data(ttl=datetime.timedelta(hours=24),max_entries=10)
 def get_table(query):
     return cur.sql(query).df()
 def get_table_nocache(query):
@@ -37,8 +37,9 @@ def get_table_nocache(query):
 if st.button("force reload server"):
         kill = "tmux send-keys -t streamlit.0 C-c"
         # setup = "cd ../.. && tmux new-session -s $STREAMLIT -d"
-        reload = "tmux send-keys -t streamlit.0 'cd ../.. && source .venv/bin/activate && source .env && cd app/charts && streamlit run main.py' ENTER"
-        subprocess.run(f"{kill} && {reload}", shell=True)
+        reload = "streamlit run main.py"
+        subprocess.run(f"{kill} & {kill}", shell=True)
+        subprocess.run(f"{reload}",shell=True)
 if st.button("force cache reload"):
         st.cache_data.clear()
 
