@@ -37,9 +37,9 @@ def get_table_nocache(query):
 if st.button("force reload server"):
         kill = "tmux send-keys -t streamlit.0 C-c"
         # setup = "cd ../.. && tmux new-session -s $STREAMLIT -d"
-        reload = "streamlit run main.py"
+        reload = "tmux send-keys -t streamlit.0 'streamlit run main.py' ENTER"
         subprocess.run(f"{kill} & {kill}", shell=True)
-        subprocess.run(f"{reload}",shell=True)
+        subprocess.run(f"sleep 10 && {reload}",shell=True)
 if st.button("force cache reload"):
         st.cache_data.clear()
 
