@@ -191,8 +191,8 @@ with tab1:
           st.metric(
             label="tasks lined up",
             value=f"{today_count_norepeat} | {today_count_repeat} recur",
-            delta = f"{delta_today} than usual {today_avg} tasks" if today_count > 0 else "all's well.",
-            delta_color="inverse" if today_count > 0 else "off",
+            delta = f"{delta_today} than usual {today_avg} tasks" if today_count_norepeat > 0 else "all's well.",
+            delta_color="inverse" if today_count_norepeat > 0 else "off",
         )
           with st.expander("query"):
               debug_today_count=get_table_nocache("""
