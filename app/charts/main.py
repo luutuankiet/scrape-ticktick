@@ -6,6 +6,7 @@ from helper.source_env import dbt_project_dir
 import datetime
 import re
 import altair as alt
+import subprocess
 
 motherduck_token = os.environ.get("motherduck_token")
 con = duckdb.connect(f'md:ticktick_gtd?motherduck_token={motherduck_token}')
@@ -33,10 +34,17 @@ def get_table_nocache(query):
 
 
 
-if st.button("force script reload"):
-        st.rerun()
+if st.button("force reload server"):
+        kill = "tmux send-keys -t streamlit.0 C-c"
+        # setup = "cd ../.. && tmux new-session -s $STREAMLIT -d"
+        reload = "tmux send-keys -t streamlit.0 'cd ../.. && source .venv/bin/activate && source .env && cd app/charts && streamlit run main.py' ENTER"
+        subprocess.run(f"{kill} && {reload}", shell=True)
 if st.button("force cache reload"):
         st.cache_data.clear()
+
+
+
+
 
 with st.sidebar:
     obt=get_table("select * from obt")
