@@ -3,6 +3,7 @@ import duckdb
 import os
 import pandas as pd
 from helper.source_env import dbt_project_dir
+from helper.query_retry import retry
 import datetime
 import re
 import altair as alt
@@ -26,9 +27,12 @@ st.header("🌏 Ken's GTD dashboard",divider="blue")
 
 
 
+@retry()
 @st.cache_data(ttl=datetime.timedelta(hours=24),max_entries=10)
 def get_table(query):
     return cur.sql(query).df()
+
+@retry()
 def get_table_nocache(query):
     return cur.sql(query).df()
 
