@@ -32,13 +32,14 @@ def get_table_nocache(query):
     return cur.sql(query).df()
 
 
-obt=get_table("select * from obt")
+
 if st.button("force script reload"):
         st.rerun()
 if st.button("force cache reload"):
         st.cache_data.clear()
 
 with st.sidebar:
+    obt=get_table("select * from obt")
     folders = obt['fld_folder_name'].drop_duplicates().to_list()
     filter_folder = st.multiselect('folders',folders,default=folders)
 
