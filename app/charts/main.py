@@ -113,7 +113,7 @@ with tab1:
     
     today_table_query = """
                                 select 
-                                due_date_id,count(*) as cnt  from 
+                                due_date_id,td_repeatFlag,count(*) as cnt  from 
                             
                             (
                             select * from obt where 
@@ -124,7 +124,7 @@ with tab1:
                             and l_list_name not like '%tickler note%'                            
                             ) new
                                 where due_date_id is not null
-                                group by due_date_id
+                                group by due_date_id,td_repeatFlag
 
                             """
     today_table = get_table_nocache(today_table_query).reset_index(drop=True)
@@ -132,9 +132,17 @@ with tab1:
     overdue_count = overdue_count['cnt'].iloc[0] if overdue_count.shape[0] > 0 else 0
 
     today_count = today_table[today_table['due_date_id'] == pd.to_datetime(datetime.datetime.now().date())]
-    today_count = today_count['cnt'].iloc[0] if today_count.shape[0] > 0 else 0
+    today_count_norepeat = today_count[today_count['td_repeatFlag'] == 'nan']
+    today_count_repeat = today_count[today_count['td_repeatFlag'] != 'nan']
+    
+    
+    today_count_norepeat = today_count_norepeat['cnt'].iloc[0] if today_count_norepeat.shape[0] > 0 else 0
+    today_count_repeat = today_count_repeat['cnt'].iloc[0] if today_count_repeat.shape[0] > 0 else 0
+    today_count = today_count_norepeat + today_count_repeat
+
+
     today_avg = 8 # TODO : implement average count over dataset.
-    delta_today = today_count - today_avg
+    delta_today = today_count_norepeat - today_avg
 
 
     col1,col2,col3,col4 = st.columns(4)
@@ -169,7 +177,7 @@ with tab1:
     with col2:
           st.metric(
             label="tasks lined up",
-            value=today_count,
+            value=f"{today_count_norepeat} | {today_count_repeat} recur",
             delta = f"{delta_today} than usual {today_avg} tasks" if today_count > 0 else "all's well.",
             delta_color="inverse" if today_count > 0 else "off",
         )
@@ -177,6 +185,7 @@ with tab1:
               debug_today_count=get_table_nocache("""
                             select 
                              due_date_id::date as due_date_id,
+                                                  td_repeatFlag,
                                              td_created_time::timestamp as td_created_time,
                                                     td_modified_time::timestamp as td_modified_time,
                                              fld_folder_name,
