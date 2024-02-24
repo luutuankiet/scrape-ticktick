@@ -8,10 +8,13 @@ import datetime
 import re
 import altair as alt
 import subprocess
+import pytz
 
 motherduck_token = os.environ.get("motherduck_token")
 con = duckdb.connect(f'md:ticktick_gtd?motherduck_token={motherduck_token}')
 cur = con.cursor()
+
+adj_timezone = pytz.timezone('America/Guayaquil')
 
 
 analytics_path = os.path.join(dbt_project_dir,'analyses')
@@ -125,32 +128,42 @@ with tab1:
     delta_clarifyme =  clarifyme_count - clarifyme_avg
     
     today_table_query = """
-                                select 
-                                due_date_id,td_repeatFlag,count(*) as cnt  from 
+                            select 
+                            td_title
+                            ,td_due_date
+                            ,td_due_date as og_td_due_date
+                            ,td_repeatFlag
+                            ,fld_folder_name
+                            ,l_list_name
                             
-                            (
-                            select * from obt where 
+                            ,* from obt where 
                             completed_date_id is null
                             and l_is_active = '1'
                             and td_kind = 'TEXT'
                             and fld_folder_name not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists')
                             and l_list_name not like '%tickler note%'                            
-                            ) new
-                                where due_date_id is not null
-                                group by due_date_id,td_repeatFlag
-
+                            and due_date_id is not null 
+                               
                             """
     today_table = get_table_nocache(today_table_query).reset_index(drop=True)
-    overdue_count = today_table[today_table['due_date_id'] < pd.to_datetime(datetime.datetime.now().date())]
-    overdue_count = overdue_count['cnt'].iloc[0] if overdue_count.shape[0] > 0 else 0
+    # overdue_count = today_table[today_table['due_date_id'] < pd.to_datetime(datetime.datetime.now().date())]
+    
+    # ajust the timezone 
+    today_table['td_due_date'] = pd.to_datetime(today_table['td_due_date'])
+    today_table['td_due_date'] = today_table['td_due_date'].dt.tz_localize(tz=adj_timezone)
 
-    today_count = today_table[today_table['due_date_id'] == pd.to_datetime(datetime.datetime.now().date())]
-    today_count_norepeat = today_count[today_count['td_repeatFlag'] == 'nan']
-    today_count_repeat = today_count[today_count['td_repeatFlag'] != 'nan']
+    overdue_count_df = today_table[today_table['td_due_date'].dt.date < pd.Timestamp.now(tz=adj_timezone).date()]
+
+    # overdue_count = overdue_count['cnt'].iloc[0] if overdue_count.shape[0] > 0 else 0
+    overdue_count = overdue_count_df.shape[0]
+
+    today_count_df = today_table[today_table['td_due_date'].dt.date == pd.Timestamp.now(tz=adj_timezone).date()]
+    today_count_norepeat_df = today_count_df[today_count_df['td_repeatFlag'] == 'nan']
+    today_count_repeat_df = today_count_df[today_count_df['td_repeatFlag'] != 'nan']
     
     
-    today_count_norepeat = today_count_norepeat['cnt'].iloc[0] if today_count_norepeat.shape[0] > 0 else 0
-    today_count_repeat = today_count_repeat['cnt'].iloc[0] if today_count_repeat.shape[0] > 0 else 0
+    today_count_norepeat = today_count_norepeat_df.shape[0]
+    today_count_repeat = today_count_repeat_df.shape[0]
     today_count = today_count_norepeat + today_count_repeat
 
 
@@ -167,26 +180,11 @@ with tab1:
             delta_color="inverse" if overdue_count > 0 else "off",
         )
           with st.expander("query"):
-              debug_overdue_count=get_table_nocache("""
-                            select 
-                            due_date_id::date as due_date_id,
-                                             td_created_time::timestamp as td_created_time,
-                                                    td_modified_time::timestamp as td_modified_time,
-                                             fld_folder_name,
-                                             l_list_name,
-                                             td_title
-                                             ,* from obt where 
-                            completed_date_id is null
-                            and l_is_active = '1'
-                            and td_kind = 'TEXT'
-                            and fld_folder_name not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists')
-                            and l_list_name not like '%tickler note%' 
-                            and due_date_id is not null
-                                """).reset_index(drop=True)
-              debug_overdue_count = debug_overdue_count[debug_overdue_count['due_date_id'] < pd.to_datetime(datetime.datetime.now().date())] if debug_overdue_count.shape[0] > 0 else None
+              debug_overdue_count = overdue_count_df
               debug_overdue_count.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True,inplace=True)
               st.dataframe(debug_overdue_count,hide_index=True)
-              st.code(today_table_query)    
+
+
     with col2:
           st.metric(
             label="tasks lined up",
@@ -195,28 +193,18 @@ with tab1:
             delta_color="inverse" if today_count_norepeat > 0 else "off",
         )
           with st.expander("query"):
-              debug_today_count=get_table_nocache("""
-                            select 
-                             due_date_id::date as due_date_id,
-                                                  td_repeatFlag,
-                                             td_created_time::timestamp as td_created_time,
-                                                    td_modified_time::timestamp as td_modified_time,
-                                             fld_folder_name,
-                                             l_list_name,
-                                             td_title
-                                             ,* from obt where 
-                            completed_date_id is null
-                            and l_is_active = '1'
-                            and td_kind = 'TEXT'
-                            and fld_folder_name not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists')
-                            and l_list_name not like '%tickler note%' 
-                            and due_date_id is not null
-                                """).reset_index(drop=True)
-              debug_today_count = debug_today_count[debug_today_count['due_date_id'] == pd.to_datetime(datetime.datetime.now().date())]
-              debug_today_count.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True,inplace=True)
-              st.dataframe(debug_today_count,hide_index=True)
-              st.code(today_table_query)    
-            #   st.code(today_table)
+              debug_today_count_norepeat_df = today_count_norepeat_df
+              debug_today_count_norepeat_df.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True,inplace=True)
+              
+              debug_today_count_repeat_df = today_count_repeat_df
+              debug_today_count_repeat_df.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True,inplace=True)
+              
+              st.write("unique today:")
+              st.dataframe(debug_today_count_norepeat_df,hide_index=True)
+              
+              
+              st.write("today recurring:")
+              st.dataframe(debug_today_count_repeat_df,hide_index=True)
 
     with col3:
         st.metric(
