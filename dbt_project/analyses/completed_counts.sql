@@ -12,7 +12,10 @@ from
 select 
 td_completed_time::timestamp as active,
 *
-from obt) a
+from obt
+where td_completed_time like '%2024-02-24%'
+
+) a
 group by 
 fld_folder_name,
 l_list_name,
@@ -22,9 +25,12 @@ datepart('year',active)
 ),
 
 task_level as (
-select count(*) as tasks_completed, day,month,year
+select 
+sum(cnt) as tasks_completed, 
+day,month,year
 
-from source group by day,month,year
+from source 
+group by day,month,year
 
 
 )
