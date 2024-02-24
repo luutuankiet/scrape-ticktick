@@ -13,7 +13,6 @@ select
 td_completed_time::timestamp as active,
 *
 from obt
-where td_completed_time like '%2024-02-24%'
 
 ) a
 group by 

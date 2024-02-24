@@ -22,7 +22,7 @@ datepart('year',active)
 ),
 
 task_level as (
-select count(*) as tasks_active, day,month,year
+select sum(cnt) as tasks_active, day,month,year
 
 from source group by day,month,year
 
