@@ -376,7 +376,7 @@ with tab2:
     # The field to average
     rolling_mean='mean(count)',
     # The number of values before and after the current value to include.
-    frame=[-9, 0]
+    frame=[-5, 0]
     ).encode(
     x=alt.X('day_of_year:N',sort=None, title="Day of week"),
     y=alt.Y('rolling_mean:Q',title="completed_average")
