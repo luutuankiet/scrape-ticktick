@@ -26,7 +26,7 @@ task_level as (
 select 
 fld_folder_name,
 l_list_name,
-sum(cnt) as tasks_created, day,month,year
+sum(cnt) as tasks_completed, day,month,year
 
 from source group by day,month,year,l_list_name,fld_folder_name
 

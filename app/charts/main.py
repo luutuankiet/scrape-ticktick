@@ -299,16 +299,9 @@ with tab2:
     created_count = get_table(created_count_path)
     filtered_created_count = created_count[(created_count['key'] >= pd.to_datetime(start)) & (created_count['key'] <= pd.to_datetime(end))]
     filtered_created_count.sort_values(by=['key'],ascending=True,inplace=True)
-    created_count_grouped = filtered_created_count.groupby('day_of_year')[''] 
-    
-    
-    
-    
-    filtered_created_count['group'] = 'created'
-
-
-
-
+    created_count_grouped = filtered_created_count.groupby('day_of_year')['tasks_created'].sum()
+    created_count_grouped = created_count_grouped.reset_index()
+    created_count_grouped['group'] = 'created'
 
 
 
@@ -316,13 +309,19 @@ with tab2:
     completed_count = get_table(completed_count_path)
     filtered_completed_count = completed_count[(completed_count['key'] >= pd.to_datetime(start)) & (completed_count['key'] <= pd.to_datetime(end))]
     filtered_completed_count.sort_values(by=['key'],ascending=True,inplace=True)
-    filtered_completed_count['group'] = 'completed'
+    completed_count_grouped = filtered_completed_count.groupby('day_of_year')['tasks_completed'].sum()
+    completed_count_grouped = completed_count_grouped.reset_index()
+    completed_count_grouped['group'] = 'completed'
 
 
-    melted_active_count = active_count_grouped.melt(id_vars=['key', 'group','day_of_year'], value_vars=['tasks_active'], var_name='task_type', value_name='count')
-    melted_created_count = filtered_created_count.melt(id_vars=['key', 'group','day_of_year'], value_vars=['tasks_created'], var_name='task_type', value_name='count')
-    melted_completed_count = filtered_completed_count.melt(id_vars=['key', 'group','day_of_year'], value_vars=['tasks_completed'], var_name='task_type', value_name='count')
+
+
+    # TODO : refactor using 3 queries to one cause they use same base except for the datestamp field.
+    melted_active_count = active_count_grouped.melt(id_vars=['group','day_of_year'], value_vars=['tasks_active'], var_name='task_type', value_name='count')
+    melted_created_count = created_count_grouped.melt(id_vars=['group','day_of_year'], value_vars=['tasks_created'], var_name='task_type', value_name='count')
+    melted_completed_count = completed_count_grouped.melt(id_vars=['group','day_of_year'], value_vars=['tasks_completed'], var_name='task_type', value_name='count')
     activities = pd.concat([melted_active_count, melted_created_count, melted_completed_count], ignore_index=True)
+
 
     # base color  "#6281c3",
     # Define a color dictionary
