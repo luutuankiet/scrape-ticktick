@@ -313,15 +313,22 @@ with tab2:
     completed_count_grouped = completed_count_grouped.reset_index()
     completed_count_grouped['group'] = 'completed'
 
-
-    st.write(filtered_created_count)
-    st.write(created_count_grouped)
+    st.write(filtered_completed_count)
 
 
+    # for detailed tabular data
+    completed_df = filtered_completed_count[['fld_folder_name','l_list_name','tasks_completed','max_day_completed_timestamp','day_of_year']]
+    created_df = filtered_created_count[['fld_folder_name','l_list_name','tasks_created','max_day_created_timestamp','day_of_year']]
+    active_df = filtered_active_count[['fld_folder_name','l_list_name','tasks_active','max_day_active_timestamp','day_of_year']]
+
+    merged_df_1 = pd.merge(completed_df,created_df,on=['fld_folder_name','l_list_name'],how='outer')
+    merged_df = pd.merge(merged_df_1,active_df,on=['fld_folder_name','l_list_name'],how='outer')
+
+    st.write(merged_df)
+    
 
 
-
-
+    # for graph 
 
 
     # TODO : refactor using 3 queries to one cause they use same base except for the datestamp field.
@@ -329,8 +336,6 @@ with tab2:
     melted_created_count = created_count_grouped.melt(id_vars=['group','day_of_year'], value_vars=['tasks_created'], var_name='task_type', value_name='count')
     melted_completed_count = completed_count_grouped.melt(id_vars=['group','day_of_year'], value_vars=['tasks_completed'], var_name='task_type', value_name='count')
     activities = pd.concat([melted_active_count, melted_created_count, melted_completed_count], ignore_index=True)
-
-    st.write(melted_created_count)
 
     # base color  "#6281c3",
     # Define a color dictionary
