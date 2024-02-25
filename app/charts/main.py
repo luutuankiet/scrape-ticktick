@@ -285,41 +285,41 @@ with tab2:
     with open(completed_count_path, 'r') as f:
         completed_count_path=f.read()
 
+# TODO : conform to UTC time 
+        
 
     active_count = get_table(active_query)
     filtered_active_count = active_count[(active_count['key'] >= pd.to_datetime(start)) & (active_count['key'] <= pd.to_datetime(end))]
     filtered_active_count.sort_values(by=['key'],ascending=True,inplace=True)
-    filtered_active_count['group'] = 'active'
+    active_count_grouped = filtered_active_count.groupby('day_of_year')['tasks_active'].sum()
+    active_count_grouped = active_count_grouped.reset_index()
+    active_count_grouped['group'] = 'active'
     
-    # alt_active_count = alt.Chart(filtered_active_count).mark_bar().encode(
-    #                     x=alt.X('day_of_year', sort=None, title="Day of week"),
-    #                     y=alt.Y('tasks_active', title="Count"),
-    #                 )
-
 
     created_count = get_table(created_count_path)
     filtered_created_count = created_count[(created_count['key'] >= pd.to_datetime(start)) & (created_count['key'] <= pd.to_datetime(end))]
     filtered_created_count.sort_values(by=['key'],ascending=True,inplace=True)
+    created_count_grouped = filtered_created_count.groupby('day_of_year')[''] 
+    
+    
+    
+    
     filtered_created_count['group'] = 'created'
 
-    # alt_created_count = alt.Chart(filtered_created_count).mark_bar().encode(
-    #                     x=alt.X('day_of_year', sort=None, title="Day of week"),
-    #                     y=alt.Y('tasks_created', title="Count"),
-    #                 )
+
+
+
+
+
 
 
     completed_count = get_table(completed_count_path)
     filtered_completed_count = completed_count[(completed_count['key'] >= pd.to_datetime(start)) & (completed_count['key'] <= pd.to_datetime(end))]
     filtered_completed_count.sort_values(by=['key'],ascending=True,inplace=True)
     filtered_completed_count['group'] = 'completed'
-    # alt_completed_count = alt.Chart(filtered_completed_count).mark_bar().encode(
-    #                     x=alt.X('day_of_year', sort=None, title="Day of week"),
-    #                     y=alt.Y('tasks_completed', title="Count"),
-    #                 )
 
-    
 
-    melted_active_count = filtered_active_count.melt(id_vars=['key', 'group','day_of_year'], value_vars=['tasks_active'], var_name='task_type', value_name='count')
+    melted_active_count = active_count_grouped.melt(id_vars=['key', 'group','day_of_year'], value_vars=['tasks_active'], var_name='task_type', value_name='count')
     melted_created_count = filtered_created_count.melt(id_vars=['key', 'group','day_of_year'], value_vars=['tasks_created'], var_name='task_type', value_name='count')
     melted_completed_count = filtered_completed_count.melt(id_vars=['key', 'group','day_of_year'], value_vars=['tasks_completed'], var_name='task_type', value_name='count')
     activities = pd.concat([melted_active_count, melted_created_count, melted_completed_count], ignore_index=True)
