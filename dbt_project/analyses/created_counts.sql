@@ -1,8 +1,8 @@
 with source as (
 
 select 
-fld_folder_name,
-l_list_name,
+coalesce(fld_folder_name,'Default') as fld_folder_name,
+coalesce(l_list_name,'Inbox') as l_list_name,
 datepart('day',active) as day,
 datepart('month',active) as month,
 datepart('year',active) as year,
@@ -22,9 +22,13 @@ datepart('year',active)
 ),
 
 task_level as (
-select sum(cnt) as tasks_created, day,month,year
 
-from source group by day,month,year
+select 
+fld_folder_name,
+l_list_name,
+sum(cnt) as tasks_created, day,month,year
+
+from source group by day,month,year,l_list_name,fld_folder_name
 
 
 )

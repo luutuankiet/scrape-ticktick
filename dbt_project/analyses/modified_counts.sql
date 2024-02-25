@@ -24,7 +24,8 @@ datepart('year',active)
 
 task_level as (
 select 
-l_list_name,fld_folder_name,
+fld_folder_name,
+l_list_name,
 sum(cnt) as tasks_active, day,month,year
 
 from source group by day,month,year,l_list_name,fld_folder_name
