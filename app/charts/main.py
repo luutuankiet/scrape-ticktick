@@ -332,7 +332,7 @@ with tab2:
 
     
     created_df_delta = created_df
-    created_df_delta['max_day_created_timestamp'] = pd.Timestamp.now(tz=adj_timezone) - created_df_delta['max_day_created_timestamp'].dt.tz_localize(tz=adj_timezone)
+    created_df_delta['max_day_created_timestamp'] = -abs(pd.Timestamp.now(tz=adj_timezone) - created_df_delta['max_day_created_timestamp'].dt.tz_localize(tz=adj_timezone))
     created_df_delta['max_day_created_timestamp'] = created_df_delta['max_day_created_timestamp'].apply(lambda x: humanize.naturaltime(x))
     create_progress = pd.merge(created_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
     create_progress = create_progress.style.map(
@@ -343,7 +343,7 @@ with tab2:
 
 
     active_df_delta = active_df
-    active_df_delta['max_day_active_timestamp'] = pd.Timestamp.now(tz=adj_timezone) - active_df_delta['max_day_active_timestamp'].dt.tz_localize(tz=adj_timezone)
+    active_df_delta['max_day_active_timestamp'] = -abs(pd.Timestamp.now(tz=adj_timezone) - active_df_delta['max_day_active_timestamp'].dt.tz_localize(tz=adj_timezone))
     active_df_delta['max_day_active_timestamp'] = active_df_delta['max_day_active_timestamp'].apply(lambda x: humanize.naturaltime(x))
     active_progress = pd.merge(active_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
     active_progress = active_progress.style.map(
@@ -356,7 +356,7 @@ with tab2:
 
 
     completed_df_delta = completed_df
-    completed_df_delta['max_day_completed_timestamp'] = pd.Timestamp.now(tz=adj_timezone) - completed_df_delta['max_day_completed_timestamp'].dt.tz_localize(tz=adj_timezone)
+    completed_df_delta['max_day_completed_timestamp'] = -abs(pd.Timestamp.now(tz=adj_timezone) - completed_df_delta['max_day_completed_timestamp'].dt.tz_localize(tz=adj_timezone))
     completed_df_delta['max_day_completed_timestamp'] = completed_df_delta['max_day_completed_timestamp'].apply(lambda x: humanize.naturaltime(x))
     complete_progress = pd.merge(completed_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
     complete_progress = complete_progress.style.map(
@@ -370,13 +370,13 @@ with tab2:
 
     col1,col2,col3 = st.columns(3)
     
-    col1.metric("completed",value=int(completed_df.iloc[:,2].mean()) if completed_df_delta.shape[0] > 0 else None,
+    col1.metric("avg completed",value=completed_df.groupby('day_of_year')['tasks_completed'].sum().mean() if completed_df_delta.shape[0] > 0 else None,
                 delta=f"last item {completed_df_delta.iloc[0,3] }" if completed_df_delta.shape[0] > 0 else None,
                 delta_color="off")
-    col2.metric("created",value=int(created_df.iloc[:,2].mean()) if created_df_delta.shape[0] > 0 else None,
+    col2.metric("avg created",value=created_df.groupby('day_of_year')['tasks_created'].sum().mean() if created_df_delta.shape[0] > 0 else None,
                 delta=f"last item {created_df_delta.iloc[0,3]}" if created_df_delta.shape[0] > 0 else None,
                 delta_color="off")
-    col3.metric("active",value=int(active_df .iloc[:,2].mean()) if active_df_delta.shape[0] > 0 else None,
+    col3.metric("avg active",value=active_df.groupby('day_of_year')['tasks_active'].sum().mean() if active_df_delta.shape[0] > 0 else None,
                 delta=f"last item {active_df_delta.iloc[0,3] }" if active_df_delta.shape[0] > 0 else None,
                 delta_color="off")
     
