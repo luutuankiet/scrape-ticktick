@@ -9,6 +9,7 @@ import re
 import altair as alt
 import subprocess
 import pytz
+import humanize
 
 motherduck_token = os.environ.get("motherduck_token")
 con = duckdb.connect(f'md:ticktick_gtd?motherduck_token={motherduck_token}')
@@ -291,7 +292,7 @@ with tab2:
     active_count = get_table(active_query)
     filtered_active_count = active_count[(active_count['key'] >= pd.to_datetime(start)) & (active_count['key'] <= pd.to_datetime(end))]
     filtered_active_count.sort_values(by=['key'],ascending=True,inplace=True)
-    active_count_grouped = filtered_active_count.groupby('day_of_year')['tasks_active'].sum()
+    active_count_grouped = filtered_active_count.groupby('day_of_year')['tasks_active'].sum().astype(int)
     active_count_grouped = active_count_grouped.reset_index()
     active_count_grouped['group'] = 'active'
     
@@ -299,34 +300,158 @@ with tab2:
     created_count = get_table(created_count_path)
     filtered_created_count = created_count[(created_count['key'] >= pd.to_datetime(start)) & (created_count['key'] <= pd.to_datetime(end))]
     filtered_created_count.sort_values(by=['key'],ascending=True,inplace=True)
-    created_count_grouped = filtered_created_count.groupby('day_of_year')['tasks_created'].sum()
+    created_count_grouped = filtered_created_count.groupby('day_of_year')['tasks_created'].sum().astype(int)
     created_count_grouped = created_count_grouped.reset_index()
     created_count_grouped['group'] = 'created'
-
-
 
 
     completed_count = get_table(completed_count_path)
     filtered_completed_count = completed_count[(completed_count['key'] >= pd.to_datetime(start)) & (completed_count['key'] <= pd.to_datetime(end))]
     filtered_completed_count.sort_values(by=['key'],ascending=True,inplace=True)
-    completed_count_grouped = filtered_completed_count.groupby('day_of_year')['tasks_completed'].sum()
+    completed_count_grouped = filtered_completed_count.groupby('day_of_year')['tasks_completed'].sum().astype(int)
     completed_count_grouped = completed_count_grouped.reset_index()
     completed_count_grouped['group'] = 'completed'
-
-    st.write(filtered_completed_count)
-
 
     # for detailed tabular data
     completed_df = filtered_completed_count[['fld_folder_name','l_list_name','tasks_completed','max_day_completed_timestamp','day_of_year']]
     created_df = filtered_created_count[['fld_folder_name','l_list_name','tasks_created','max_day_created_timestamp','day_of_year']]
     active_df = filtered_active_count[['fld_folder_name','l_list_name','tasks_active','max_day_active_timestamp','day_of_year']]
 
-    merged_df_1 = pd.merge(completed_df,created_df,on=['fld_folder_name','l_list_name'],how='outer')
-    merged_df = pd.merge(merged_df_1,active_df,on=['fld_folder_name','l_list_name'],how='outer')
 
-    st.write(merged_df)
+    completed_df.sort_values(by=['max_day_completed_timestamp'],ascending=False,inplace=True)
+    created_df.sort_values(by=['max_day_created_timestamp'],ascending=False,inplace=True)
+    active_df.sort_values(by=['max_day_active_timestamp'],ascending=False,inplace=True)
+
+
+
+
+    st.write("## lists you have been working on")
+
+    lvl1_lvl2_progress = get_table("select * from lvl1_lvl2_progress")
+    filtered_lvl1_lvl2_progress = lvl1_lvl2_progress[lvl1_lvl2_progress['fld_folder_name'].isin(filter_folder)]
+
+    
+    created_df_delta = created_df
+    created_df_delta['max_day_created_timestamp'] = pd.Timestamp.now(tz=adj_timezone) - created_df_delta['max_day_created_timestamp'].dt.tz_localize(tz=adj_timezone)
+    created_df_delta['max_day_created_timestamp'] = created_df_delta['max_day_created_timestamp'].apply(lambda x: humanize.naturaltime(x))
+    create_progress = pd.merge(created_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
+    create_progress = create_progress.style.map(
+        highlight_text,subset=['done_progress','clarify_progress']
+    ).apply(
+        highlight_row,axis=1
+    )
+
+
+    active_df_delta = active_df
+    active_df_delta['max_day_active_timestamp'] = pd.Timestamp.now(tz=adj_timezone) - active_df_delta['max_day_active_timestamp'].dt.tz_localize(tz=adj_timezone)
+    active_df_delta['max_day_active_timestamp'] = active_df_delta['max_day_active_timestamp'].apply(lambda x: humanize.naturaltime(x))
+    active_progress = pd.merge(active_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
+    active_progress = active_progress.style.map(
+        highlight_text,subset=['done_progress','clarify_progress']
+    ).apply(
+        highlight_row,axis=1
+    )
+
+
+
+
+    completed_df_delta = completed_df
+    completed_df_delta['max_day_completed_timestamp'] = pd.Timestamp.now(tz=adj_timezone) - completed_df_delta['max_day_completed_timestamp'].dt.tz_localize(tz=adj_timezone)
+    completed_df_delta['max_day_completed_timestamp'] = completed_df_delta['max_day_completed_timestamp'].apply(lambda x: humanize.naturaltime(x))
+    complete_progress = pd.merge(completed_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
+    complete_progress = complete_progress.style.map(
+        highlight_text,subset=['done_progress','clarify_progress']
+    ).apply(
+        highlight_row,axis=1
+    )
+
+
+
+
+    col1,col2,col3 = st.columns(3)
+    
+    col1.metric("completed",value=int(completed_df.iloc[:,2].sum()) if completed_df_delta.shape[0] > 0 else None,
+                delta=f"last item {completed_df_delta.iloc[0,3] }" if completed_df_delta.shape[0] > 0 else None,
+                delta_color="off")
+    col2.metric("created",value=int(created_df.iloc[:,2].sum()) if created_df_delta.shape[0] > 0 else None,
+                delta=f"last item {created_df_delta.iloc[0,3]}" if created_df_delta.shape[0] > 0 else None,
+                delta_color="off")
+    col3.metric("active",value=int(active_df .iloc[:,2].sum()) if active_df_delta.shape[0] > 0 else None,
+                delta=f"last item {active_df_delta.iloc[0,3] }" if active_df_delta.shape[0] > 0 else None,
+                delta_color="off")
     
 
+
+
+
+        
+    with st.expander("complete",expanded = True):
+        st.dataframe(
+            complete_progress,
+            column_config={
+                "done_progress": st.column_config.ProgressColumn(
+                "done_progress",
+                format="%f",
+                min_value=0,
+                max_value=100
+            ),
+            "clarify_progress": st.column_config.ProgressColumn(
+                "clarify_progress",
+                format="%f",
+                min_value=0,
+                max_value=100
+            )
+            },
+
+            hide_index=True,
+            use_container_width=True
+            )
+
+
+
+    with st.expander("created",expanded = True):
+        st.dataframe(
+            create_progress,
+            column_config={
+                "done_progress": st.column_config.ProgressColumn(
+                "done_progress",
+                format="%f",
+                min_value=0,
+                max_value=100
+            ),
+            "clarify_progress": st.column_config.ProgressColumn(
+                "clarify_progress",
+                format="%f",
+                min_value=0,
+                max_value=100
+            )
+            },
+
+            hide_index=True,
+            use_container_width=True
+            )
+
+    with st.expander("active",expanded = True):
+        st.dataframe(
+            active_progress,
+            column_config={
+                "done_progress": st.column_config.ProgressColumn(
+                "done_progress",
+                format="%f",
+                min_value=0,
+                max_value=100
+            ),
+            "clarify_progress": st.column_config.ProgressColumn(
+                "clarify_progress",
+                format="%f",
+                min_value=0,
+                max_value=100
+            )
+            },
+
+            hide_index=True,
+            use_container_width=True
+            )
 
     # for graph 
 
@@ -396,9 +521,7 @@ with tab2:
 
     st.write("# lvl1-lvl2 analytics")
     st.write("## progress summary")
-    lvl1_lvl2_progress = get_table("select * from lvl1_lvl2_progress")
 
-    filtered_lvl1_lvl2_progress = lvl1_lvl2_progress[lvl1_lvl2_progress['fld_folder_name'].isin(filter_folder)]
     colored_lvl1_lvl2_progress = filtered_lvl1_lvl2_progress.style.map(
         highlight_text,subset=['done_progress','clarify_progress']
     ).apply(

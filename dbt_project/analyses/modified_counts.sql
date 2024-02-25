@@ -29,7 +29,7 @@ task_level as (
 select 
 fld_folder_name,
 l_list_name,
-sum(cnt) as tasks_active,
+sum(cnt)::int as tasks_active,
 max_day_active_timestamp,
  day,month,year
 

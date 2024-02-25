@@ -167,8 +167,8 @@ folder_progress AS (
 
 staging AS (
     SELECT
-        fld_folder_name,
-        l_list_name,
+        coalesce(fld_folder_name,'Default') as fld_folder_name,
+        coalesce(l_list_name,'Inbox') as l_list_name,
         done_progress::decimal(10,2) as done_progress,
         clarify_progress::decimal(10,2) as clarify_progress
 
@@ -180,3 +180,5 @@ SELECT *
 FROM
     staging
 ORDER BY 1, 2, 3, 4
+
+
