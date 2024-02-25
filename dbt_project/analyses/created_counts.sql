@@ -3,22 +3,26 @@ with source as (
 select 
 coalesce(fld_folder_name,'Default') as fld_folder_name,
 coalesce(l_list_name,'Inbox') as l_list_name,
-datepart('day',active) as day,
-datepart('month',active) as month,
-datepart('year',active) as year,
+datepart('day',created) as day,
+datepart('month',created) as month,
+datepart('year',created) as year,
+max_day_created_timestamp,
 count(*) as cnt
 from 
 (
 select 
-td_created_time::timestamp as active,
+td_created_time::timestamp as created,
+max(created) over(partition by fld_folder_name,l_list_name,datepart('day',created),datepart('month',created),datepart('year',created)) as max_day_created_timestamp,
+
 *
 from obt) a
 group by 
 fld_folder_name,
 l_list_name,
-datepart('day',active),
-datepart('month',active),
-datepart('year',active) 
+datepart('day',created),
+datepart('month',created),
+datepart('year',created),
+max_day_created_timestamp 
 ),
 
 task_level as (
@@ -26,9 +30,11 @@ task_level as (
 select 
 fld_folder_name,
 l_list_name,
-sum(cnt) as tasks_created, day,month,year
+sum(cnt) as tasks_created,
+max_day_created_timestamp,
+ day,month,year
 
-from source group by day,month,year,l_list_name,fld_folder_name
+from source group by day,month,year,l_list_name,fld_folder_name,max_day_created_timestamp
 
 
 )

@@ -3,22 +3,26 @@ with source as (
 select 
 coalesce(fld_folder_name,'Default') as fld_folder_name,
 coalesce(l_list_name,'Inbox') as l_list_name,
-datepart('day',active) as day,
-datepart('month',active) as month,
-datepart('year',active) as year,
+datepart('day',completed) as day,
+datepart('month',completed) as month,
+datepart('year',completed) as year,
+max_day_completed_timestamp,
 count(*) as cnt
 from 
 (
 select 
-td_completed_time::timestamp as active,
+td_completed_time::timestamp as completed,
+max(completed) over(partition by fld_folder_name,l_list_name,datepart('day',completed),datepart('month',completed),datepart('year',completed)) as max_day_completed_timestamp,
+
 *
 from obt) a
 group by 
 fld_folder_name,
 l_list_name,
-datepart('day',active),
-datepart('month',active),
-datepart('year',active) 
+datepart('day',completed),
+datepart('month',completed),
+datepart('year',completed),
+max_day_completed_timestamp
 ),
 
 task_level as (
@@ -26,9 +30,11 @@ task_level as (
 select 
 fld_folder_name,
 l_list_name,
-sum(cnt) as tasks_completed, day,month,year
+sum(cnt) as tasks_completed,
+max_day_completed_timestamp,
+ day,month,year
 
-from source group by day,month,year,l_list_name,fld_folder_name
+from source group by day,month,year,l_list_name,fld_folder_name,max_day_completed_timestamp
 
 
 )

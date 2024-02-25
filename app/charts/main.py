@@ -314,6 +314,14 @@ with tab2:
     completed_count_grouped['group'] = 'completed'
 
 
+    st.write(filtered_created_count)
+    st.write(created_count_grouped)
+
+
+
+
+
+
 
 
     # TODO : refactor using 3 queries to one cause they use same base except for the datestamp field.
@@ -322,6 +330,7 @@ with tab2:
     melted_completed_count = completed_count_grouped.melt(id_vars=['group','day_of_year'], value_vars=['tasks_completed'], var_name='task_type', value_name='count')
     activities = pd.concat([melted_active_count, melted_created_count, melted_completed_count], ignore_index=True)
 
+    st.write(melted_created_count)
 
     # base color  "#6281c3",
     # Define a color dictionary
@@ -369,7 +378,8 @@ with tab2:
     y=alt.Y('rolling_mean:Q',title="completed_average")
     )
 
-    
+
+
     combo_activities = activities_bar+active_line+created_line+completed_line
     st.write("## trends over week")
     st.altair_chart(combo_activities,use_container_width=True)

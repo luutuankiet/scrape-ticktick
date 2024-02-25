@@ -6,11 +6,13 @@ coalesce(l_list_name,'Inbox') as l_list_name,
 datepart('day',active) as day,
 datepart('month',active) as month,
 datepart('year',active) as year,
+max_day_active_timestamp,
 count(*) as cnt
 from 
 (
 select 
 td_modified_time::timestamp as active,
+max(active) over(partition by fld_folder_name,l_list_name,datepart('day',active),datepart('month',active),datepart('year',active)) as max_day_active_timestamp,
 *
 from obt
 ) a
@@ -19,16 +21,19 @@ fld_folder_name,
 l_list_name,
 datepart('day',active),
 datepart('month',active),
-datepart('year',active) 
+datepart('year',active),
+max_day_active_timestamp
 ),
 
 task_level as (
 select 
 fld_folder_name,
 l_list_name,
-sum(cnt) as tasks_active, day,month,year
+sum(cnt) as tasks_active,
+max_day_active_timestamp,
+ day,month,year
 
-from source group by day,month,year,l_list_name,fld_folder_name
+from source group by day,month,year,l_list_name,fld_folder_name,max_day_active_timestamp
 
 
 )
