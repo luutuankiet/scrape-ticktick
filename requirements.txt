@@ -19,7 +19,6 @@ duckdb==0.9.2
 sqlfluff
 sqlfluff-templater-dbt
 sqlfmt==0.0.3
-requests==2.26.0
 streamlit==1.31.1
 altair
 humanize
