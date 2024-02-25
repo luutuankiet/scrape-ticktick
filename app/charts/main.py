@@ -370,13 +370,13 @@ with tab2:
 
     col1,col2,col3 = st.columns(3)
     
-    col1.metric("completed",value=int(completed_df.iloc[:,2].sum()) if completed_df_delta.shape[0] > 0 else None,
+    col1.metric("completed",value=int(completed_df.iloc[:,2].mean()) if completed_df_delta.shape[0] > 0 else None,
                 delta=f"last item {completed_df_delta.iloc[0,3] }" if completed_df_delta.shape[0] > 0 else None,
                 delta_color="off")
-    col2.metric("created",value=int(created_df.iloc[:,2].sum()) if created_df_delta.shape[0] > 0 else None,
+    col2.metric("created",value=int(created_df.iloc[:,2].mean()) if created_df_delta.shape[0] > 0 else None,
                 delta=f"last item {created_df_delta.iloc[0,3]}" if created_df_delta.shape[0] > 0 else None,
                 delta_color="off")
-    col3.metric("active",value=int(active_df .iloc[:,2].sum()) if active_df_delta.shape[0] > 0 else None,
+    col3.metric("active",value=int(active_df .iloc[:,2].mean()) if active_df_delta.shape[0] > 0 else None,
                 delta=f"last item {active_df_delta.iloc[0,3] }" if active_df_delta.shape[0] > 0 else None,
                 delta_color="off")
     
