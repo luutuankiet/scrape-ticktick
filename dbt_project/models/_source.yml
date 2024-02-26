@@ -20,5 +20,6 @@ sources:
     description: split seed from raw data in the main schema.
     database: ticktick_gtd
     schema: main
+    tables:
       - name: date_seed
         description: pre-generated dates
