@@ -2,7 +2,7 @@ WITH source AS (
     SELECT *
     FROM
         {{ source(
-            'raw_data',
+            'raw_seed_data',
             'date_seed'
         ) }}
 )
