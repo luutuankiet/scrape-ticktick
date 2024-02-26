@@ -1,11 +1,21 @@
 import os
-from dagster import asset,AssetExecutionContext
+from dagster import asset,AssetExecutionContext,AssetOut, multi_asset, load_assets_from_modules
+from dagster_dbt import get_asset_keys_by_output_name_for_source
 import duckdb
 import pandas as pd
 from helper.source_env import raw_path
+from . import dbt_assets
 
 
-@asset(compute_kind='Python')
+@multi_asset(
+    outs={
+        name: AssetOut(key=asset_key)
+        for name, asset_key in get_asset_keys_by_output_name_for_source(
+            [dbt_assets.ticktick_dbt_assets], "raw_data"
+        ).items()
+    },
+    compute_kind='python'
+)
 def dump_to_motherduck(context: AssetExecutionContext):
     motherduck_token=os.environ.get('motherduck_token')
 
