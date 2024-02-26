@@ -144,10 +144,10 @@ with tab1:
                             and fld_folder_name not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists')
                             and l_list_name not like '%tickler note%'                            
                             and due_date_id is not null 
+                            and td_tags not like '%tickler%'
                                
                             """
     today_table = get_table_nocache(today_table_query).reset_index(drop=True)
-    # overdue_count = today_table[today_table['due_date_id'] < pd.to_datetime(datetime.datetime.now().date())]
     
     # ajust the timezone 
     today_table['td_due_date'] = pd.to_datetime(today_table['td_due_date'])
@@ -155,7 +155,6 @@ with tab1:
 
     overdue_count_df = today_table[today_table['td_due_date'].dt.date < pd.Timestamp.now(tz=adj_timezone).date()]
 
-    # overdue_count = overdue_count['cnt'].iloc[0] if overdue_count.shape[0] > 0 else 0
     overdue_count = overdue_count_df.shape[0]
 
     today_count_df = today_table[today_table['td_due_date'].dt.date == pd.Timestamp.now(tz=adj_timezone).date()]
@@ -224,7 +223,128 @@ with tab1:
         )
 
     st.divider()
+    st.write("## look ahead")
+    st.write("*what is queued in for the times ahead? give yourself the best chance of completing them in time.*")
 
+    future_count_df = today_table[today_table['td_due_date'].dt.date > pd.Timestamp.now(tz=adj_timezone).date()]
+    tmr_count_df = future_count_df[future_count_df['td_due_date'].dt.date <= pd.Timestamp.now(tz=adj_timezone).date() + datetime.timedelta(days=1)]
+    tmr_1d_count_df = future_count_df[(future_count_df['td_due_date'].dt.date > pd.Timestamp.now(tz=adj_timezone).date() + datetime.timedelta(days=1)) &
+                                      (future_count_df['td_due_date'].dt.date <= pd.Timestamp.now(tz=adj_timezone).date() + datetime.timedelta(days=2))
+                                      ]
+    
+    
+    
+
+
+
+    col1, col2 = st.columns(2)
+    with col1:
+        tmr_count_next_norepeat_df = tmr_count_df[(tmr_count_df['td_repeatFlag'] == 'nan') & (~tmr_count_df['td_tags'].str.contains('clarifyme'))]
+        tmr_count_clarify_norepeat_df = tmr_count_df[(tmr_count_df['td_repeatFlag'] == 'nan') & (tmr_count_df['td_tags'].str.contains('clarifyme'))]
+        tmr_count_repeat_df = tmr_count_df[tmr_count_df['td_repeatFlag'] != 'nan']
+        
+        
+        tmr_count_next_norepeat = tmr_count_next_norepeat_df.shape[0]
+        tmr_count_clarify_norepeat = tmr_count_clarify_norepeat_df.shape[0]
+        tmr_count_repeat = tmr_count_repeat_df.shape[0]
+        tmr_count_norepeat = tmr_count_next_norepeat + tmr_count_clarify_norepeat
+        tmr_count = tmr_count_next_norepeat + tmr_count_clarify_norepeat + tmr_count_repeat
+
+
+        tmr_avg = 12 # TODO : implement average count over dataset.
+        delta_tmr = tmr_count_norepeat - tmr_avg
+        
+
+
+        st.metric(
+        label="tomorrow's outlook",
+        value=f"{tmr_count_next_norepeat} next | {tmr_count_clarify_norepeat} clarify | {tmr_count_repeat} recur",
+        delta = f"{delta_tmr} next & clarify more than usual {tmr_avg} tasks" if tmr_count_norepeat > 0 else "all's well.",
+        delta_color="inverse" if tmr_count_norepeat > 0 else "off",
+    )
+        with st.expander("query"):
+            debug_tmr_count_next_norepeat_df = tmr_count_next_norepeat_df.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True)
+            
+            debug_tmr_count_clarify_norepeat_df = tmr_count_clarify_norepeat_df.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True)
+            
+            debug_tmr_count_repeat_df = tmr_count_repeat_df.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True)
+            
+            st.write("unique next:")
+            st.dataframe(debug_tmr_count_next_norepeat_df,hide_index=True)
+            
+            st.write("clarify:")
+            st.dataframe(debug_tmr_count_clarify_norepeat_df,hide_index=True)
+            
+            st.write("recurring:")
+            st.dataframe(debug_tmr_count_repeat_df,hide_index=True)      
+    
+    
+    with col2:
+        
+        tmr_1d_count_next_norepeat_df = tmr_1d_count_df[(tmr_1d_count_df['td_repeatFlag'] == 'nan') & (~tmr_1d_count_df['td_tags'].str.contains('clarifyme'))]
+        tmr_1d_count_clarify_norepeat_df = tmr_1d_count_df[(tmr_1d_count_df['td_repeatFlag'] == 'nan') & (tmr_1d_count_df['td_tags'].str.contains('clarifyme'))]
+        tmr_1d_count_repeat_df = tmr_1d_count_df[tmr_1d_count_df['td_repeatFlag'] != 'nan']
+        
+        
+        tmr_1d_count_next_norepeat = tmr_1d_count_next_norepeat_df.shape[0]
+        tmr_1d_count_clarify_norepeat = tmr_1d_count_clarify_norepeat_df.shape[0]
+        tmr_1d_count_repeat = tmr_1d_count_repeat_df.shape[0]
+        tmr_1d_count_norepeat = tmr_1d_count_next_norepeat + tmr_1d_count_clarify_norepeat
+        tmr_1d_count = tmr_1d_count_next_norepeat + tmr_1d_count_clarify_norepeat + tmr_1d_count_repeat
+
+
+        tmr_1d_avg = 12 # TODO : implement average count over dataset.
+        delta_1d_tmr = tmr_1d_count_norepeat - tmr_avg
+
+
+        st.metric(
+        label="day after tomrrow outlook",
+        value=f"{tmr_1d_count_next_norepeat} next | {tmr_1d_count_clarify_norepeat} clarify | {tmr_1d_count_repeat} recur",
+        delta = f"{delta_1d_tmr} next & clarify more than usual {tmr_1d_avg} tasks" if tmr_1d_count_norepeat > 0 else "all's well.",
+        delta_color="inverse" if tmr_1d_count_norepeat > 0 else "off",
+    )
+        with st.expander("query"):
+            debug_tmr_1d_count_next_norepeat_df = tmr_1d_count_next_norepeat_df.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True)
+            
+            debug_tmr_1d_count_clarify_norepeat_df = tmr_1d_count_clarify_norepeat_df.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True)
+            
+            debug_tmr_1d_count_repeat_df = tmr_1d_count_repeat_df.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True)
+            
+            st.write("unique next:")
+            st.dataframe(debug_tmr_1d_count_next_norepeat_df,hide_index=True)
+            
+            st.write("clarify:")
+            st.dataframe(debug_tmr_1d_count_clarify_norepeat_df,hide_index=True)
+            
+            st.write("recurring:")
+            st.dataframe(debug_tmr_1d_count_repeat_df,hide_index=True)      
+
+
+
+    st.write("your upcoming schedule")
+    future_count = future_count_df.groupby('due_date_id')['td_title'].count().reset_index().rename(columns={'due_date_id': 'Date', 'td_title': 'count'})
+    # Create heatmap using Altair
+    heatmap = alt.Chart(future_count).mark_rect().encode(
+        x='date(Date):O',
+        y='month(Date):O',
+        color='count:Q',
+        tooltip=[
+            alt.Tooltip("Date:T", title="Date"),
+            alt.Tooltip("count:Q", title="scheduled tasks"),
+        ]
+    )
+    # .properties(
+    #     width=800,
+    #     height=300,
+    #     title='scheduled tasks heatmap'
+    # )
+    st.altair_chart(heatmap,use_container_width=True)
+    
+
+
+
+
+    st.divider()
     st.write("## count of clarified and next action")
     
     try:
