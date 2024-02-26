@@ -21,7 +21,7 @@ def dump_to_motherduck(context: AssetExecutionContext):
 
     entities = ['tasks','lists','folders']
     names = ['source_todo_analytics_raw_data_tasks_raw', 'source_todo_analytics_raw_data_lists_raw', 'source_todo_analytics_raw_data_folders_raw']
-    for entity,name in entities,names:
+    for entity,name in zip(entities,names):
         entity_path = os.path.join(raw_path,f'{entity}.json')
         entity_df = pd.read_json(entity_path,dtype=str)
         try:
@@ -33,7 +33,7 @@ def dump_to_motherduck(context: AssetExecutionContext):
 
 
             # yield the materialization result
-            yield Output(entity_df,name=name)
+            yield Output(entity_df,output_name=name)
         finally:
             con.close()
             cur.close()

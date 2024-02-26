@@ -2,18 +2,24 @@ version: 2
 
 sources:
   - name: raw_data
-    meta:
-      dagster:
-        asset_key : ["dump_to_motherduck"]
     description: A replica of the extracted ticktick data.
     database: ticktick_gtd
     schema: main
     tables:
       - name: tasks_raw
         description: raw tasks data from tickpy
+        meta:
+          dagster:
+            asset_key : ["dump_to_motherduck"]
       - name: lists_raw
         description: raw lists data from tickpy
+        meta:
+          dagster:
+            asset_key : ["dump_to_motherduck"]
       - name: folders_raw
         description: raw folders data from tickpy      
+        meta:
+          dagster:
+            asset_key : ["dump_to_motherduck"]
       - name: date_seed
         description: pre-generated dates
