@@ -1,5 +1,5 @@
 import os
-from dagster import asset,AssetExecutionContext,AssetOut, multi_asset, load_assets_from_modules
+from dagster import AssetMaterialization, asset,AssetExecutionContext,AssetOut, multi_asset, AssetKey
 from dagster_dbt import get_asset_keys_by_output_name_for_source
 import duckdb
 import pandas as pd
@@ -30,11 +30,16 @@ def dump_to_motherduck(context: AssetExecutionContext):
             cur = con.cursor()
             cur.sql(f"CREATE OR REPLACE TABLE {entity}_raw as SELECT * FROM entity_df")
             context.log.info(f'loaded {len(entity_df)} rows to {entity}_raw table.')
+            asset_key = AssetKey(name=f"{entity}_raw")
+
+            # yield the materialization result
+            yield AssetMaterialization(asset_key=asset_key,
+                                       metadata={'num_rows': len(entity_df)},
+                                       description=f'Successfully loaded {len(entity_df)} rows to {entity}_raw table.'
+                                       )
         finally:
             con.close()
             cur.close()
-    return None
-
 
 
 
