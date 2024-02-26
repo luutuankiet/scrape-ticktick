@@ -1,5 +1,5 @@
 import os
-from dagster import AssetMaterialization, asset,AssetExecutionContext,AssetOut, multi_asset, AssetKey
+from dagster import AssetMaterialization, Output, asset,AssetExecutionContext,AssetOut, multi_asset, AssetKey
 from dagster_dbt import get_asset_keys_by_output_name_for_source
 import duckdb
 import pandas as pd
@@ -20,8 +20,8 @@ def dump_to_motherduck(context: AssetExecutionContext):
     motherduck_token=os.environ.get('motherduck_token')
 
     entities = ['tasks','lists','folders']
-
-    for entity in entities:
+    names = ['source_todo_analytics_raw_data_tasks_raw', 'source_todo_analytics_raw_data_lists_raw', 'source_todo_analytics_raw_data_folders_raw']
+    for entity,name in entities,names:
         entity_path = os.path.join(raw_path,f'{entity}.json')
         entity_df = pd.read_json(entity_path,dtype=str)
         try:
@@ -30,13 +30,10 @@ def dump_to_motherduck(context: AssetExecutionContext):
             cur = con.cursor()
             cur.sql(f"CREATE OR REPLACE TABLE {entity}_raw as SELECT * FROM entity_df")
             context.log.info(f'loaded {len(entity_df)} rows to {entity}_raw table.')
-            asset_key = AssetKey(name=f"{entity}_raw")
+
 
             # yield the materialization result
-            yield AssetMaterialization(asset_key=asset_key,
-                                       metadata={'num_rows': len(entity_df)},
-                                       description=f'Successfully loaded {len(entity_df)} rows to {entity}_raw table.'
-                                       )
+            yield Output(entity_df,name=name)
         finally:
             con.close()
             cur.close()
