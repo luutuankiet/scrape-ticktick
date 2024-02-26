@@ -370,13 +370,15 @@ with tab2:
 
     col1,col2,col3 = st.columns(3)
     
-    col1.metric("avg completed",value=completed_df.groupby('day_of_year')['tasks_completed'].sum() / completed_df.groupby('day_of_year')['day_of_year'].count() if completed_df_delta.shape[0] > 0 else None,
+    avg_days = (abs(start - end) + datetime.timedelta(days=1)).days
+
+    col1.metric("avg completed",value=int(completed_df.groupby('day_of_year')['tasks_completed'].sum().sum() / avg_days) if completed_df_delta.shape[0] > 0 else None,
                 delta=f"last item {completed_df_delta.iloc[0,3] }" if completed_df_delta.shape[0] > 0 else None,
                 delta_color="off")
-    col2.metric("avg created",value=created_df.groupby('day_of_year')['tasks_created'].sum() / created_df.groupby('day_of_year')['day_of_year'].count() if created_df_delta.shape[0] > 0 else None,
+    col2.metric("avg created",value=int(created_df.groupby('day_of_year')['tasks_created'].sum().sum() / avg_days) if created_df_delta.shape[0] > 0 else None,
                 delta=f"last item {created_df_delta.iloc[0,3]}" if created_df_delta.shape[0] > 0 else None,
                 delta_color="off")
-    col3.metric("avg active",value=active_df.groupby('day_of_year')['tasks_active'].sum() / active_df.groupby('day_of_year')['day_of_year'].count() if active_df_delta.shape[0] > 0 else None,
+    col3.metric("avg active",value=int(active_df.groupby('day_of_year')['tasks_active'].sum().sum() / avg_days) if active_df_delta.shape[0] > 0 else None,
                 delta=f"last item {active_df_delta.iloc[0,3] }" if active_df_delta.shape[0] > 0 else None,
                 delta_color="off")
     
