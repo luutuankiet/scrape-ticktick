@@ -210,7 +210,7 @@ with tab1:
         st.metric(
             "open loops",
             value = counter,
-            delta = f"{counter_delta} than clarify" if counter > 0 else "all's well.",
+            delta = f"capture them!!! (gap {counter_delta} vs clarify)" if counter > 0 else "all's well.",
             delta_color="inverse" if counter > 0 else "off",
             # help="compared to number of items to clarify"
             )
