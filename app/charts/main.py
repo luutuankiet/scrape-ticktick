@@ -119,11 +119,16 @@ with tab1:
         if re.search('[a-z0-9]',line.lower()):
             counter+=1 
 
-    compare_clarify = int(tags_count['cnt_clarifyme'].iloc[0]) if tags_count.shape[0] > 0 else 0
+    if tags_count.shape[0] > 0:
+        compare_clarify = int(tags_count['cnt_clarifyme'].iloc[0]) 
+        clarifyme_count = tags_count['cnt_clarifyme'].iloc[0]
+        clarify_progress = tags_count['clarification_progress'].iloc[0]
+    else:
+        compare_clarify  = 0
+        clarifyme_count  = 0
+        clarify_progress = 0
         
     counter_delta = counter - compare_clarify        
-
-    clarifyme_count = tags_count['cnt_clarifyme'].iloc[0] if tags_count.shape[0] > 0 else 0
 
     clarifyme_avg = 80 # TODO : count average clarifyme across dataset.
     delta_clarifyme =  clarifyme_count - clarifyme_avg
@@ -212,13 +217,12 @@ with tab1:
             value = counter,
             delta = f"capture them!!! (gap {counter_delta} vs clarify)" if counter > 0 else "all's well.",
             delta_color="inverse" if counter > 0 else "off",
-            # help="compared to number of items to clarify"
             )
     with col4:
           st.metric(
             label="Clarifyme count",
             value=clarifyme_count,
-            delta=f'{delta_clarifyme} than weekly average {clarifyme_avg}' if clarifyme_count > 0 else "all's well.",
+            delta=f'{delta_clarifyme} than weekly average {clarifyme_avg}' if clarify_progress > 80 else f"clarify them!!! clarification at {clarify_progress}% progress",
             delta_color="inverse" if clarifyme_count > 0 else "off",
         )
 
