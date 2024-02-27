@@ -28,7 +28,10 @@ common_tz = pytz.timezone('America/Guayaquil')
 def convert_row_to_common_tz(row,date_column):
     #create tz aware
     val = row[date_column]
-    tz = pytz.timezone(row['td_timezone'])
+    try:
+        tz = pytz.timezone(row['td_timezone'])
+    except Exception as e:
+        tz = common_tz
     tz_aware = pd.to_datetime(val).tz_localize(tz=tz)
     return tz_aware.astimezone(common_tz)
 
@@ -462,7 +465,7 @@ with tab2:
     
 
     created_count = get_table(created_count_path)
-
+    st.write(created_count)
     filtered_created_count = created_count[(created_count['key'] >= pd.to_datetime(start)) & (created_count['key'] <= pd.to_datetime(end))]
     filtered_created_count.sort_values(by=['key'],ascending=True,inplace=True)
     created_count_grouped = filtered_created_count.groupby('day_of_year')['tasks_created'].sum().astype(int)
@@ -497,7 +500,7 @@ with tab2:
 
     
     created_df_delta = created_df
-    created_df_delta['max_day_created_timestamp'] = pd.Timestamp.now(tz=common_tz) - created_df_delta['max_day_created_timestamp']
+    created_df_delta['max_day_created_timestamp'] = pd.Timestamp.now(tz=common_tz) - pd.to_datetime(created_df_delta['max_day_created_timestamp']).dt.tz_localize(common_tz)
     created_df_delta['max_day_created_timestamp'] = created_df_delta['max_day_created_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
     create_progress = pd.merge(created_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
     create_progress = create_progress.style.map(
@@ -508,7 +511,7 @@ with tab2:
 
 
     active_df_delta = active_df
-    active_df_delta['max_day_active_timestamp'] = pd.Timestamp.now(tz=common_tz) - active_df_delta['max_day_active_timestamp']
+    active_df_delta['max_day_active_timestamp'] = pd.Timestamp.now(tz=common_tz) - active_df_delta['max_day_active_timestamp'].dt.tz_localize(common_tz)
     active_df_delta['max_day_active_timestamp'] = active_df_delta['max_day_active_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
     active_progress = pd.merge(active_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
     active_progress = active_progress.style.map(
@@ -521,7 +524,7 @@ with tab2:
 
 
     completed_df_delta = completed_df
-    completed_df_delta['max_day_completed_timestamp'] = pd.Timestamp.now(tz=common_tz) - completed_df_delta['max_day_completed_timestamp']
+    completed_df_delta['max_day_completed_timestamp'] = pd.Timestamp.now(tz=common_tz) - completed_df_delta['max_day_completed_timestamp'].dt.tz_localize(common_tz)
     completed_df_delta['max_day_completed_timestamp'] = completed_df_delta['max_day_completed_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
     complete_progress = pd.merge(completed_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
     complete_progress = complete_progress.style.map(
