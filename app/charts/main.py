@@ -103,6 +103,40 @@ tab1,tab2,tab3 = st.tabs(['🧑🏽‍💻 daily ops',
 with tab1:
     st.write("# your main metrics")
     st.write("*to answer the question, how munch do i have in my head?*")
+
+    today_table_query = """
+                            select 
+                            td_title
+                            ,td_due_date
+                            ,td_due_date as og_td_due_date
+                            ,td_repeatFlag
+                            ,fld_folder_name
+                            ,l_list_name
+                            
+                            ,* from obt where 
+                            completed_date_id is null
+                            and l_is_active = '1'
+                            and td_kind = 'TEXT'
+                            and fld_folder_name not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists')
+                            and l_list_name not like '%tickler note%'                            
+                            and due_date_id is not null 
+                            and td_tags not like '%tickler%'
+                               
+                            """
+    today_table = get_table_nocache(today_table_query).reset_index(drop=True)
+    
+    # ajust the timezone 
+    today_table['td_due_date'] = pd.to_datetime(today_table['td_due_date'])
+    today_table['td_due_date'] = today_table['td_due_date'].dt.tz_localize(tz=adj_timezone)
+    today_clarify_count_df = today_table[(today_table['td_tags'].str.contains('clarifyme')) & 
+                                         (today_table['td_title'].str.contains('clarifytoday')) &
+                                         ((today_table['td_due_date'].dt.date == pd.Timestamp.now(tz=adj_timezone).date()) |
+                                          (today_table['td_due_date'].dt.date == pd.to_datetime('1900-01-01T00:00:00').date())
+                                          )] # for metrics clarifyme
+
+    today_clarify_count =  today_clarify_count_df.shape[0] if today_clarify_count_df.shape[0] > 0 else 0
+
+
     with open(tags_count_path, 'r') as f:
         tags_query=f.read()
     tags_count = get_table_nocache(tags_query)
@@ -133,31 +167,6 @@ with tab1:
     clarifyme_avg = 80 # TODO : count average clarifyme across dataset.
     delta_clarifyme =  clarifyme_count - clarifyme_avg
     
-    today_table_query = """
-                            select 
-                            td_title
-                            ,td_due_date
-                            ,td_due_date as og_td_due_date
-                            ,td_repeatFlag
-                            ,fld_folder_name
-                            ,l_list_name
-                            
-                            ,* from obt where 
-                            completed_date_id is null
-                            and l_is_active = '1'
-                            and td_kind = 'TEXT'
-                            and fld_folder_name not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists')
-                            and l_list_name not like '%tickler note%'                            
-                            and due_date_id is not null 
-                            and td_tags not like '%tickler%'
-                               
-                            """
-    today_table = get_table_nocache(today_table_query).reset_index(drop=True)
-    
-    # ajust the timezone 
-    today_table['td_due_date'] = pd.to_datetime(today_table['td_due_date'])
-    today_table['td_due_date'] = today_table['td_due_date'].dt.tz_localize(tz=adj_timezone)
-
     overdue_count_df = today_table[today_table['td_due_date'].dt.date < pd.Timestamp.now(tz=adj_timezone).date()]
 
     overdue_count = overdue_count_df.shape[0]
@@ -165,7 +174,6 @@ with tab1:
     today_count_df = today_table[today_table['td_due_date'].dt.date == pd.Timestamp.now(tz=adj_timezone).date()]
     today_count_norepeat_df = today_count_df[today_count_df['td_repeatFlag'] == 'nan']
     today_count_repeat_df = today_count_df[today_count_df['td_repeatFlag'] != 'nan']
-    
     
     today_count_norepeat = today_count_norepeat_df.shape[0]
     today_count_repeat = today_count_repeat_df.shape[0]
@@ -193,7 +201,7 @@ with tab1:
     with col2:
           st.metric(
             label="tasks lined up",
-            value=f"{today_count_norepeat} | {today_count_repeat} recur",
+            value=f"{today_count_norepeat} unique | {today_count_repeat} recur",
             delta = f"{delta_today} than usual {today_avg} tasks" if today_count_norepeat > 0 else "all's well.",
             delta_color="inverse" if today_count_norepeat > 0 else "off",
         )
@@ -221,10 +229,16 @@ with tab1:
     with col4:
           st.metric(
             label="Clarifyme count",
-            value=clarifyme_count,
+            value=f"{clarifyme_count} all | {today_clarify_count} clarifytoday",
             delta=f'{delta_clarifyme} than weekly average {clarifyme_avg}' if clarify_progress > 80 else f"clarify them!!! clarification at {clarify_progress}% progress",
             delta_color="inverse" if clarifyme_count > 0 else "off",
         )
+          if today_clarify_count > 0:
+            with st.expander("query"):
+                st.write("clarifytoday count:")
+                st.dataframe(today_clarify_count_df,hide_index=True)
+          else:
+              pass
 
     st.divider()
     st.write("## look ahead")
