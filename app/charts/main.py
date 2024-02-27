@@ -5,6 +5,7 @@ import pandas as pd
 from helper.source_env import dbt_project_dir
 from helper.query_retry import retry
 import datetime
+from datetime import timezone
 import re
 import altair as alt
 import subprocess
@@ -15,7 +16,33 @@ motherduck_token = os.environ.get("motherduck_token")
 con = duckdb.connect(f'md:ticktick_gtd?motherduck_token={motherduck_token}')
 cur = con.cursor()
 
-adj_timezone = pytz.timezone('America/Guayaquil')
+utc = pytz.timezone('UTC')
+
+# to make date comparison work, 
+# 1 create a common timezone. using ecuador gmt-5
+# 2 convert date values into tz aware / localize accoding to the specified tz column
+# 3 convert the result to the common tz
+# 4 every comparison with external dates, always use the external date's timezone aware at the common timezone.
+    # ajust the timezone 
+common_tz = pytz.timezone('America/Guayaquil')
+def convert_row_to_common_tz(row,date_column):
+    #create tz aware
+    val = row[date_column]
+    tz = pytz.timezone(row['td_timezone'])
+    tz_aware = pd.to_datetime(val).tz_localize(tz=tz)
+    return tz_aware.astimezone(common_tz)
+
+
+
+def convert_df_to_common_tz(df):
+    date_columns = df.filter(regex='(date|time)(?!zone)').columns.tolist()
+    for col in date_columns:
+        try:
+            df[col] = df.apply(convert_row_to_common_tz,date_column=col, axis=1)
+        except Exception as e:
+            pass
+    return df
+
 
 
 analytics_path = os.path.join(dbt_project_dir,'analyses')
@@ -31,14 +58,18 @@ st.header("🌏 Ken's GTD dashboard",divider="blue")
 
 
 
-@retry()
+# @retry()
 @st.cache_data(ttl=datetime.timedelta(hours=24),max_entries=10)
 def get_table(query):
-    return cur.sql(query).df()
+    df = cur.sql(query).df()
+    df = convert_df_to_common_tz(df)
+    return df
 
-@retry()
+# @retry()
 def get_table_nocache(query):
-    return cur.sql(query).df()
+    df = cur.sql(query).df()
+    df = convert_df_to_common_tz(df)
+    return df
 
 
 
@@ -108,7 +139,6 @@ with tab1:
                             select 
                             td_title
                             ,td_due_date
-                            ,td_due_date as og_td_due_date
                             ,td_repeatFlag
                             ,fld_folder_name
                             ,l_list_name
@@ -124,14 +154,10 @@ with tab1:
                                
                             """
     today_table = get_table_nocache(today_table_query).reset_index(drop=True)
-    
-    # ajust the timezone 
-    today_table['td_due_date'] = pd.to_datetime(today_table['td_due_date'])
-    today_table['td_due_date'] = today_table['td_due_date'].dt.tz_localize(tz=adj_timezone)
     today_clarify_count_df = today_table[(today_table['td_tags'].str.contains('clarifyme')) & 
                                          (today_table['td_title'].str.contains('clarifytoday')) &
-                                         ((today_table['td_due_date'].dt.date == pd.Timestamp.now(tz=adj_timezone).date()) |
-                                          (today_table['td_due_date'].dt.date == pd.to_datetime('1900-01-01T00:00:00').date())
+                                         ((today_table['td_due_date'].dt.date == pd.Timestamp.now(tz=common_tz).date()) |
+                                          (today_table['td_due_date'].dt.date < pd.to_datetime('2020-01-01T00:00:00').date())
                                           )] # for metrics clarifyme
 
     today_clarify_count =  today_clarify_count_df.shape[0] if today_clarify_count_df.shape[0] > 0 else 0
@@ -167,11 +193,11 @@ with tab1:
     clarifyme_avg = 80 # TODO : count average clarifyme across dataset.
     delta_clarifyme =  clarifyme_count - clarifyme_avg
     
-    overdue_count_df = today_table[today_table['td_due_date'].dt.date < pd.Timestamp.now(tz=adj_timezone).date()]
+    overdue_count_df = today_table[today_table['td_due_date'].dt.date < pd.Timestamp.now(tz=common_tz).date()]
 
     overdue_count = overdue_count_df.shape[0]
 
-    today_count_df = today_table[today_table['td_due_date'].dt.date == pd.Timestamp.now(tz=adj_timezone).date()]
+    today_count_df = today_table[today_table['td_due_date'].dt.date == pd.Timestamp.now(tz=common_tz).date()]
     today_count_norepeat_df = today_count_df[today_count_df['td_repeatFlag'] == 'nan']
     today_count_repeat_df = today_count_df[today_count_df['td_repeatFlag'] != 'nan']
     
@@ -244,10 +270,10 @@ with tab1:
     st.write("## look ahead")
     st.write("*what is queued in for the times ahead? give yourself the best chance of completing them in time.*")
 
-    future_count_df = today_table[today_table['td_due_date'].dt.date > pd.Timestamp.now(tz=adj_timezone).date()]
-    tmr_count_df = future_count_df[future_count_df['td_due_date'].dt.date <= pd.Timestamp.now(tz=adj_timezone).date() + datetime.timedelta(days=1)]
-    tmr_1d_count_df = future_count_df[(future_count_df['td_due_date'].dt.date > pd.Timestamp.now(tz=adj_timezone).date() + datetime.timedelta(days=1)) &
-                                      (future_count_df['td_due_date'].dt.date <= pd.Timestamp.now(tz=adj_timezone).date() + datetime.timedelta(days=2))
+    future_count_df = today_table[today_table['td_due_date'].dt.date > pd.Timestamp.now(tz=common_tz).date()]
+    tmr_count_df = future_count_df[future_count_df['td_due_date'].dt.date <= pd.Timestamp.now(tz=common_tz).date() + datetime.timedelta(days=1)]
+    tmr_1d_count_df = future_count_df[(future_count_df['td_due_date'].dt.date > pd.Timestamp.now(tz=common_tz).date() + datetime.timedelta(days=1)) &
+                                      (future_count_df['td_due_date'].dt.date <= pd.Timestamp.now(tz=common_tz).date() + datetime.timedelta(days=2))
                                       ]
     
     
@@ -404,7 +430,7 @@ with tab2:
 
     st.write('## your activities')
 
-    today = datetime.datetime.now()
+    today = datetime.datetime.now(tz=common_tz)
     this_week_begin = today - datetime.timedelta(days=today.weekday())
 
     start,end = st.date_input(
@@ -436,6 +462,7 @@ with tab2:
     
 
     created_count = get_table(created_count_path)
+
     filtered_created_count = created_count[(created_count['key'] >= pd.to_datetime(start)) & (created_count['key'] <= pd.to_datetime(end))]
     filtered_created_count.sort_values(by=['key'],ascending=True,inplace=True)
     created_count_grouped = filtered_created_count.groupby('day_of_year')['tasks_created'].sum().astype(int)
@@ -470,8 +497,8 @@ with tab2:
 
     
     created_df_delta = created_df
-    created_df_delta['max_day_created_timestamp'] = abs(pd.Timestamp.now(tz=adj_timezone) - created_df_delta['max_day_created_timestamp'].dt.tz_localize(tz=adj_timezone))
-    created_df_delta['max_day_created_timestamp'] = created_df_delta['max_day_created_timestamp'].apply(lambda x: humanize.naturaltime(x))
+    created_df_delta['max_day_created_timestamp'] = pd.Timestamp.now(tz=common_tz) - created_df_delta['max_day_created_timestamp']
+    created_df_delta['max_day_created_timestamp'] = created_df_delta['max_day_created_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
     create_progress = pd.merge(created_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
     create_progress = create_progress.style.map(
         highlight_text,subset=['done_progress','clarify_progress']
@@ -481,8 +508,8 @@ with tab2:
 
 
     active_df_delta = active_df
-    active_df_delta['max_day_active_timestamp'] = abs(pd.Timestamp.now(tz=adj_timezone) - active_df_delta['max_day_active_timestamp'].dt.tz_localize(tz=adj_timezone))
-    active_df_delta['max_day_active_timestamp'] = active_df_delta['max_day_active_timestamp'].apply(lambda x: humanize.naturaltime(x))
+    active_df_delta['max_day_active_timestamp'] = pd.Timestamp.now(tz=common_tz) - active_df_delta['max_day_active_timestamp']
+    active_df_delta['max_day_active_timestamp'] = active_df_delta['max_day_active_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
     active_progress = pd.merge(active_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
     active_progress = active_progress.style.map(
         highlight_text,subset=['done_progress','clarify_progress']
@@ -494,8 +521,8 @@ with tab2:
 
 
     completed_df_delta = completed_df
-    completed_df_delta['max_day_completed_timestamp'] = abs(pd.Timestamp.now(tz=adj_timezone) - completed_df_delta['max_day_completed_timestamp'].dt.tz_localize(tz=adj_timezone))
-    completed_df_delta['max_day_completed_timestamp'] = completed_df_delta['max_day_completed_timestamp'].apply(lambda x: humanize.naturaltime(x))
+    completed_df_delta['max_day_completed_timestamp'] = pd.Timestamp.now(tz=common_tz) - completed_df_delta['max_day_completed_timestamp']
+    completed_df_delta['max_day_completed_timestamp'] = completed_df_delta['max_day_completed_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
     complete_progress = pd.merge(completed_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
     complete_progress = complete_progress.style.map(
         highlight_text,subset=['done_progress','clarify_progress']

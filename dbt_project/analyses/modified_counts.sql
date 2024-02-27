@@ -38,7 +38,19 @@ from source group by day,month,year,l_list_name,fld_folder_name,max_day_active_t
 
 )
 
-select *
+select t.*
+,o.td_timezone
 ,(year||'-'||month||'-'||day)::date as key
 ,(year||'-'||month||'-'||day) as day_of_year
- from task_level
+ from task_level t 
+ inner join 
+ (select
+ td_timezone,
+ fld_folder_name,
+ l_list_name,
+ td_modified_time
+ from obt
+ ) o on o.td_modified_time=t.max_day_active_timestamp
+ and o.fld_folder_name=t.fld_folder_name
+ and o.l_list_name=t.l_list_name
+ 
