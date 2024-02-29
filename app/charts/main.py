@@ -390,12 +390,16 @@ with tab1:
     # Create heatmap using Altair
     heatmap = alt.Chart(new_future_count).mark_rect().encode(
          x=alt.X('due_week_of_year:O', title='Week', axis=alt.Axis(labelOverlap=True)),
+        # x=alt.X('month:N', title='Month', axis=alt.Axis(labelOverlap=True)),
+        # column=alt.Column('due_week_of_year:O', title='Week', sort=new_future_count_df['due_week_of_year'].tolist()), 
+
+        # column=alt.Column('month:N', title='Month', header=alt.Header(labelAngle=-45, labelAlign='right')),
+        
         # x='due_week_of_year:O',
         # y=alt.Y('day_of_week:O',sort=custom_sort_order),
         y=alt.Y('day_of_week:O',sort=custom_sort_order),
         color='count:Q',
         # column='month(due_date_id):N',
-        column=alt.Column('month:N', title='Month', header=alt.Header(labelAngle=-45, labelAlign='right'))
         # tooltip=[
         #     alt.Tooltip("due_date_id:T", title="Date"),
         #     alt.Tooltip("day_of_week:O", title="day of week"),
@@ -420,7 +424,7 @@ with tab1:
     #     height=300,
     #     title='scheduled tasks heatmap'
     # )
-    st.altair_chart(heatmap)
+    st.altair_chart(heatmap,use_container_width=True)
     
 
 
