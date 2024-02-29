@@ -372,59 +372,33 @@ with tab1:
 
 
     st.write("your upcoming schedule")
-
-    new_future_count_df = future_count_df
-    # new_future_count_df['day_of_week'] = future_count_df['due_date_id'].dt.day_name()
-    new_future_count_df['day_of_week'] = future_count_df['due_date_id'].dt.day_name()
-    new_future_count_df['month'] = future_count_df['due_date_id'].dt.month_name()
-    new_future_count_df['date'] = new_future_count_df['due_date_id'].dt.date
-
-    st.write(future_count_df)
     
-    new_future_count = new_future_count_df.groupby(['due_date_id','day_of_week','due_week_of_year','month'])['td_title'].count().reset_index().rename(columns={'td_title': 'count'})
-    future_count = future_count_df.groupby('due_date_id')['td_title'].count().reset_index().rename(columns={'due_date_id': 'Date', 'td_title': 'count'})
-    st.write(future_count, new_future_count)
+    future_count_df['day_of_week'] = future_count_df['due_date_id'].dt.strftime('%a')
+    future_count_df['month'] = future_count_df['due_date_id'].dt.month_name()
+    future_count_df['date'] = future_count_df['due_date_id'].dt.date
+    future_count_df['week'] = future_count_df['due_date_id'].dt.strftime('%U')
+    future_count_df['month_and_week'] = future_count_df['due_date_id'].dt.strftime('%b - w%U')
+    future_count = future_count_df.groupby(['due_date_id','due_week_of_year','day_of_week','month','month_and_week'])['td_title'].count().reset_index().rename(columns={'td_title': 'count'})
 
-    custom_sort_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    custom_sort_order = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
     # Create heatmap using Altair
-    heatmap = alt.Chart(new_future_count).mark_rect().encode(
-         x=alt.X('due_week_of_year:O', title='Week', axis=alt.Axis(labelOverlap=True)),
-        # x=alt.X('month:N', title='Month', axis=alt.Axis(labelOverlap=True)),
-        # column=alt.Column('due_week_of_year:O', title='Week', sort=new_future_count_df['due_week_of_year'].tolist()), 
-
-        # column=alt.Column('month:N', title='Month', header=alt.Header(labelAngle=-45, labelAlign='right')),
-        
-        # x='due_week_of_year:O',
-        # y=alt.Y('day_of_week:O',sort=custom_sort_order),
-        y=alt.Y('day_of_week:O',sort=custom_sort_order),
+    heatmap = alt.Chart(future_count).mark_rect().encode(
+        x=alt.X('month_and_week:N', title='week'),
+        y=alt.Y('day_of_week:O',sort=custom_sort_order,title='weekday'),
         color='count:Q',
-        # column='month(due_date_id):N',
-        # tooltip=[
-        #     alt.Tooltip("due_date_id:T", title="Date"),
-        #     alt.Tooltip("day_of_week:O", title="day of week"),
-        #     alt.Tooltip("month:N", title="Month"),
-        #     alt.Tooltip("count:Q", title="scheduled tasks"),
-        # ]
-    ).properties(
-        width=200,
-        height=300,
-        title='scheduled tasks heatmap')
-    # heatmap = alt.Chart(future_count).mark_rect().encode(
-    #     x='date(Date):O',
-    #     y='month(Date):O',
-    #     color='count:Q',
-    #     tooltip=[
-    #         alt.Tooltip("Date:T", title="Date"),
-    #         alt.Tooltip("count:Q", title="scheduled tasks"),
-    #     ]
-    # )
-    # .properties(
-    #     width=800,
-    #     height=300,
-    #     title='scheduled tasks heatmap'
-    # )
+        tooltip=[
+            alt.Tooltip("due_date_id:T", title="date"),
+            alt.Tooltip("day_of_week:O", title="weekday"),
+            alt.Tooltip("count:Q", title="count"),
+        ]
+    )
+    
+  
     st.altair_chart(heatmap,use_container_width=True)
+    with st.expander("query"):
+        debug_future_count_df = future_count_df[['td_title','date','day_of_week','week','due_date_id','fld_folder_name','l_list_name']].sort_values(by='due_date_id', ascending=True)
+        st.dataframe(debug_future_count_df,hide_index=True)
     
 
 
@@ -538,6 +512,7 @@ with tab2:
 
     
     created_df_delta = created_df
+    # created_df_delta['max_day_created_timestamp'] = pd.Timestamp.now(tz=common_tz) - pd.to_datetime(created_df_delta['max_day_created_timestamp']).dt.tz_localize(common_tz)
     created_df_delta['max_day_created_timestamp'] = pd.Timestamp.now(tz=common_tz) - pd.to_datetime(created_df_delta['max_day_created_timestamp'])
     created_df_delta['max_day_created_timestamp'] = created_df_delta['max_day_created_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
     create_progress = pd.merge(created_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
@@ -549,6 +524,7 @@ with tab2:
 
 
     active_df_delta = active_df
+    # active_df_delta['max_day_active_timestamp'] = pd.Timestamp.now(tz=common_tz) - active_df_delta['max_day_active_timestamp'].dt.tz_localize(common_tz)
     active_df_delta['max_day_active_timestamp'] = pd.Timestamp.now(tz=common_tz) - active_df_delta['max_day_active_timestamp']
     active_df_delta['max_day_active_timestamp'] = active_df_delta['max_day_active_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
     active_progress = pd.merge(active_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
@@ -562,6 +538,7 @@ with tab2:
 
 
     completed_df_delta = completed_df
+    # completed_df_delta['max_day_completed_timestamp'] = pd.Timestamp.now(tz=common_tz) - completed_df_delta['max_day_completed_timestamp'].dt.tz_localize(common_tz)
     completed_df_delta['max_day_completed_timestamp'] = pd.Timestamp.now(tz=common_tz) - completed_df_delta['max_day_completed_timestamp']
     completed_df_delta['max_day_completed_timestamp'] = completed_df_delta['max_day_completed_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
     complete_progress = pd.merge(completed_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
