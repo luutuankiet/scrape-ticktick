@@ -368,24 +368,59 @@ with tab1:
 
 
 
+    # Group by day of week and count tasks
+
+
     st.write("your upcoming schedule")
+
+    new_future_count_df = future_count_df
+    # new_future_count_df['day_of_week'] = future_count_df['due_date_id'].dt.day_name()
+    new_future_count_df['day_of_week'] = future_count_df['due_date_id'].dt.day_name()
+    new_future_count_df['month'] = future_count_df['due_date_id'].dt.month_name()
+    new_future_count_df['date'] = new_future_count_df['due_date_id'].dt.date
+
+    st.write(future_count_df)
+    
+    new_future_count = new_future_count_df.groupby(['due_date_id','day_of_week','due_week_of_year','month'])['td_title'].count().reset_index().rename(columns={'td_title': 'count'})
     future_count = future_count_df.groupby('due_date_id')['td_title'].count().reset_index().rename(columns={'due_date_id': 'Date', 'td_title': 'count'})
+    st.write(future_count, new_future_count)
+
+    custom_sort_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
     # Create heatmap using Altair
-    heatmap = alt.Chart(future_count).mark_rect().encode(
-        x='date(Date):O',
-        y='month(Date):O',
+    heatmap = alt.Chart(new_future_count).mark_rect().encode(
+         x=alt.X('due_week_of_year:O', title='Week', axis=alt.Axis(labelOverlap=True)),
+        # x='due_week_of_year:O',
+        # y=alt.Y('day_of_week:O',sort=custom_sort_order),
+        y=alt.Y('day_of_week:O',sort=custom_sort_order),
         color='count:Q',
-        tooltip=[
-            alt.Tooltip("Date:T", title="Date"),
-            alt.Tooltip("count:Q", title="scheduled tasks"),
-        ]
-    )
+        # column='month(due_date_id):N',
+        column=alt.Column('month:N', title='Month', header=alt.Header(labelAngle=-45, labelAlign='right'))
+        # tooltip=[
+        #     alt.Tooltip("due_date_id:T", title="Date"),
+        #     alt.Tooltip("day_of_week:O", title="day of week"),
+        #     alt.Tooltip("month:N", title="Month"),
+        #     alt.Tooltip("count:Q", title="scheduled tasks"),
+        # ]
+    ).properties(
+        width=200,
+        height=300,
+        title='scheduled tasks heatmap')
+    # heatmap = alt.Chart(future_count).mark_rect().encode(
+    #     x='date(Date):O',
+    #     y='month(Date):O',
+    #     color='count:Q',
+    #     tooltip=[
+    #         alt.Tooltip("Date:T", title="Date"),
+    #         alt.Tooltip("count:Q", title="scheduled tasks"),
+    #     ]
+    # )
     # .properties(
     #     width=800,
     #     height=300,
     #     title='scheduled tasks heatmap'
     # )
-    st.altair_chart(heatmap,use_container_width=True)
+    st.altair_chart(heatmap)
     
 
 
