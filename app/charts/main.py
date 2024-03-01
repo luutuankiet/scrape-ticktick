@@ -87,10 +87,10 @@ with st.expander("server ops"):
 
     if st.button("reload data"):
             log_path = "/logs/dbt/manual_run_log.txt"
-            dbt_cmd = "source /main/scrape-ticktick/.venv/bin/activate && source /main/scrape-ticktick/.env && dbt run"
+            dbt_cmd = "source /main/scrape-ticktick/.venv/bin/activate && source /main/scrape-ticktick/.env && dagster job execute -m app.ETL.definitions -j ETL_job"
             
             with open(log_path, "w") as output_file:
-                result = subprocess.run(f"{dbt_cmd}", shell=True, stdout=output_file, stderr=subprocess.STDOUT)
+                result = subprocess.run(f"{dbt_cmd}", shell=True, stdout=output_file, stderr=subprocess.STDOUT,executable="/bin/bash")
 
         # Read and display the output file content  
             with open(log_path, "r") as output_file:
@@ -100,11 +100,11 @@ with st.expander("server ops"):
 
 
 
+# with st.sidebar:
+#     obt=get_table("select * from obt")
+#     folders = obt['fld_folder_name'].drop_duplicates().to_list()
+#     filter_folder = st.multiselect('folders',folders,default=folders)
 
-with st.sidebar:
-    obt=get_table("select * from obt")
-    folders = obt['fld_folder_name'].drop_duplicates().to_list()
-    filter_folder = st.multiselect('folders',folders,default=folders)
 
 def highlight_cell(val):
     if val < 20:
@@ -520,7 +520,8 @@ with tab2:
     st.write("## lists you have been working on")
 
     lvl1_lvl2_progress = get_table("select * from lvl1_lvl2_progress")
-    filtered_lvl1_lvl2_progress = lvl1_lvl2_progress[lvl1_lvl2_progress['fld_folder_name'].isin(filter_folder)]
+    # filtered_lvl1_lvl2_progress = lvl1_lvl2_progress[lvl1_lvl2_progress['fld_folder_name'].isin(filter_folder)] # TODO : a way to prevent filter init load stalling the dash
+    filtered_lvl1_lvl2_progress = lvl1_lvl2_progress
 
     
     created_df_delta = created_df
