@@ -90,8 +90,13 @@ with st.expander("server ops"):
             dbt_cmd = "source /main/scrape-ticktick/.venv/bin/activate && source /main/scrape-ticktick/.env && dbt run"
             
             with open(log_path, "w") as output_file:
-                result = subprocess.run(f"{dbt_cmd} 2>&1 | tee -a {log_path}", shell=True, executable="/bin/bash")
-            st.code(subprocess.check_output(f"tail -n 20 {log_path}", shell=True, executable="/bin/bash").decode("utf-8"))
+                result = subprocess.run(f"{dbt_cmd}", shell=True, stdout=output_file, stderr=subprocess.STDOUT)
+
+        # Read and display the output file content  
+            with open(log_path, "r") as output_file:
+                output_content = output_file.read()
+            st.code(output_content)
+
 
 
 
