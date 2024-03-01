@@ -285,8 +285,10 @@ with tab1:
     st.write("## look ahead")
     st.write("*what is queued in for the times ahead? give yourself the best chance of completing them in time.*")
 
-    future_count_df = today_table[today_table['td_due_date'].dt.date > pd.Timestamp.now(tz=common_tz).date()]
-    tmr_count_df = future_count_df[future_count_df['td_due_date'].dt.date <= pd.Timestamp.now(tz=common_tz).date() + datetime.timedelta(days=1)]
+    future_count_df = today_table[today_table['td_due_date'].dt.date >= pd.Timestamp.now(tz=common_tz).date()]
+    tmr_count_df = future_count_df[(future_count_df['td_due_date'].dt.date <= pd.Timestamp.now(tz=common_tz).date() + datetime.timedelta(days=1))&
+                                   (future_count_df['td_due_date'].dt.date > pd.Timestamp.now(tz=common_tz).date())
+                                   ]
     tmr_1d_count_df = future_count_df[(future_count_df['td_due_date'].dt.date > pd.Timestamp.now(tz=common_tz).date() + datetime.timedelta(days=1)) &
                                       (future_count_df['td_due_date'].dt.date <= pd.Timestamp.now(tz=common_tz).date() + datetime.timedelta(days=2))
                                       ]
@@ -390,9 +392,9 @@ with tab1:
     future_count_df['date'] = future_count_df['due_date_id'].dt.date
     future_count_df['week'] = future_count_df['due_date_id'].dt.strftime('%U')
     future_count_df['month_and_week'] = future_count_df['due_date_id'].dt.strftime('%b - w%U')
-    future_count = future_count_df.groupby(['due_date_id','due_week_of_year','day_of_week','month','month_and_week'])['td_title'].count().reset_index().rename(columns={'td_title': 'count'})
-
-    custom_sort_order = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    future_count = future_count_df.groupby(['date','due_week_of_year','day_of_week','month','month_and_week']).size().reset_index(name='count')
+    
+    custom_sort_order = ['Sun','Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
     # Create heatmap using Altair
     heatmap = alt.Chart(future_count).mark_rect().encode(
@@ -400,7 +402,7 @@ with tab1:
         y=alt.Y('day_of_week:O',sort=custom_sort_order,title='weekday'),
         color='count:Q',
         tooltip=[
-            alt.Tooltip("due_date_id:T", title="date"),
+            alt.Tooltip("date:T", title="date"),
             alt.Tooltip("day_of_week:O", title="weekday"),
             alt.Tooltip("count:Q", title="count"),
         ]
