@@ -90,7 +90,7 @@ with st.expander("server ops"):
             dbt_cmd = "source /main/scrape-ticktick/.venv/bin/activate && source /main/scrape-ticktick/.env && dbt run"
             
             with open(log_path, "w") as output_file:
-                result = subprocess.run(f"{dbt_cmd}", shell=True, stdout=output_file, stderr=subprocess.STDOUT)
+                result = subprocess.run(f"{dbt_cmd}", shell=True, stdout=output_file, stderr=subprocess.STDOUT,executable="/bin/bash")
 
         # Read and display the output file content  
             with open(log_path, "r") as output_file:
