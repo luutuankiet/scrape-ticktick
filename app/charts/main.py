@@ -87,7 +87,7 @@ with st.expander("server ops"):
 
     if st.button("reload data"):
             log_path = "/logs/dbt/manual_run_log.txt"
-            dbt_cmd = "source /main/scrape-ticktick/.venv/bin/activate && source /main/scrape-ticktick/.env && dagster job execute -m app.ETL.definitions -j ETL_job"
+            dbt_cmd = "source /main/scrape-ticktick/.venv/bin/activate && source /main/scrape-ticktick/.env && dagster job execute -m app.ETL.definitions -j ETL_job -d $DAGSTER_HOME"
             
             with open(log_path, "w") as output_file:
                 result = subprocess.run(f"{dbt_cmd}", shell=True, stdout=output_file, stderr=subprocess.STDOUT,executable="/bin/bash")
