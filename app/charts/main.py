@@ -74,16 +74,28 @@ def get_table_nocache(query):
     df = convert_df_to_common_tz(df)
     return df
 
+with st.expander("server ops"):
 
+    if st.button("force reload server"):
+            kill = "tmux send-keys -t streamlit.0 C-c"
+            # setup = "cd ../.. && tmux new-session -s $STREAMLIT -d"
+            reload = "tmux send-keys -t streamlit.0 'streamlit run main.py' ENTER"
+            subprocess.run(f"{kill} & {kill}", shell=True)
+            subprocess.run(f"sleep 10 && {reload}",shell=True)
+    if st.button("force cache reload"):
+            st.cache_data.clear()
 
-if st.button("force reload server"):
-        kill = "tmux send-keys -t streamlit.0 C-c"
-        # setup = "cd ../.. && tmux new-session -s $STREAMLIT -d"
-        reload = "tmux send-keys -t streamlit.0 'streamlit run main.py' ENTER"
-        subprocess.run(f"{kill} & {kill}", shell=True)
-        subprocess.run(f"sleep 10 && {reload}",shell=True)
-if st.button("force cache reload"):
-        st.cache_data.clear()
+    if st.button("reload data"):
+            log_path = "/logs/dbt/manual_run_log.txt"
+            dbt_cmd = "source /main/scrape-ticktick/.venv/bin/activate && source /main/scrape-ticktick/.env && dbt run"
+            
+            with open(log_path, "w") as output_file:
+                result = subprocess.run(f"{dbt_cmd}", shell=True, stdout=output_file, stderr=subprocess.STDOUT)
+
+        # Read and display the output file content  
+            with open(log_path, "r") as output_file:
+                output_content = output_file.read()
+            st.code(output_content)
 
 
 
