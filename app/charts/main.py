@@ -7,7 +7,7 @@ import pandas as pd
 from helper.source_env import dbt_project_dir
 from helper.query_retry import retry
 import datetime
-from datetime import timezone
+from datetime import timedelta, timezone
 import re
 import altair as alt
 import subprocess
@@ -298,6 +298,12 @@ with tab1:
                                       (future_count_df['td_due_date'].dt.date <= pd.Timestamp.now(tz=common_tz).date() + datetime.timedelta(days=2))
                                       ]
     
+    heatmap_count_df = today_table[(today_table['td_due_date'].dt.date >= pd.Timestamp.now(tz=common_tz).date() ) &
+                                   (today_table['td_due_date'].dt.date <= pd.Timestamp.now(tz=common_tz).date() + timedelta(days=365)) &
+                                   (today_table['td_repeatFlag'] == 'nan')
+                                   ]
+    
+   
     
     
 
@@ -390,20 +396,20 @@ with tab1:
     # Group by day of week and count tasks
 
 
-    st.write("your upcoming schedule")
+    st.write("your upcoming **NON-REPEAT** schedule")
     
-    future_count_df['day_of_week'] = future_count_df['due_date_id'].dt.strftime('%a')
-    future_count_df['month'] = future_count_df['due_date_id'].dt.month_name()
-    future_count_df['date'] = future_count_df['due_date_id'].dt.date
-    future_count_df['week'] = future_count_df['due_date_id'].dt.strftime('%U')
-    future_count_df['month_and_week'] = future_count_df['due_date_id'].dt.strftime('%b - w%U')
-    future_count = future_count_df.groupby(['date','due_week_of_year','day_of_week','month','month_and_week']).size().reset_index(name='count')
+    heatmap_count_df['day_of_week'] = heatmap_count_df['due_date_id'].dt.strftime('%a')
+    heatmap_count_df['month'] = heatmap_count_df['due_date_id'].dt.month_name()
+    heatmap_count_df['date'] = heatmap_count_df['due_date_id'].dt.date
+    heatmap_count_df['week'] = heatmap_count_df['due_date_id'].dt.strftime('%U')
+    heatmap_count_df['month_and_week'] = heatmap_count_df['due_date_id'].dt.strftime('%b - w%U')
+    heatmap_count = heatmap_count_df.groupby(['date','due_week_of_year','day_of_week','month','month_and_week']).size().reset_index(name='count')
     
     custom_sort_order = ['Sun','Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
     # Create heatmap using Altair
-    heatmap = alt.Chart(future_count).mark_rect().encode(
-        x=alt.X('month_and_week:N', title='week'),
+    heatmap = alt.Chart(heatmap_count).mark_rect().encode(
+        x=alt.X('month_and_week:N',sort=None, title='week'),
         y=alt.Y('day_of_week:O',sort=custom_sort_order,title='weekday'),
         color='count:Q',
         tooltip=[
@@ -416,7 +422,7 @@ with tab1:
   
     st.altair_chart(heatmap,use_container_width=True)
     with st.expander("query"):
-        debug_future_count_df = future_count_df[['td_title','date','day_of_week','week','due_date_id','fld_folder_name','l_list_name']].sort_values(by='due_date_id', ascending=True)
+        debug_future_count_df = heatmap_count_df[['td_title','date','day_of_week','week','due_date_id','fld_folder_name','l_list_name']].sort_values(by='due_date_id', ascending=True)
         st.dataframe(debug_future_count_df,hide_index=True)
     
 
@@ -592,7 +598,7 @@ with tab2:
 
 
         
-    with st.expander("complete",expanded = True):
+    with st.expander("complete",expanded = False):
         st.dataframe(
             complete_progress,
             column_config={
@@ -616,7 +622,7 @@ with tab2:
 
 
 
-    with st.expander("created",expanded = True):
+    with st.expander("created",expanded = False):
         st.dataframe(
             create_progress,
             column_config={
@@ -638,7 +644,7 @@ with tab2:
             use_container_width=True
             )
 
-    with st.expander("active",expanded = True):
+    with st.expander("active",expanded = False):
         st.dataframe(
             active_progress,
             column_config={
