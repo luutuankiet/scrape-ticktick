@@ -32,8 +32,10 @@ def convert_row_to_common_tz(row,date_column):
         tz = pytz.timezone(row['td_timezone'])
     except Exception as e:
         tz = common_tz
-    tz_aware = pd.to_datetime(val).tz_localize(tz=tz)
-    tz_aware = (tz_aware + pd.Timedelta(days=1)) if tz_aware.hour == 0 and tz_aware.minute == 0 and tz_aware.second == 0 & 'due' in date_column  else tz_aware 
+    
+    tz_aware = pd.to_datetime(val).tz_localize(tz="UTC")
+    tz_aware = tz_aware.astimezone(tz)
+    # tz_aware =  (tz_aware + timedelta(days=+1)) if tz_aware.hour == 0 and tz_aware.minute == 0 and  tz_aware.tzinfo == 'Asia/Ho_Chi_Minh' else tz_aware
     # fix ticktick bug setting default time of due item wihtout time = 00:00 
     # TODO : handle time conversion for fields already UTC in raw : completedTime, modifiedTime, createdTime
     return tz_aware.astimezone(common_tz)
@@ -172,11 +174,13 @@ with tab1:
                                
                             """
     today_table = get_table_nocache(today_table_query).reset_index(drop=True)
+    st.write(today_table)
     today_clarify_count_df = today_table[(today_table['td_tags'].str.contains('clarifyme')) & 
                                          (today_table['td_title'].str.contains('clarifytoday')) &
                                          ((today_table['td_due_date'].dt.date == pd.Timestamp.now(tz=common_tz).date()) |
                                           (today_table['td_due_date'].dt.date < pd.to_datetime('2020-01-01T00:00:00').date())
                                           )] # for metrics clarifyme
+
 
     today_clarify_count =  today_clarify_count_df.shape[0] if today_clarify_count_df.shape[0] > 0 else 0
 
@@ -301,7 +305,6 @@ with tab1:
                                    (today_table['td_repeatFlag'] == 'nan')
                                    ]
     
-   
     
     
 
@@ -398,11 +401,12 @@ with tab1:
     
     heatmap_count_df['day_of_week'] = heatmap_count_df['due_date_id'].dt.strftime('%a')
     heatmap_count_df['month'] = heatmap_count_df['due_date_id'].dt.month_name()
-    heatmap_count_df['date'] = heatmap_count_df['due_date_id'].dt.date
+    heatmap_count_df['date'] = heatmap_count_df['due_date_id'].dt.strftime('%Y-%m-%d') # bug: due_date_id somehow gets converted to common tz 2 times. fields parsed from this will get double offset.
     heatmap_count_df['week'] = heatmap_count_df['due_date_id'].dt.strftime('%U')
     heatmap_count_df['month_and_week'] = heatmap_count_df['due_date_id'].dt.strftime('%b - w%U')
     heatmap_count = heatmap_count_df.groupby(['date','due_week_of_year','day_of_week','month','month_and_week']).size().reset_index(name='count')
     
+    st.write(heatmap_count_df)
     custom_sort_order = ['Sun','Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
     # Create heatmap using Altair
