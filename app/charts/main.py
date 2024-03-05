@@ -37,6 +37,9 @@ def convert_row_to_common_tz(row,date_column):
     except Exception as e:
         tz = common_tz
     tz_aware = pd.to_datetime(val).tz_localize(tz=tz)
+    tz_aware = (tz_aware + pd.Timedelta(days=1)) if tz_aware.hour == 0 and tz_aware.minute == 0 and tz_aware.second == 0 & 'due' in date_column  else tz_aware 
+    # fix ticktick bug setting default time of due item wihtout time = 00:00 
+    # TODO : handle time conversion for fields already UTC in raw : completedTime, modifiedTime, createdTime
     return tz_aware.astimezone(common_tz)
 
 
