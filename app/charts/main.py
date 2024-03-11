@@ -35,7 +35,11 @@ def convert_row_to_common_tz(row,date_column):
     
     tz_aware = pd.to_datetime(val).tz_localize(tz="UTC")
     tz_aware = tz_aware.astimezone(tz)
-    # tz_aware =  (tz_aware + timedelta(days=+1)) if tz_aware.hour == 0 and tz_aware.minute == 0 and  tz_aware.tzinfo == 'Asia/Ho_Chi_Minh' else tz_aware
+    tz_debug = tz_aware
+    # manually adjusting offsets for those created without time in VNT : will get lagged 1 day cause it deafults to 00:00, which gets converted to 12:00 previous day.
+    # assumption : anything in the 00:00 - 7:00 time sensitive tasks are created in US client app.
+    tz_aware =  (tz_aware + timedelta(days=+1)) if tz_aware.hour == 0 and tz_aware.minute == 0 and  'Asia' in tz_aware.tzinfo.zone else tz_aware
+    # st.write(f'caught tz {tz}. "{tz_debug}" swapped to "{tz_aware}"')
     # fix ticktick bug setting default time of due item wihtout time = 00:00 
     # TODO : handle time conversion for fields already UTC in raw : completedTime, modifiedTime, createdTime
     return tz_aware.astimezone(common_tz)
