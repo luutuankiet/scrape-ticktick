@@ -408,7 +408,8 @@ with tab1:
     heatmap_count_df['week'] = heatmap_count_df['td_due_date'].dt.strftime('%U')
     heatmap_count_df['month_and_week'] = heatmap_count_df['td_due_date'].dt.strftime('%b - w%U')
     heatmap_count = heatmap_count_df.groupby(['date','due_week_of_year','day_of_week','month','month_and_week']).size().reset_index(name='count')
-    
+    st.write(heatmap_count_df[['td_title','date','day_of_week','week','td_due_date','fld_folder_name','l_list_name']])
+
     custom_sort_order = ['Sun','Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
     # Create heatmap using Altair
@@ -417,7 +418,7 @@ with tab1:
         y=alt.Y('day_of_week:O',sort=custom_sort_order,title='weekday'),
         color='count:Q',
         tooltip=[
-            alt.Tooltip("date:T", title="date"),
+            alt.Tooltip("date:N", title="date"), # use N instead of Temporal datetime avoid tz conversion : https://stackoverflow.com/questions/64319836/date-parsing-and-when-to-use-utc-timeunits-in-vega-lite
             alt.Tooltip("day_of_week:O", title="weekday"),
             alt.Tooltip("count:Q", title="count"),
         ]
