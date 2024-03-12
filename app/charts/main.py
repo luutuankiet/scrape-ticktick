@@ -408,7 +408,6 @@ with tab1:
     heatmap_count_df['week'] = heatmap_count_df['td_due_date'].dt.strftime('%U')
     heatmap_count_df['month_and_week'] = heatmap_count_df['td_due_date'].dt.strftime('%b - w%U')
     heatmap_count = heatmap_count_df.groupby(['date','due_week_of_year','day_of_week','month','month_and_week']).size().reset_index(name='count')
-    st.write(heatmap_count_df[['td_title','date','day_of_week','week','td_due_date','fld_folder_name','l_list_name']])
 
     custom_sort_order = ['Sun','Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
