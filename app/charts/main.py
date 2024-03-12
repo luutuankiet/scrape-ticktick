@@ -178,7 +178,6 @@ with tab1:
                                
                             """
     today_table = get_table_nocache(today_table_query).reset_index(drop=True)
-    st.write(today_table)
     today_clarify_count_df = today_table[(today_table['td_tags'].str.contains('clarifyme')) & 
                                          (today_table['td_title'].str.contains('clarifytoday')) &
                                          ((today_table['td_due_date'].dt.date == pd.Timestamp.utcnow().tz_convert(tz=common_tz).date()) |
@@ -340,11 +339,11 @@ with tab1:
         delta_color="inverse" if tmr_count_norepeat > 0 else "off",
     )
         with st.expander("query"):
-            debug_tmr_count_next_norepeat_df = tmr_count_next_norepeat_df.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True)
+            debug_tmr_count_next_norepeat_df = tmr_count_next_norepeat_df.sort_values(by=['td_due_date','fld_folder_name','l_list_name'], ascending=True)
             
-            debug_tmr_count_clarify_norepeat_df = tmr_count_clarify_norepeat_df.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True)
+            debug_tmr_count_clarify_norepeat_df = tmr_count_clarify_norepeat_df.sort_values(by=['td_due_date','fld_folder_name','l_list_name'], ascending=True)
             
-            debug_tmr_count_repeat_df = tmr_count_repeat_df.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True)
+            debug_tmr_count_repeat_df = tmr_count_repeat_df.sort_values(by=['td_due_date','fld_folder_name','l_list_name'], ascending=True)
             
             st.write("unique next:")
             st.dataframe(debug_tmr_count_next_norepeat_df,hide_index=True)
@@ -381,11 +380,11 @@ with tab1:
         delta_color="inverse" if tmr_1d_count_norepeat > 0 else "off",
     )
         with st.expander("query"):
-            debug_tmr_1d_count_next_norepeat_df = tmr_1d_count_next_norepeat_df.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True)
+            debug_tmr_1d_count_next_norepeat_df = tmr_1d_count_next_norepeat_df.sort_values(by=['td_due_date','fld_folder_name','l_list_name'], ascending=True)
             
-            debug_tmr_1d_count_clarify_norepeat_df = tmr_1d_count_clarify_norepeat_df.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True)
+            debug_tmr_1d_count_clarify_norepeat_df = tmr_1d_count_clarify_norepeat_df.sort_values(by=['td_due_date','fld_folder_name','l_list_name'], ascending=True)
             
-            debug_tmr_1d_count_repeat_df = tmr_1d_count_repeat_df.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True)
+            debug_tmr_1d_count_repeat_df = tmr_1d_count_repeat_df.sort_values(by=['td_due_date','fld_folder_name','l_list_name'], ascending=True)
             
             st.write("unique next:")
             st.dataframe(debug_tmr_1d_count_next_norepeat_df,hide_index=True)
@@ -403,18 +402,17 @@ with tab1:
 
     st.write("your upcoming **NON-REPEAT** schedule")
     
-    heatmap_count_df['day_of_week'] = heatmap_count_df['due_date_id'].dt.strftime('%a')
-    heatmap_count_df['month'] = heatmap_count_df['due_date_id'].dt.month_name()
-    heatmap_count_df['date'] = heatmap_count_df['due_date_id'].dt.strftime('%Y-%m-%d') # bug: due_date_id somehow gets converted to common tz 2 times. fields parsed from this will get double offset.
-    heatmap_count_df['week'] = heatmap_count_df['due_date_id'].dt.strftime('%U')
-    heatmap_count_df['month_and_week'] = heatmap_count_df['due_date_id'].dt.strftime('%b - w%U')
+    heatmap_count_df['day_of_week'] = heatmap_count_df['td_due_date'].dt.strftime('%a')
+    heatmap_count_df['month'] = heatmap_count_df['td_due_date'].dt.month_name()
+    heatmap_count_df['date'] = heatmap_count_df['td_due_date'].dt.strftime('%Y-%m-%d') # bug: td_due_date somehow gets converted to common tz 2 times. fields parsed from this will get double offset.
+    heatmap_count_df['week'] = heatmap_count_df['td_due_date'].dt.strftime('%U')
+    heatmap_count_df['month_and_week'] = heatmap_count_df['td_due_date'].dt.strftime('%b - w%U')
     heatmap_count = heatmap_count_df.groupby(['date','due_week_of_year','day_of_week','month','month_and_week']).size().reset_index(name='count')
     
-    st.write(heatmap_count_df)
     custom_sort_order = ['Sun','Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
     # Create heatmap using Altair
-    heatmap = alt.Chart(heatmap_count).mark_rect().encode(
+    heatmap = alt.Chart(heatmap_count,title="UNIQUE DAY-SENSITIVE COUNTS").mark_rect().encode(
         x=alt.X('month_and_week:N',sort=None, title='week'),
         y=alt.Y('day_of_week:O',sort=custom_sort_order,title='weekday'),
         color='count:Q',
@@ -428,7 +426,7 @@ with tab1:
   
     st.altair_chart(heatmap,use_container_width=True)
     with st.expander("query"):
-        debug_future_count_df = heatmap_count_df[['td_title','date','day_of_week','week','due_date_id','fld_folder_name','l_list_name']].sort_values(by='due_date_id', ascending=True)
+        debug_future_count_df = heatmap_count_df[['td_title','date','day_of_week','week','td_due_date','fld_folder_name','l_list_name']].sort_values(by='td_due_date', ascending=True)
         st.dataframe(debug_future_count_df,hide_index=True)
     
 
