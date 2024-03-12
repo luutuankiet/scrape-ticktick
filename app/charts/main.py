@@ -186,7 +186,7 @@ with tab1:
     st.write(today_table)
     today_clarify_count_df = today_table[(today_table['td_tags'].str.contains('clarifyme')) & 
                                          (today_table['td_title'].str.contains('clarifytoday')) &
-                                         ((today_table['td_due_date'].dt.date == pd.Timestamp.now(tz=common_tz).date()) |
+                                         ((today_table['td_due_date'].dt.date == pd.Timestamp.utcnow().tz_convert(tz=common_tz).date()) |
                                           (today_table['td_due_date'].dt.date < pd.to_datetime('2020-01-01T00:00:00').date())
                                           )] # for metrics clarifyme
 
@@ -224,11 +224,11 @@ with tab1:
     clarifyme_avg = 80 # TODO : count average clarifyme across dataset.
     delta_clarifyme =  clarifyme_count - clarifyme_avg
     
-    overdue_count_df = today_table[today_table['td_due_date'].dt.date < pd.Timestamp.now(tz=common_tz).date()]
+    overdue_count_df = today_table[today_table['td_due_date'].dt.date < pd.Timestamp.utcnow().tz_convert(tz=common_tz).date()]
 
     overdue_count = overdue_count_df.shape[0]
 
-    today_count_df = today_table[today_table['td_due_date'].dt.date == pd.Timestamp.now(tz=common_tz).date()]
+    today_count_df = today_table[today_table['td_due_date'].dt.date == pd.Timestamp.utcnow().tz_convert(tz=common_tz).date()]
     today_count_norepeat_df = today_count_df[today_count_df['td_repeatFlag'] == 'nan']
     today_count_repeat_df = today_count_df[today_count_df['td_repeatFlag'] != 'nan']
     
@@ -301,16 +301,16 @@ with tab1:
     st.write("## look ahead")
     st.write("*what is queued in for the times ahead? give yourself the best chance of completing them in time.*")
 
-    future_count_df = today_table[today_table['td_due_date'].dt.date >= pd.Timestamp.now(tz=common_tz).date()]
-    tmr_count_df = future_count_df[(future_count_df['td_due_date'].dt.date <= pd.Timestamp.now(tz=common_tz).date() + datetime.timedelta(days=1))&
-                                   (future_count_df['td_due_date'].dt.date > pd.Timestamp.now(tz=common_tz).date())
+    future_count_df = today_table[today_table['td_due_date'].dt.date >= pd.Timestamp.utcnow().tz_convert(tz=common_tz).date()]
+    tmr_count_df = future_count_df[(future_count_df['td_due_date'].dt.date <= pd.Timestamp.utcnow().tz_convert(tz=common_tz).date() + datetime.timedelta(days=1))&
+                                   (future_count_df['td_due_date'].dt.date > pd.Timestamp.utcnow().tz_convert(tz=common_tz).date())
                                    ]
-    tmr_1d_count_df = future_count_df[(future_count_df['td_due_date'].dt.date > pd.Timestamp.now(tz=common_tz).date() + datetime.timedelta(days=1)) &
-                                      (future_count_df['td_due_date'].dt.date <= pd.Timestamp.now(tz=common_tz).date() + datetime.timedelta(days=2))
+    tmr_1d_count_df = future_count_df[(future_count_df['td_due_date'].dt.date > pd.Timestamp.utcnow().tz_convert(tz=common_tz).date() + datetime.timedelta(days=1)) &
+                                      (future_count_df['td_due_date'].dt.date <= pd.Timestamp.utcnow().tz_convert(tz=common_tz).date() + datetime.timedelta(days=2))
                                       ]
     
-    heatmap_count_df = today_table[(today_table['td_due_date'].dt.date >= pd.Timestamp.now(tz=common_tz).date() ) &
-                                   (today_table['td_due_date'].dt.date <= pd.Timestamp.now(tz=common_tz).date() + timedelta(days=365)) &
+    heatmap_count_df = today_table[(today_table['td_due_date'].dt.date >= pd.Timestamp.utcnow().tz_convert(tz=common_tz).date() ) &
+                                   (today_table['td_due_date'].dt.date <= pd.Timestamp.utcnow().tz_convert(tz=common_tz).date() + timedelta(days=365)) &
                                    (today_table['td_repeatFlag'] == 'nan')
                                    ]
     
