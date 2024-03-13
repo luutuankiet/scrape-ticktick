@@ -5,24 +5,27 @@ from dagster import OpExecutionContext, OpDefinition, op
 from helper.source_env import dbt_project_dir,service_account_path
 import duckdb
 import gspread
+import csv
 
 #%%
 
 
 analyses_path = os.path.join(dbt_project_dir,'target/compiled/todo_analytics/analyses')
 helper_query_path = os.path.join(analyses_path,'lvl3_helper_list_extract.sql')
+seed_path = os.path.join(dbt_project_dir,'seeds/list_goal_mapping.csv')
 motherduck_token = os.environ.get("motherduck_token")
 with open(helper_query_path,'r') as f:
     helper_query = f.read()
 con = duckdb.connect(f'md:ticktick_gtd?motherduck_token={motherduck_token}')
 cur = con.cursor()
 client = gspread.service_account(service_account_path)
+workbook = client.open_by_url("https://docs.google.com/spreadsheets/d/1My7VU0GrAlYTa46Hj1ciOBXivcF7QKSYeRVXXbyV74o/edit#gid=0")
+helper_sheet = workbook.get_worksheet(1)
+mapping_sheet = workbook.get_worksheet(0)
 
 
-def generate_helper_data():
+def load_mapping_helper():
     helper_df = cur.sql(helper_query).df()
-    workbook = client.open_by_url("https://docs.google.com/spreadsheets/d/1My7VU0GrAlYTa46Hj1ciOBXivcF7QKSYeRVXXbyV74o/edit#gid=0")
-    helper_sheet = workbook.get_worksheet(2)
     
     # clears the sheet
     helper_sheet.clear()
@@ -37,9 +40,14 @@ def generate_helper_data():
     helper_sheet.update("D1",values =[goals_df.columns.tolist()] + goals_df.values.tolist())
 
 
-# %%
+def load_mapping_to_stg():
+    stg_data = helper_sheet.get_values('A:C')
+    mapping_sheet.clear()
+    mapping_sheet.update("A1",values =stg_data)
 
-seed_query = "select * from list_goal_mapping"
-seed_df = cur.sql(seed_query).df()
 
-# %%
+
+def dump_mapping_to_csv():
+    with open(seed_path,'w') as f:
+        writer = csv.writer(f)
+        writer.writerows(mapping_sheet.get_values())
