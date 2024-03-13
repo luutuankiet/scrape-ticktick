@@ -6,8 +6,11 @@ from helper.source_env import dbt_project_dir,service_account_path
 import duckdb
 import gspread
 import csv
+from dagster import op,Definitions,job
 
 #%%
+
+
 
 
 analyses_path = os.path.join(dbt_project_dir,'target/compiled/todo_analytics/analyses')
@@ -23,8 +26,8 @@ workbook = client.open_by_url("https://docs.google.com/spreadsheets/d/1My7VU0GrA
 helper_sheet = workbook.get_worksheet(1)
 mapping_sheet = workbook.get_worksheet(0)
 
-
-def load_mapping_helper():
+@op
+def mapping_helper():
     helper_df = cur.sql(helper_query).df()
     
     # clears the sheet
@@ -38,16 +41,28 @@ def load_mapping_helper():
     goals_query = "select goal_id,goal_name from init_duckdb__lvl3 order by 1"
     goals_df = cur.sql(goals_query).df()
     helper_sheet.update("D1",values =[goals_df.columns.tolist()] + goals_df.values.tolist())
-
-
+@op
 def load_mapping_to_stg():
     stg_data = helper_sheet.get_values('A:C')
     mapping_sheet.clear()
     mapping_sheet.update("A1",values =stg_data)
 
 
-
-def dump_mapping_to_csv():
+@op
+def dump_mapping_to_csv(results=None):
     with open(seed_path,'w') as f:
         writer = csv.writer(f)
         writer.writerows(mapping_sheet.get_values())
+
+
+
+
+@job
+def load_new_lvl3_data():
+    dump_mapping_to_csv(load_mapping_to_stg())
+
+@job
+def load_mapping_helper():
+    mapping_helper()
+
+defs =  Definitions(jobs=[load_new_lvl3_data,load_mapping_helper])
