@@ -4,12 +4,6 @@ WITH source AS (
     FROM
         {{ ref('lvl1_lvl2_progress') }}
 ),
-lvl3_goals AS (
-    SELECT
-        *
-    FROM
-        {{ ref('init_duckdb__lvl3') }}
-),
 ref_seeds AS (
     SELECT
         *
@@ -23,19 +17,6 @@ new_seeds AS (
         '' AS goal_ids
     FROM
         source
-    UNION ALL
-        (
-            SELECT
-                'goal',
-                'id',
-                '' AS goal_ids
-            UNION ALL
-            SELECT
-                *,
-                '' AS goal_ids
-            FROM
-                lvl3_goals
-        )
 )
 SELECT
     n.fld_folder_name,
@@ -46,3 +27,4 @@ FROM
     LEFT JOIN ref_seeds r
     ON r.fld_folder_name = n.fld_folder_name
     AND r.l_list_name = n.l_list_name
+order by 1,2,3
