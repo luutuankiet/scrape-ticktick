@@ -1,5 +1,7 @@
 #%%
-import sys; sys.path.append('/home/ken/dev-main/scrape-ticktick-1/app')
+import sys
+
+from ETL.lvl3_helper import mapping_helper; sys.path.append('/home/ken/dev-main/scrape-ticktick-1/app')
 import streamlit as st
 import duckdb
 import os
@@ -840,26 +842,22 @@ with tab3:
 
 
 with tab4:
-    goal_index_query = "select * from init_duckdb__lvl3"
-    goal_index = get_table(goal_index_query)
-
-    list_index_query = """select
-                                fld_folder_name,
-                                l_list_name,
-                                '' as goal_ids
-                            from lvl1_lvl2_progress"""
-    
-    list_index = get_table(list_index_query)
-    st.write(goal_index,list_index,hide_index=True)
-    
     conn = st.connection("gsheets",type=GSheetsConnection)
   
     
     
-    og_goals = conn.read()
-    edited_goals = st.data_editor(og_goals,num_rows="dynamic",hide_index=True)
+    mapping_helper = conn.read(worksheet = "mapping helper",ttl=60,max_entries=3)
+    goal_id = mapping_helper[["goal_id","goal_name"]]
+    mapping_helper = mapping_helper[["fld_folder_name","l_list_name","goal_ids"]]
 
+    col1,col2 = st.columns(2)
+
+    with col1:
+        edited_goals = st.data_editor(mapping_helper,num_rows="dynamic",hide_index=True)
+    with col2:
+        st.dataframe(goal_id,hide_index=True)
     if st.button("commit"):
-        conn.update(data=edited_goals)
-        og_goals = conn.read()
-    
+        edited_goals[["goal_id","goal_name"]] = goal_id
+        conn.update(data=edited_goals,worksheet = "mapping helper")
+        st.cache_data.clear()
+
