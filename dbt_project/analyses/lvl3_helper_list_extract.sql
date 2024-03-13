@@ -1,23 +1,30 @@
-with source as (
-    select * from {{ ref('lvl1_lvl2_progress') }}
+WITH source AS (
+    SELECT
+        *
+    FROM
+        {{ ref('lvl1_lvl2_progress') }}
 ),
-
-lvl3_goals as (
-    select * from {{ ref('init_duckdb__lvl3') }}
+ref_seeds AS (
+    SELECT
+        *
+    FROM
+        {{ ref('list_goal_mapping') }}
+),
+new_seeds AS (
+    SELECT
+        fld_folder_name,
+        l_list_name,
+        '' AS goal_ids
+    FROM
+        source
 )
-
-select
-    fld_folder_name,
-    l_list_name,
-    '' as goal_ids
-from source
-union all 
-(
-select 
-'goal',
-'id',
-'' as goal_ids
-
-union all
-
-select *,'' as goal_ids from lvl3_goals)
+SELECT
+    n.fld_folder_name,
+    n.l_list_name,
+    r.goal_ids
+FROM
+    new_seeds n
+    LEFT JOIN ref_seeds r
+    ON r.fld_folder_name = n.fld_folder_name
+    AND r.l_list_name = n.l_list_name
+order by 1,2,3

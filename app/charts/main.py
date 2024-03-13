@@ -1,3 +1,7 @@
+#%%
+import sys
+
+from ETL.lvl3_helper import mapping_helper; sys.path.append('/home/ken/dev-main/scrape-ticktick-1/app')
 import streamlit as st
 import duckdb
 import os
@@ -11,7 +15,9 @@ import altair as alt
 import subprocess
 import pytz
 import humanize
+from streamlit_gsheets import GSheetsConnection
 
+#%%
 motherduck_token = os.environ.get("motherduck_token")
 con = duckdb.connect(f'md:ticktick_gtd?motherduck_token={motherduck_token}')
 cur = con.cursor()
@@ -148,9 +154,10 @@ def highlight_row(row):
 
 
 
-tab1,tab2,tab3 = st.tabs(['🧑🏽‍💻 daily ops',
+tab1,tab2,tab3,tab4 = st.tabs(['🧑🏽‍💻 daily ops',
          '📊 analytics',
-         'placeholder'
+         'placeholder',
+         'lvl3 goals'
          ])
 
 
@@ -546,6 +553,9 @@ with tab2:
     created_df_delta['max_day_created_timestamp'] = pd.Timestamp.now(tz=common_tz) - pd.to_datetime(created_df_delta['max_day_created_timestamp'])
     created_df_delta['max_day_created_timestamp'] = created_df_delta['max_day_created_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
     create_progress = pd.merge(created_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
+    
+    st.write(create_progress)
+    
     create_progress = create_progress.style.map(
         highlight_text,subset=['done_progress','clarify_progress']
     ).apply(
@@ -765,8 +775,6 @@ with tab2:
         )
 
 
-
-
     
 
 
@@ -833,5 +841,23 @@ with tab3:
         )
 
 
+with tab4:
+    conn = st.connection("gsheets",type=GSheetsConnection)
+  
+    
+    
+    mapping_helper = conn.read(worksheet = "mapping helper",ttl=60,max_entries=3)
+    goal_id = mapping_helper[["goal_id","goal_name"]]
+    mapping_helper = mapping_helper[["fld_folder_name","l_list_name","goal_ids"]]
 
+    col1,col2 = st.columns(2)
+
+    with col1:
+        edited_goals = st.data_editor(mapping_helper,num_rows="dynamic",hide_index=True)
+    with col2:
+        st.dataframe(goal_id,hide_index=True)
+    if st.button("commit"):
+        edited_goals[["goal_id","goal_name"]] = goal_id
+        conn.update(data=edited_goals,worksheet = "mapping helper")
+        st.cache_data.clear()
 
