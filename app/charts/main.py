@@ -853,7 +853,7 @@ with tab4:
     st.write(goal_index,list_index,hide_index=True)
     
     conn = st.connection("gsheets",type=GSheetsConnection)
-    
+  
     
     
     og_goals = conn.read()

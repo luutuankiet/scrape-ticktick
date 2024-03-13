@@ -15,6 +15,7 @@ load_dotenv(project_dotenv_path)
 raw_path = os.path.join(current_dir,'..','ETL','raw')
 dotenv_path=os.path.join(current_dir,'..','env')
 secrets_path = os.path.join(dotenv_path,'.secrets')
+service_account_path = os.path.join(dotenv_path,'service_account.json')
 
 
 dbt_project_dir = os.environ.get('DBT_PROJECT_DIR')
