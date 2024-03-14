@@ -546,31 +546,47 @@ with tab2:
     lvl1_lvl2_progress = get_table("select * from lvl1_lvl2_progress")
     # filtered_lvl1_lvl2_progress = lvl1_lvl2_progress[lvl1_lvl2_progress['fld_folder_name'].isin(filter_folder)] # TODO : a way to prevent filter init load stalling the dash
     filtered_lvl1_lvl2_progress = lvl1_lvl2_progress
+    lvl3_progress = get_table("select * from lvl3_progress")
+
 
     
     created_df_delta = created_df
     # created_df_delta['max_day_created_timestamp'] = pd.Timestamp.now(tz=common_tz) - pd.to_datetime(created_df_delta['max_day_created_timestamp']).dt.tz_localize(common_tz)
     created_df_delta['max_day_created_timestamp'] = pd.Timestamp.now(tz=common_tz) - pd.to_datetime(created_df_delta['max_day_created_timestamp'])
     created_df_delta['max_day_created_timestamp'] = created_df_delta['max_day_created_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
-    create_progress = pd.merge(created_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
+    create_progress = pd.merge(created_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left').drop(['fld_folder_name','day_of_year','done_progress','clarify_progress'],axis=1)
         
-    create_progress = create_progress.style.map(
-        highlight_text,subset=['done_progress','clarify_progress']
-    ).apply(
-        highlight_row,axis=1
-    )
+    # create_progress = create_progress.style.map(
+    #     highlight_text,subset=['done_progress','clarify_progress']
+    # ).apply(
+    #     highlight_row,axis=1
+    # )
+
+
+    create_progress_lvl3 = pd.merge(created_df_delta,lvl3_progress,on=['l_list_name'],how='left')
+    create_progress_lvl3_summary = create_progress_lvl3[['goal_id','lvl3_goal']].drop_duplicates().dropna().sort_values(by='goal_id')
+    create_progress_lvl3_detailed = create_progress_lvl3[['goal_id','lvl3_goal','l_list_name','max_day_created_timestamp']]    
+
+
+
 
 
     active_df_delta = active_df
     # active_df_delta['max_day_active_timestamp'] = pd.Timestamp.now(tz=common_tz) - active_df_delta['max_day_active_timestamp'].dt.tz_localize(common_tz)
     active_df_delta['max_day_active_timestamp'] = pd.Timestamp.now(tz=common_tz) - active_df_delta['max_day_active_timestamp']
     active_df_delta['max_day_active_timestamp'] = active_df_delta['max_day_active_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
-    active_progress = pd.merge(active_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
-    active_progress = active_progress.style.map(
-        highlight_text,subset=['done_progress','clarify_progress']
-    ).apply(
-        highlight_row,axis=1
-    )
+    active_progress = pd.merge(active_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left').drop(['fld_folder_name','day_of_year','done_progress','clarify_progress'],axis=1)
+    # active_progress = active_progress.style.map(
+    #     highlight_text,subset=['done_progress','clarify_progress']
+    # ).apply(
+    #     highlight_row,axis=1
+    # )
+
+
+    active_progress_lvl3 = pd.merge(active_df_delta,lvl3_progress,on=['l_list_name'],how='left')
+    active_progress_lvl3_summary = active_progress_lvl3[['goal_id','lvl3_goal']].drop_duplicates().dropna().sort_values(by='goal_id')
+    active_progress_lvl3_detailed = active_progress_lvl3[['goal_id','lvl3_goal','l_list_name','max_day_active_timestamp']]    
+
 
 
 
@@ -579,12 +595,18 @@ with tab2:
     # completed_df_delta['max_day_completed_timestamp'] = pd.Timestamp.now(tz=common_tz) - completed_df_delta['max_day_completed_timestamp'].dt.tz_localize(common_tz)
     completed_df_delta['max_day_completed_timestamp'] = pd.Timestamp.now(tz=common_tz) - completed_df_delta['max_day_completed_timestamp']
     completed_df_delta['max_day_completed_timestamp'] = completed_df_delta['max_day_completed_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
-    complete_progress = pd.merge(completed_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
-    complete_progress = complete_progress.style.map(
-        highlight_text,subset=['done_progress','clarify_progress']
-    ).apply(
-        highlight_row,axis=1
-    )
+    complete_progress = pd.merge(completed_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left').drop(['fld_folder_name','day_of_year','done_progress','clarify_progress'],axis=1)
+    # complete_progress = complete_progress.style.map(
+    #     highlight_text,subset=['done_progress','clarify_progress']
+    # ).apply(
+    #     highlight_row,axis=1
+    # )
+
+    complete_progress_lvl3 = pd.merge(completed_df_delta,lvl3_progress,on=['l_list_name'],how='left')
+    complete_progress_lvl3_summary = complete_progress_lvl3[['goal_id','lvl3_goal']].drop_duplicates().dropna().sort_values(by='goal_id')
+    complete_progress_lvl3_detailed = complete_progress_lvl3[['goal_id','lvl3_goal','l_list_name','max_day_completed_timestamp']]    
+
+
 
 
 
@@ -610,70 +632,93 @@ with tab2:
     with st.expander("complete",expanded = False):
         st.dataframe(
             complete_progress,
-            column_config={
-                "done_progress": st.column_config.ProgressColumn(
-                "done_progress",
-                format="%f",
-                min_value=0,
-                max_value=100
-            ),
-            "clarify_progress": st.column_config.ProgressColumn(
-                "clarify_progress",
-                format="%f",
-                min_value=0,
-                max_value=100
-            )
-            },
+            # column_config={
+            #     "done_progress": st.column_config.ProgressColumn(
+            #     "done_progress",
+            #     format="%f",
+            #     min_value=0,
+            #     max_value=100
+            # ),
+            # "clarify_progress": st.column_config.ProgressColumn(
+            #     "clarify_progress",
+            #     format="%f",
+            #     min_value=0,
+            #     max_value=100
+            # )
+            # },
 
             hide_index=True,
             use_container_width=True
             )
+        st.write("assoicated goals")
+        st.dataframe(complete_progress_lvl3_summary,hide_index=True)
+
+        st.write("detailed")
+        st.dataframe(complete_progress_lvl3_detailed,hide_index=True)
+
 
 
 
     with st.expander("created",expanded = False):
         st.dataframe(
             create_progress,
-            column_config={
-                "done_progress": st.column_config.ProgressColumn(
-                "done_progress",
-                format="%f",
-                min_value=0,
-                max_value=100
-            ),
-            "clarify_progress": st.column_config.ProgressColumn(
-                "clarify_progress",
-                format="%f",
-                min_value=0,
-                max_value=100
-            )
-            },
+            # column_config={
+            #     "done_progress": st.column_config.ProgressColumn(
+            #     "done_progress",
+            #     format="%f",
+            #     min_value=0,
+            #     max_value=100
+            # ),
+            # "clarify_progress": st.column_config.ProgressColumn(
+            #     "clarify_progress",
+            #     format="%f",
+            #     min_value=0,
+            #     max_value=100
+            # )
+            # },
 
             hide_index=True,
             use_container_width=True
             )
+
+        st.write("assoicated goals")
+        st.dataframe(create_progress_lvl3_summary,hide_index=True)
+
+        st.write("detailed")
+        st.dataframe(create_progress_lvl3_detailed,hide_index=True)
+
+
+
 
     with st.expander("active",expanded = False):
         st.dataframe(
             active_progress,
-            column_config={
-                "done_progress": st.column_config.ProgressColumn(
-                "done_progress",
-                format="%f",
-                min_value=0,
-                max_value=100
-            ),
-            "clarify_progress": st.column_config.ProgressColumn(
-                "clarify_progress",
-                format="%f",
-                min_value=0,
-                max_value=100
-            )
-            },
+            # column_config={
+            #     "done_progress": st.column_config.ProgressColumn(
+            #     "done_progress",
+            #     format="%f",
+            #     min_value=0,
+            #     max_value=100
+            # ),
+            # "clarify_progress": st.column_config.ProgressColumn(
+            #     "clarify_progress",
+            #     format="%f",
+            #     min_value=0,
+            #     max_value=100
+            # )
+            # },
 
             hide_index=True,
             use_container_width=True
             )
+
+        st.write("assoicated goals")
+        st.dataframe(active_progress_lvl3_summary,hide_index=True)
+
+        st.write("detailed")
+        st.dataframe(active_progress_lvl3_detailed,hide_index=True)
+
+
 
     # for graph 
 
