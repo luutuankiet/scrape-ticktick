@@ -553,9 +553,7 @@ with tab2:
     created_df_delta['max_day_created_timestamp'] = pd.Timestamp.now(tz=common_tz) - pd.to_datetime(created_df_delta['max_day_created_timestamp'])
     created_df_delta['max_day_created_timestamp'] = created_df_delta['max_day_created_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
     create_progress = pd.merge(created_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left')
-    
-    st.write(create_progress)
-    
+        
     create_progress = create_progress.style.map(
         highlight_text,subset=['done_progress','clarify_progress']
     ).apply(
