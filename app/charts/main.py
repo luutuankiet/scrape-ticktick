@@ -962,9 +962,9 @@ with tab4:
     
     
     mapping_helper = conn.read(worksheet = "mapping helper",ttl=60,max_entries=3)
-    goal_id = mapping_helper[["goal_id","goal_name"]]
-    mapping_helper = mapping_helper[["fld_folder_name","l_list_name","goal_ids"]]
-
+    goal_id = mapping_helper[["goal_id","goal_name"]].dropna(how='all')
+    mapping_helper = mapping_helper[["fld_folder_name","l_list_name","goal_ids"]].dropna(how='all')
+ 
     col1,col2 = st.columns(2)
 
     with col1:
