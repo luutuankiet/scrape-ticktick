@@ -18,3 +18,4 @@ __pycache__/
 #streamlit
 secrets.toml
 service_account.json
+dbt_project/seeds
