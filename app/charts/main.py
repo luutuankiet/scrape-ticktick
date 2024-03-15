@@ -417,7 +417,6 @@ with tab1:
     heatmap_count = heatmap_count_df.groupby(['date','due_week_of_year','day_of_week','month','month_and_week']).size().reset_index(name='count')
 
     custom_sort_order = ['Sun','Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-
     # Create heatmap using Altair
     heatmap = alt.Chart(heatmap_count,title="UNIQUE DAY-SENSITIVE COUNTS").mark_rect().encode(
         x=alt.X('month_and_week:N',sort=None, title='week'),
@@ -595,21 +594,43 @@ with tab2:
     # completed_df_delta['max_day_completed_timestamp'] = pd.Timestamp.now(tz=common_tz) - completed_df_delta['max_day_completed_timestamp'].dt.tz_localize(common_tz)
     completed_df_delta['max_day_completed_timestamp'] = pd.Timestamp.now(tz=common_tz) - completed_df_delta['max_day_completed_timestamp']
     completed_df_delta['max_day_completed_timestamp'] = completed_df_delta['max_day_completed_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
-    complete_progress = pd.merge(completed_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left').drop(['fld_folder_name','day_of_year','done_progress','clarify_progress'],axis=1)
+    complete_progress = pd.merge(completed_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left').drop(['fld_folder_name','done_progress','clarify_progress'],axis=1)
     # complete_progress = complete_progress.style.map(
     #     highlight_text,subset=['done_progress','clarify_progress']
     # ).apply(
     #     highlight_row,axis=1
     # )
-
-    complete_progress_lvl3 = pd.merge(completed_df_delta,lvl3_progress,on=['l_list_name'],how='left')
-    complete_progress_lvl3_summary = complete_progress_lvl3[['goal_id','lvl3_goal']].drop_duplicates().dropna().sort_values(by='goal_id')
-    complete_progress_lvl3_detailed = complete_progress_lvl3[['goal_id','lvl3_goal','l_list_name','max_day_completed_timestamp']]    
+    complete_progress_lvl3_detailed = pd.merge(completed_df_delta,lvl3_progress,on=['l_list_name'],how='left') # to grab all the goals
 
 
 
 
+    complete_list_count = complete_progress[['l_list_name','day_of_year','tasks_completed']].groupby(['l_list_name','day_of_year',])['tasks_completed'].sum().reset_index()    
+    # join to get the lvl3 goals key pair
+    complete_list_goal = pd.merge(complete_list_count,lvl3_progress,on=['l_list_name'],how='right')
 
+    complete_days = complete_list_goal['day_of_year'].unique()
+    goals = complete_list_goal['lvl3_goal'].unique()
+    complete_index = pd.MultiIndex.from_product([complete_days, goals], names=['day_of_year', 'lvl3_goal'])
+    complete_list_goal_all = pd.DataFrame(index=complete_index).reset_index()
+    complete_list_goal_final = complete_list_goal_all.merge(complete_list_goal, on=['day_of_year', 'lvl3_goal'], how='left').groupby(['lvl3_goal','day_of_year',])['tasks_completed'].sum().reset_index()
+    complete_list_goal_final['day_of_year'] = complete_list_goal_final['day_of_year'].astype('datetime64[ns]')
+    complete_list_goal_final['day_of_year'] = complete_list_goal_final['day_of_year'].dt.strftime('%Y-%m-%d')
+
+
+
+    counts_heatmap = alt.Chart(complete_list_goal_final,title="UNIQUE DAY-SENSITIVE COUNTS").mark_rect().encode(
+        x=alt.X('day_of_year:N'),
+        y=alt.Y('lvl3_goal:N',sort=None),
+        color='tasks_completed:Q',
+        tooltip=[
+            alt.Tooltip("day_of_year:O", title="date"), # use N instead of Temporal datetime avoid tz conversion : https://stackoverflow.com/questions/64319836/date-parsing-and-when-to-use-utc-timeunits-in-vega-lite
+            alt.Tooltip("lvl3_goal:N", title="goal"),
+            alt.Tooltip("goal_id:O", title="goal_id"),
+            alt.Tooltip("tasks_completed:Q", title="completes"),
+
+        ]
+    )
 
     col1,col2,col3 = st.columns(3)
     
@@ -618,9 +639,14 @@ with tab2:
     col1.metric("avg completed",value=int(completed_df.groupby('day_of_year')['tasks_completed'].sum().sum() / avg_days) if completed_df_delta.shape[0] > 0 else None,
                 delta=f"last item {completed_df_delta.iloc[0,3] }" if completed_df_delta.shape[0] > 0 else None,
                 delta_color="off")
+    col1.altair_chart(counts_heatmap,use_container_width=True)
+
+
     col2.metric("avg created",value=int(created_df.groupby('day_of_year')['tasks_created'].sum().sum() / avg_days) if created_df_delta.shape[0] > 0 else None,
                 delta=f"last item {created_df_delta.iloc[0,3]}" if created_df_delta.shape[0] > 0 else None,
                 delta_color="off")
+    
+    
     col3.metric("avg active",value=int(active_df.groupby('day_of_year')['tasks_active'].sum().sum() / avg_days) if active_df_delta.shape[0] > 0 else None,
                 delta=f"last item {active_df_delta.iloc[0,3] }" if active_df_delta.shape[0] > 0 else None,
                 delta_color="off")
@@ -650,11 +676,12 @@ with tab2:
             hide_index=True,
             use_container_width=True
             )
-        st.write("assoicated goals")
-        st.dataframe(complete_progress_lvl3_summary,hide_index=True)
 
         st.write("detailed")
         st.dataframe(complete_progress_lvl3_detailed,hide_index=True)
+
+
+        
 
 
 
@@ -681,11 +708,13 @@ with tab2:
             use_container_width=True
             )
 
-        st.write("assoicated goals")
+        st.write("associated goals")
         st.dataframe(create_progress_lvl3_summary,hide_index=True)
 
         st.write("detailed")
         st.dataframe(create_progress_lvl3_detailed,hide_index=True)
+
+
 
 
 
@@ -712,11 +741,9 @@ with tab2:
             use_container_width=True
             )
 
-        st.write("assoicated goals")
-        st.dataframe(active_progress_lvl3_summary,hide_index=True)
-
         st.write("detailed")
         st.dataframe(active_progress_lvl3_detailed,hide_index=True)
+        st.dataframe(active_progress_lvl3_summary,hide_index=True)
 
 
 
