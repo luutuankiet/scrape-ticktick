@@ -544,7 +544,21 @@ with tab2:
 
     lvl1_lvl2_progress = get_table("select * from lvl1_lvl2_progress")
     # filtered_lvl1_lvl2_progress = lvl1_lvl2_progress[lvl1_lvl2_progress['fld_folder_name'].isin(filter_folder)] # TODO : a way to prevent filter init load stalling the dash
+
+    def custom_sort(value):
+        if '-------' in value:
+            return 0  # Assign a lower sort order to '-------' values
+        else:
+            return 1  # Assign a higher sort order to other values
+
+
+
+
     filtered_lvl1_lvl2_progress = lvl1_lvl2_progress
+    filtered_lvl1_lvl2_progress['custom_sort'] = lvl1_lvl2_progress['l_list_name'].map(custom_sort)
+    filtered_lvl1_lvl2_progress=filtered_lvl1_lvl2_progress.sort_values(by=['fld_folder_name','custom_sort','done_progress','clarify_progress'],ascending = [True,True,False,False]).drop(columns='custom_sort')
+    
+    
     lvl3_progress = get_table("select * from lvl3_progress")
 
 
