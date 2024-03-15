@@ -553,20 +553,39 @@ with tab2:
     # created_df_delta['max_day_created_timestamp'] = pd.Timestamp.now(tz=common_tz) - pd.to_datetime(created_df_delta['max_day_created_timestamp']).dt.tz_localize(common_tz)
     created_df_delta['max_day_created_timestamp'] = pd.Timestamp.now(tz=common_tz) - pd.to_datetime(created_df_delta['max_day_created_timestamp'])
     created_df_delta['max_day_created_timestamp'] = created_df_delta['max_day_created_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
-    create_progress = pd.merge(created_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left').drop(['fld_folder_name','day_of_year','done_progress','clarify_progress'],axis=1)
+    create_progress = pd.merge(created_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left').drop(['fld_folder_name','done_progress','clarify_progress'],axis=1)
         
     # create_progress = create_progress.style.map(
     #     highlight_text,subset=['done_progress','clarify_progress']
     # ).apply(
     #     highlight_row,axis=1
     # )
+    create_progress_lvl3_detailed = pd.merge(created_df_delta,lvl3_progress,on=['l_list_name'],how='left') # to grab all the goals
 
 
-    create_progress_lvl3 = pd.merge(created_df_delta,lvl3_progress,on=['l_list_name'],how='left')
-    create_progress_lvl3_summary = create_progress_lvl3[['goal_id','lvl3_goal']].drop_duplicates().dropna().sort_values(by='goal_id')
-    create_progress_lvl3_detailed = create_progress_lvl3[['goal_id','lvl3_goal','l_list_name','max_day_created_timestamp']]    
+    create_list_count = create_progress[['l_list_name','day_of_year','tasks_created']].groupby(['l_list_name','day_of_year',])['tasks_created'].sum().reset_index()    
+    # join to get the lvl3 goals key pair
+    create_list_goal = pd.merge(create_list_count,lvl3_progress,on=['l_list_name'],how='right')
 
+    create_days = create_list_goal['day_of_year'].unique()
+    goals = create_list_goal['lvl3_goal'].unique()
+    create_index = pd.MultiIndex.from_product([create_days, goals], names=['day_of_year', 'lvl3_goal'])
+    create_list_goal_all = pd.DataFrame(index=create_index).reset_index()
+    create_list_goal_final = create_list_goal_all.merge(create_list_goal, on=['day_of_year', 'lvl3_goal'], how='left').groupby(['lvl3_goal','day_of_year'])['tasks_created'].sum().reset_index()
+    create_list_goal_final['day_of_year'] = create_list_goal_final['day_of_year'].astype('datetime64[ns]')
+    create_list_goal_final['day_of_year'] = create_list_goal_final['day_of_year'].dt.strftime('%Y-%m-%d')
 
+    created_list_goal_heatmap = alt.Chart(create_list_goal_final,title="GOALS CREATED OVER TIME").mark_rect().encode(
+        x=alt.X('day_of_year:N'),
+        y=alt.Y('lvl3_goal:N',sort=None),
+        color='tasks_created:Q',
+        tooltip=[
+            alt.Tooltip("day_of_year:O", title="date"), # use N instead of Temporal datetime avoid tz conversion : https://stackoverflow.com/questions/64319836/date-parsing-and-when-to-use-utc-timeunits-in-vega-lite
+            alt.Tooltip("lvl3_goal:N", title="goal"),
+            alt.Tooltip("tasks_created:Q", title="creates"),
+
+        ]
+    )
 
 
 
@@ -574,19 +593,38 @@ with tab2:
     # active_df_delta['max_day_active_timestamp'] = pd.Timestamp.now(tz=common_tz) - active_df_delta['max_day_active_timestamp'].dt.tz_localize(common_tz)
     active_df_delta['max_day_active_timestamp'] = pd.Timestamp.now(tz=common_tz) - active_df_delta['max_day_active_timestamp']
     active_df_delta['max_day_active_timestamp'] = active_df_delta['max_day_active_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
-    active_progress = pd.merge(active_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left').drop(['fld_folder_name','day_of_year','done_progress','clarify_progress'],axis=1)
+    active_progress = pd.merge(active_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left').drop(['fld_folder_name','done_progress','clarify_progress'],axis=1)
     # active_progress = active_progress.style.map(
     #     highlight_text,subset=['done_progress','clarify_progress']
     # ).apply(
     #     highlight_row,axis=1
     # )
+    active_progress_lvl3_detailed = pd.merge(active_df_delta,lvl3_progress,on=['l_list_name'],how='left') # to grab all the goals
 
 
-    active_progress_lvl3 = pd.merge(active_df_delta,lvl3_progress,on=['l_list_name'],how='left')
-    active_progress_lvl3_summary = active_progress_lvl3[['goal_id','lvl3_goal']].drop_duplicates().dropna().sort_values(by='goal_id')
-    active_progress_lvl3_detailed = active_progress_lvl3[['goal_id','lvl3_goal','l_list_name','max_day_active_timestamp']]    
+    active_list_count = active_progress[['l_list_name','day_of_year','tasks_active']].groupby(['l_list_name','day_of_year',])['tasks_active'].sum().reset_index()    
+    # join to get the lvl3 goals key pair
+    active_list_goal = pd.merge(active_list_count,lvl3_progress,on=['l_list_name'],how='right')
 
+    active_days = active_list_goal['day_of_year'].unique()
+    goals = active_list_goal['lvl3_goal'].unique()
+    active_index = pd.MultiIndex.from_product([active_days, goals], names=['day_of_year', 'lvl3_goal'])
+    active_list_goal_all = pd.DataFrame(index=active_index).reset_index()
+    active_list_goal_final = active_list_goal_all.merge(active_list_goal, on=['day_of_year', 'lvl3_goal'], how='left').groupby(['lvl3_goal','day_of_year'])['tasks_active'].sum().reset_index()
+    active_list_goal_final['day_of_year'] = active_list_goal_final['day_of_year'].astype('datetime64[ns]')
+    active_list_goal_final['day_of_year'] = active_list_goal_final['day_of_year'].dt.strftime('%Y-%m-%d')
 
+    active_list_goal_heatmap = alt.Chart(active_list_goal_final,title="GOALS ACTIVE OVER TIME").mark_rect().encode(
+        x=alt.X('day_of_year:N'),
+        y=alt.Y('lvl3_goal:N',sort=None),
+        color='tasks_active:Q',
+        tooltip=[
+            alt.Tooltip("day_of_year:O", title="date"), # use N instead of Temporal datetime avoid tz conversion : https://stackoverflow.com/questions/64319836/date-parsing-and-when-to-use-utc-timeunits-in-vega-lite
+            alt.Tooltip("lvl3_goal:N", title="goal"),
+            alt.Tooltip("tasks_active:Q", title="actives"),
+
+        ]
+    )
 
 
 
@@ -603,8 +641,6 @@ with tab2:
     complete_progress_lvl3_detailed = pd.merge(completed_df_delta,lvl3_progress,on=['l_list_name'],how='left') # to grab all the goals
 
 
-
-
     complete_list_count = complete_progress[['l_list_name','day_of_year','tasks_completed']].groupby(['l_list_name','day_of_year',])['tasks_completed'].sum().reset_index()    
     # join to get the lvl3 goals key pair
     complete_list_goal = pd.merge(complete_list_count,lvl3_progress,on=['l_list_name'],how='right')
@@ -613,20 +649,17 @@ with tab2:
     goals = complete_list_goal['lvl3_goal'].unique()
     complete_index = pd.MultiIndex.from_product([complete_days, goals], names=['day_of_year', 'lvl3_goal'])
     complete_list_goal_all = pd.DataFrame(index=complete_index).reset_index()
-    complete_list_goal_final = complete_list_goal_all.merge(complete_list_goal, on=['day_of_year', 'lvl3_goal'], how='left').groupby(['lvl3_goal','day_of_year',])['tasks_completed'].sum().reset_index()
+    complete_list_goal_final = complete_list_goal_all.merge(complete_list_goal, on=['day_of_year', 'lvl3_goal'], how='left').groupby(['lvl3_goal','day_of_year'])['tasks_completed'].sum().reset_index()
     complete_list_goal_final['day_of_year'] = complete_list_goal_final['day_of_year'].astype('datetime64[ns]')
     complete_list_goal_final['day_of_year'] = complete_list_goal_final['day_of_year'].dt.strftime('%Y-%m-%d')
 
-
-
-    counts_heatmap = alt.Chart(complete_list_goal_final,title="UNIQUE DAY-SENSITIVE COUNTS").mark_rect().encode(
+    complete_list_goal_heatmap = alt.Chart(complete_list_goal_final,title="GOALS COMPLETION OVER TIME").mark_rect().encode(
         x=alt.X('day_of_year:N'),
         y=alt.Y('lvl3_goal:N',sort=None),
         color='tasks_completed:Q',
         tooltip=[
             alt.Tooltip("day_of_year:O", title="date"), # use N instead of Temporal datetime avoid tz conversion : https://stackoverflow.com/questions/64319836/date-parsing-and-when-to-use-utc-timeunits-in-vega-lite
             alt.Tooltip("lvl3_goal:N", title="goal"),
-            alt.Tooltip("goal_id:O", title="goal_id"),
             alt.Tooltip("tasks_completed:Q", title="completes"),
 
         ]
@@ -639,17 +672,19 @@ with tab2:
     col1.metric("avg completed",value=int(completed_df.groupby('day_of_year')['tasks_completed'].sum().sum() / avg_days) if completed_df_delta.shape[0] > 0 else None,
                 delta=f"last item {completed_df_delta.iloc[0,3] }" if completed_df_delta.shape[0] > 0 else None,
                 delta_color="off")
-    col1.altair_chart(counts_heatmap,use_container_width=True)
+    col1.altair_chart(complete_list_goal_heatmap,use_container_width=True)
 
 
     col2.metric("avg created",value=int(created_df.groupby('day_of_year')['tasks_created'].sum().sum() / avg_days) if created_df_delta.shape[0] > 0 else None,
                 delta=f"last item {created_df_delta.iloc[0,3]}" if created_df_delta.shape[0] > 0 else None,
                 delta_color="off")
+    col2.altair_chart(created_list_goal_heatmap,use_container_width=True)
     
-    
+
     col3.metric("avg active",value=int(active_df.groupby('day_of_year')['tasks_active'].sum().sum() / avg_days) if active_df_delta.shape[0] > 0 else None,
                 delta=f"last item {active_df_delta.iloc[0,3] }" if active_df_delta.shape[0] > 0 else None,
                 delta_color="off")
+    col3.altair_chart(active_list_goal_heatmap,use_container_width=True)
     
 
 
@@ -708,8 +743,6 @@ with tab2:
             use_container_width=True
             )
 
-        st.write("associated goals")
-        st.dataframe(create_progress_lvl3_summary,hide_index=True)
 
         st.write("detailed")
         st.dataframe(create_progress_lvl3_detailed,hide_index=True)
@@ -743,8 +776,6 @@ with tab2:
 
         st.write("detailed")
         st.dataframe(active_progress_lvl3_detailed,hide_index=True)
-        st.dataframe(active_progress_lvl3_summary,hide_index=True)
-
 
 
     # for graph 
