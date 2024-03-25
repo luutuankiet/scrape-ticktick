@@ -32,6 +32,32 @@ default_start = datetime(2022, 7, 23,tzinfo=timezone.utc)
 date_format = '%Y-%m-%dT%H:%M:%S.%f%z'
 
 
+
+
+USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:123.0) Gecko/20100101 Firefox/123.0"
+X_DEVICE_ = '{"platform":"web","os":"OS X","device":"Firefox 123.0","name":"unofficial api!","version":4531,' \
+
+
+def new_login(self, username, password):
+    url = self.BASE_URL + 'user/signon?wc=true&remember=true'
+    user_info = {
+        'username': username,
+        'password': password,
+    }
+    parameters = {
+        'wc': True,
+        'remember': True
+    }
+
+    response = self.http_post(url, json=user_info, params=parameters, headers=self.HEADERS)
+    print(response)
+    self.access_token = response['token']
+    self.cookies['t'] = self.access_token
+
+TickTickClient._login = new_login
+
+
+
 auth_client = OAuth2(client_id=client_id,
                     client_secret=client_secret,
                     redirect_uri=redirect_uri,
