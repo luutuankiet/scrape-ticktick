@@ -6,7 +6,7 @@ sources:
       dagster:
         asset_key : ["dump_to_motherduck"]
     description: A replica of the extracted ticktick data.
-    database: dw
+    database: memory
     schema: main
     tables:
       - name: tasks_raw
@@ -18,7 +18,7 @@ sources:
 
   - name: raw_seed_data
     description: split seed from raw data in the main schema.
-    database: dw
+    database: memory
     schema: main
     tables:
       - name: date_seed

@@ -19,12 +19,10 @@ seed_path = os.path.join(dbt_project_dir,'seeds/list_goal_mapping.csv')
 motherduck_token = os.environ.get("motherduck_token")
 with open(helper_query_path,'r') as f:
     helper_query = f.read()
-# con = duckdb.connect(f'md:ticktick_gtd?motherduck_token={motherduck_token}')
 con = duckdb.connect(read_only=False)
 con.sql(f"IMPORT DATABASE '{os.path.dirname(dw_path)}/src';")
 
 # con = duckdb.connect(dw_path,read_only=True)
-cur = con.cursor()
 client = gspread.service_account(service_account_path)
 workbook = client.open_by_url("https://docs.google.com/spreadsheets/d/1My7VU0GrAlYTa46Hj1ciOBXivcF7QKSYeRVXXbyV74o/edit#gid=0")
 helper_sheet = workbook.get_worksheet(1)
@@ -32,7 +30,7 @@ mapping_sheet = workbook.get_worksheet(0)
 
 @op
 def mapping_helper():
-    helper_df = cur.sql(helper_query).df()
+    helper_df = con.sql(helper_query).df()
     
     # clears the sheet
     helper_sheet.clear()
@@ -43,8 +41,9 @@ def mapping_helper():
 
     # writes the latest goals
     goals_query = "select goal_id,goal_name from init_duckdb__lvl3 order by 1"
-    goals_df = cur.sql(goals_query).df()
+    goals_df = con.sql(goals_query).df()
     helper_sheet.update("D1",values =[goals_df.columns.tolist()] + goals_df.values.tolist())
+    con.close()
 @op
 def load_mapping_to_stg():
     stg_data = helper_sheet.get_values('A:C')

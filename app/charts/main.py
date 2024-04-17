@@ -1,7 +1,6 @@
 #%%
 import sys
 sys.path.append('..')
-from ETL.lvl3_helper import mapping_helper
 import streamlit as st
 import duckdb
 import os
@@ -20,7 +19,8 @@ from streamlit_gsheets import GSheetsConnection
 #%%
 motherduck_token = os.environ.get("motherduck_token")
 # con = duckdb.connect(f'md:ticktick_gtd?motherduck_token={motherduck_token}')
-con = duckdb.connect(dw_path,read_only=True)
+con = duckdb.connect()
+con.sql(f"IMPORT DATABASE '{os.path.dirname(dw_path)}/src';")
 cur = con.cursor()
 
 #%%
@@ -100,10 +100,14 @@ with st.expander("server ops"):
             reload = "tmux send-keys -t streamlit.0 'streamlit run main.py' ENTER"
             subprocess.run(f"{kill} & {kill}", shell=True)
             subprocess.run(f"sleep 10 && {reload}",shell=True)
-    if st.button("force cache reload"):
-            st.cache_data.clear()
+    # if st.button("force cache reload"):
+    #         st.cache_data.clear()
+    #         con.close()
+    #         con = duckdb.connect()
+    #         con.sql(f"IMPORT DATABASE '{os.path.dirname(dw_path)}/src';")
+    #         cur = con.cursor()
 
-    if st.button("reload data"):
+    if st.button("init ETL & reload data"):
             log_path = "/logs/dbt/manual_run_log.txt"
             dbt_cmd = "source /main/scrape-ticktick/.venv/bin/activate && source /main/scrape-ticktick/.env && dagster job execute -m app.ETL.definitions -j ETL_job -d $DAGSTER_HOME"
             

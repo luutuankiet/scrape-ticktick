@@ -9,7 +9,7 @@ macro-paths: ["macros"]
 models:
   todo_analytics:
     staging:
-      +materialized: view
+      +materialized: table
     marts:
       +materialized: table
 
