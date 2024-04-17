@@ -22,3 +22,4 @@ dbt_project/seeds/list_goal_mapping.csv
 app.log
 database/raw
 database
+.logs_queue

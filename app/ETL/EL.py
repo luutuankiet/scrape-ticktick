@@ -20,9 +20,7 @@ import dbt_assets
     compute_kind='python'
 )
 def dump_to_motherduck(context: AssetExecutionContext):
-    motherduck_token=os.environ.get('motherduck_token')
 
-    entities = ['tasks','lists','folders']
     names = ['source_todo_analytics_raw_data_tasks_raw', 'source_todo_analytics_raw_data_lists_raw', 'source_todo_analytics_raw_data_folders_raw']
 
     tasks_path = os.path.join(raw_path,'tasks.json')

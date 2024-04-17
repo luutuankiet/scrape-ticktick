@@ -22,7 +22,8 @@ dbt_project_dir = os.environ.get('DBT_PROJECT_DIR')
 dbt_models_path=os.path.join(dbt_project_dir,'models')
 dw_path = os.environ.get("DW_PATH")
 
-
+dbt_models_core = os.path.join(dbt_models_path,'marts','core')
+dbt_models_metrics = os.path.join(dbt_models_path,'marts','metrics')
 
 
 load_dotenv(secrets_path)
