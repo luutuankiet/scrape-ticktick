@@ -1,8 +1,8 @@
 WITH source AS (
     SELECT *
     FROM
-        {{ source(
-            'raw_seed_data',
+        {{ ref(
+            
             'date_seed'
         ) }}
 )

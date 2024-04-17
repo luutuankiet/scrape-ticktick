@@ -19,4 +19,5 @@ seeds:
     list_goal_mapping:
       +column_types:
         goal_ids: "text"
+    date_seed:
 
