@@ -33,10 +33,12 @@ date_format = '%Y-%m-%dT%H:%M:%S.%f%z'
 
 
 
+USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:95.0) Gecko/20100101 Firefox/95.0"
+X_DEVICE_ = '{"platform":"web","os":"OS X","device":"Firefox 95.0","name":"unofficial api!","version":4531,' \
+                '"id":"6490' + secrets.token_hex(10) + '","channel":"website","campaign":"","websocket":""}'
 
-USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:123.0) Gecko/20100101 Firefox/123.0"
-X_DEVICE_ = '{"platform":"web","os":"OS X","device":"Firefox 123.0","name":"unofficial api!","version":4531,' \
-
+TickTickClient.HEADERS = {'User-Agent': USER_AGENT,
+               'x-device': X_DEVICE_}
 
 def new_login(self, username, password):
     url = self.BASE_URL + 'user/signon?wc=true&remember=true'
