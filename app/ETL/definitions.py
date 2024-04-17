@@ -3,9 +3,9 @@ import os
 from dagster import Definitions,ScheduleDefinition,define_asset_job,load_assets_from_modules
 from dagster_dbt import DbtCliResource
 
-from .constants import DBT_PROJECT_DIR
-from . import EL,dbt_assets
-from .lvl3_helper import load_new_lvl3_data,load_mapping_helper
+from constants import DBT_PROJECT_DIR
+import EL,dbt_assets
+from lvl3_helper import load_new_lvl3_data,load_mapping_helper
 
 all_assets = load_assets_from_modules([EL,dbt_assets])
 ETL_job = define_asset_job("ETL_job",selection=all_assets)

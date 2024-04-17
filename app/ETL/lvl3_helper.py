@@ -1,7 +1,7 @@
 #%%
-import sys; sys.path.append('..')
 import os
 from dagster import OpExecutionContext, OpDefinition, op
+import sys; sys.path.append('..')
 from helper.source_env import dbt_project_dir,service_account_path
 import duckdb
 import gspread

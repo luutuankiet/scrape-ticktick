@@ -1,11 +1,13 @@
+#%%
 import os
 from dagster import AssetMaterialization, Output, asset,AssetExecutionContext,AssetOut, multi_asset, AssetKey
 from dagster_dbt import get_asset_keys_by_output_name_for_source
 import duckdb
 import pandas as pd
+import sys; sys.path.append('..') # to allow import helper which is 1 dir away
 from helper.source_env import raw_path
-from . import dbt_assets
-
+import dbt_assets
+#%%
 
 @multi_asset(
     outs={

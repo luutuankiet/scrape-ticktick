@@ -1,15 +1,19 @@
 # a standalone job to run once and stay on for the duration of the machine.
 # this helps retain one tick tick api call in the duration.
 
+#%%
 from ticktick.oauth2 import OAuth2        # OAuth2 Manager
 from ticktick.api import TickTickClient   # Main Interface
 from os import environ
 import json
-import os
 from datetime import datetime, timedelta,timezone
 import logging
-from helper.source_env import dotenv_path,raw_path
 import time
+import sys; sys.path.append('..') # to allow import helper which is 1 dir away
+from helper.source_env import dotenv_path,raw_path
+import asyncio
+
+#%%
 
 logging.basicConfig(
     level=logging.INFO,
@@ -152,6 +156,7 @@ def get_new_tasks() -> list:
 
 def extract_json():
     # task
+    client.task._client.sync()
     new=get_new_tasks()
     logging.info(f'new tasks : {len(new)}')
     completed,metadata=get_completed_task()
@@ -189,10 +194,9 @@ def dump_to_file(extract_json):
 
 if __name__ == '__main__':
     while True:
-        sleep_time = 60
+        sleep_time = 1800
         logging.info('start loading...')
         dump_to_file(extract_json())
         logging.info(f'done loading. next iteration in {sleep_time} seconds...')
-        client.task._client.sync()
         time.sleep(sleep_time)
         
