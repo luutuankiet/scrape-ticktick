@@ -19,4 +19,4 @@ __pycache__/
 secrets.toml
 service_account.json
 dbt_project/seeds/list_goal_mapping.csv
-
+app.log

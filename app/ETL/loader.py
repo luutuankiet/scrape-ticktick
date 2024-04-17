@@ -2,12 +2,25 @@
 # this helps retain one tick tick api call in the duration.
 
 #%%
+import secrets
 from ticktick.oauth2 import OAuth2        # OAuth2 Manager
 from ticktick.api import TickTickClient   # Main Interface
+
+USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:95.0) Gecko/20100101 Firefox/95.0"
+X_DEVICE_ = '{"platform":"web","os":"OS X","device":"Firefox 95.0","name":"unofficial api!","version":4531,' \
+                '"id":"6490' + secrets.token_hex(10) + '","channel":"website","campaign":"","websocket":""}'
+
+TickTickClient.HEADERS = {'User-Agent': USER_AGENT,
+               'x-device': X_DEVICE_}
+
+# per this issue : https://github.com/lazeroffmichael/ticktick-py/issues/42
+
 from os import environ
+import os
 import json
 from datetime import datetime, timedelta,timezone
 import logging
+from logging.handlers import TimedRotatingFileHandler
 import time
 import sys; sys.path.append('..') # to allow import helper which is 1 dir away
 from helper.source_env import dotenv_path,raw_path
@@ -19,6 +32,16 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
+
+
+# Configure logging with a TimedRotatingFileHandler for log rotation
+log_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+log_handler = TimedRotatingFileHandler(filename='app.log', when='D', backupCount=0)
+log_handler.setFormatter(log_formatter)
+logger = logging.getLogger()
+logger.addHandler(log_handler)
+logger.setLevel(logging.INFO)
+
 
 cache_path=os.path.join(dotenv_path,'.token-oauth')
 
@@ -35,14 +58,9 @@ folders_file_path = os.path.join(raw_path,'folders.json')
 default_start = datetime(2022, 7, 23,tzinfo=timezone.utc)
 date_format = '%Y-%m-%dT%H:%M:%S.%f%z'
 
+#%%
 
 
-USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:95.0) Gecko/20100101 Firefox/95.0"
-X_DEVICE_ = '{"platform":"web","os":"OS X","device":"Firefox 95.0","name":"unofficial api!","version":4531,' \
-                '"id":"6490' + secrets.token_hex(10) + '","channel":"website","campaign":"","websocket":""}'
-
-TickTickClient.HEADERS = {'User-Agent': USER_AGENT,
-               'x-device': X_DEVICE_}
 
 def new_login(self, username, password):
     url = self.BASE_URL + 'user/signon?wc=true&remember=true'
@@ -192,11 +210,88 @@ def dump_to_file(extract_json):
     _dump_to_file(all_tasks,tasks_file_path)
     return None
 
-if __name__ == '__main__':
-    while True:
-        sleep_time = 1800
-        logging.info('start loading...')
+
+# Path to the flag file
+FLAG_FILE = 'force_sync.flag'
+
+# Introduce a global variable to track the synchronization state
+is_sync_running = False
+
+# Modify the trigger_sync function to prioritize the current instance
+def trigger_sync():
+    global is_sync_running
+    
+    if is_sync_running:
+        # If a synchronization process is already running, prioritize the current instance
+        logging.info('Synchronization process is already running. Priority given to current instance.')
+        return
+    
+    try:
+        # Set the flag to indicate that a synchronization process is running
+        is_sync_running = True
+        
+        # Start the synchronization process
+        logging.info('Triggering synchronization...')
         dump_to_file(extract_json())
-        logging.info(f'done loading. next iteration in {sleep_time} seconds...')
-        time.sleep(sleep_time)
+        logging.info('Synchronization completed.')
+    finally:
+        # Reset the flag when the synchronization process completes or encounters an error
+        is_sync_running = False
+
+
+def signal_handler(sig, frame):
+    """
+    Signal handler function to handle external signals.
+    """
+    if os.path.exists(FLAG_FILE):
+        os.remove(FLAG_FILE)
+        trigger_sync()
+
+def check_for_flag_file():
+    """
+    Check if the flag file exists and trigger synchronization if it does.
+    """
+    if os.path.exists(FLAG_FILE):
+        os.remove(FLAG_FILE)
+        trigger_sync()
+
+
+async def regular_sync():
+    """
+    Regular synchronization process.
+    """
+    while True:
+        logging.info('No flag file found. Triggering regular synchronization...')
+        trigger_sync()
+        # Sleep for 30 minutes
+        await asyncio.sleep(1800)
+
+
+async def main():
+    # Create tasks for coroutines
+    flag_task = asyncio.create_task(check_for_flag_file_forever())
+    sync_task = asyncio.create_task(regular_sync())
+
+    # Await the tasks using asyncio.wait
+    await asyncio.wait([flag_task, sync_task])
+
+
+async def check_for_flag_file_forever():
+    """
+    Check for the flag file continuously.
+    """
+    while True:
+        check_for_flag_file()
+        await asyncio.sleep(1)
+
+if __name__ == '__main__':
+    asyncio.run(main())
+
+# if __name__ == '__main__':
+#     while True:
+#         sleep_time = 1800
+#         logging.info('start loading...')
+#         dump_to_file(extract_json())
+#         logging.info(f'done loading. next iteration in {sleep_time} seconds...')
+#         time.sleep(sleep_time)
         
