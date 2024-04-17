@@ -1,12 +1,12 @@
 #%%
 import sys
-
-from ETL.lvl3_helper import mapping_helper; sys.path.append('/home/ken/dev-main/scrape-ticktick-1/app')
+sys.path.append('..')
+from ETL.lvl3_helper import mapping_helper
 import streamlit as st
 import duckdb
 import os
 import pandas as pd
-from helper.source_env import dbt_project_dir
+from helper.source_env import dbt_project_dir,dw_path
 from helper.query_retry import retry
 import datetime
 from datetime import timedelta, timezone
@@ -19,8 +19,11 @@ from streamlit_gsheets import GSheetsConnection
 
 #%%
 motherduck_token = os.environ.get("motherduck_token")
-con = duckdb.connect(f'md:ticktick_gtd?motherduck_token={motherduck_token}')
+# con = duckdb.connect(f'md:ticktick_gtd?motherduck_token={motherduck_token}')
+con = duckdb.connect(dw_path,read_only=True)
 cur = con.cursor()
+
+#%%
 
 utc = pytz.timezone('UTC')
 

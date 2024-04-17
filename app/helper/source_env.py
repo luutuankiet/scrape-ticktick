@@ -20,6 +20,8 @@ service_account_path = os.path.join(dotenv_path,'service_account.json')
 
 dbt_project_dir = os.environ.get('DBT_PROJECT_DIR')
 dbt_models_path=os.path.join(dbt_project_dir,'models')
+dw_path = os.environ.get("DW_PATH")
+
 
 
 

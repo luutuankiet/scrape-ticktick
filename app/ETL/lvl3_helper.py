@@ -2,7 +2,7 @@
 import os
 from dagster import OpExecutionContext, OpDefinition, op
 import sys; sys.path.append('..')
-from helper.source_env import dbt_project_dir,service_account_path
+from helper.source_env import dbt_project_dir,service_account_path,dw_path
 import duckdb
 import gspread
 import csv
@@ -19,7 +19,11 @@ seed_path = os.path.join(dbt_project_dir,'seeds/list_goal_mapping.csv')
 motherduck_token = os.environ.get("motherduck_token")
 with open(helper_query_path,'r') as f:
     helper_query = f.read()
-con = duckdb.connect(f'md:ticktick_gtd?motherduck_token={motherduck_token}')
+# con = duckdb.connect(f'md:ticktick_gtd?motherduck_token={motherduck_token}')
+con = duckdb.connect(read_only=False)
+con.sql(f"IMPORT DATABASE '{os.path.dirname(dw_path)}/src';")
+
+# con = duckdb.connect(dw_path,read_only=True)
 cur = con.cursor()
 client = gspread.service_account(service_account_path)
 workbook = client.open_by_url("https://docs.google.com/spreadsheets/d/1My7VU0GrAlYTa46Hj1ciOBXivcF7QKSYeRVXXbyV74o/edit#gid=0")

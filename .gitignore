@@ -20,3 +20,5 @@ secrets.toml
 service_account.json
 dbt_project/seeds/list_goal_mapping.csv
 app.log
+database/raw
+database

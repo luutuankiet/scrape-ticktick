@@ -2,7 +2,7 @@ todo_analytics:
   outputs:
     duckdb:
       type: duckdb
-      path: "md:ticktick_gtd?motherduck_token={{env_var('motherduck_token')}}"
+      path: "{{env_var('DW_PATH')}}"
       threads: 12
       schema: main
   target: duckdb
