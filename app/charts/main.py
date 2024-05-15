@@ -105,6 +105,9 @@ with st.expander("server ops"):
             with open(log_path, "r") as output_file:
                 output_content = output_file.read()
             st.code(output_content)
+            con = duckdb.connect()
+            con.sql(f"IMPORT DATABASE '{os.path.dirname(dw_path)}/src';")
+            cur = con.cursor()
             st.cache_data.clear()
 
 
