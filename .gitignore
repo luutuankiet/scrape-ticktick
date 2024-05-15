@@ -23,3 +23,4 @@ app.log
 # database/raw
 # database
 .logs_queue
+streamlit_logs/logs.txt
