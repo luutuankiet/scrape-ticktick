@@ -5,7 +5,7 @@ import streamlit as st
 import duckdb
 import os
 import pandas as pd
-from helper.source_env import dbt_project_dir,dw_path
+from helper.source_env import dbt_project_dir,dw_path,st_logs_path,venv_path,project_dotenv_path
 from helper.query_retry import retry
 import datetime
 from datetime import timedelta, timezone
@@ -965,11 +965,14 @@ with tab4:
     col1,col2 = st.columns(2)
 
     with col1:
-        edited_goals = st.data_editor(mapping_helper,num_rows="dynamic",hide_index=True)
+        edited_goals = mapping_helper.copy()
+        staging = st.data_editor(edited_goals,num_rows="dynamic",hide_index=True)
     with col2:
         st.dataframe(goal_id,hide_index=True)
     if st.button("commit"):
-        edited_goals[["goal_id","goal_name"]] = goal_id
-        conn.update(data=edited_goals,worksheet = "mapping helper")
+        staging[["goal_id","goal_name"]] = goal_id
+        conn.update(data=staging,worksheet = "mapping helper")
+        commit_cmd = f"source {venv_path}/bin/activate && source {project_dotenv_path} && dagster job execute -m app.ETL.definitions -j load_new_lvl3_data -d $DAGSTER_HOME"
+        with open(st_logs_path, "w") as output_file:
+            result = subprocess.run(f"{commit_cmd}", shell=True, stdout=output_file, stderr=subprocess.STDOUT,executable="/bin/bash")
         st.cache_data.clear()
-
