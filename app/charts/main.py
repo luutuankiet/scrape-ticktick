@@ -94,20 +94,7 @@ def get_table_nocache(query):
 
 with st.expander("server ops"):
 
-    if st.button("force reload server"):
-            kill = "tmux send-keys -t streamlit.0 C-c"
-            # setup = "cd ../.. && tmux new-session -s $STREAMLIT -d"
-            reload = "tmux send-keys -t streamlit.0 'streamlit run main.py' ENTER"
-            subprocess.run(f"{kill} & {kill}", shell=True)
-            subprocess.run(f"sleep 10 && {reload}",shell=True)
-    # if st.button("force cache reload"):
-    #         st.cache_data.clear()
-    #         con.close()
-    #         con = duckdb.connect()
-    #         con.sql(f"IMPORT DATABASE '{os.path.dirname(dw_path)}/src';")
-    #         cur = con.cursor()
-
-    if st.button("init ETL & reload data"):
+    if st.button("run ETL"):
             log_path = "/logs/dbt/manual_run_log.txt"
             dbt_cmd = "source /main/scrape-ticktick/.venv/bin/activate && source /main/scrape-ticktick/.env && dagster job execute -m app.ETL.definitions -j ETL_job -d $DAGSTER_HOME"
             
@@ -118,7 +105,7 @@ with st.expander("server ops"):
             with open(log_path, "r") as output_file:
                 output_content = output_file.read()
             st.code(output_content)
-
+            st.cache_data.clear()
 
 
 
