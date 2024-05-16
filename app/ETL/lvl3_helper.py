@@ -30,6 +30,9 @@ mapping_sheet = workbook.get_worksheet(0)
 
 @op
 def mapping_helper():
+    """
+    insert into the mapping_herlper sheet the goals selected from db
+    """
     helper_df = con.sql(helper_query).df()
     
     # clears the sheet
