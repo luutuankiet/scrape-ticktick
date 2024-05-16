@@ -95,14 +95,13 @@ def get_table_nocache(query):
 with st.expander("server ops"):
 
     if st.button("run ETL"):
-            log_path = "/logs/dbt/manual_run_log.txt"
-            dbt_cmd = "source /main/scrape-ticktick/.venv/bin/activate && source /main/scrape-ticktick/.env && dagster job execute -m app.ETL.definitions -j ETL_job -d $DAGSTER_HOME"
+            dbt_cmd = f"source {venv_path}/bin/activate && source {project_dotenv_path} && dagster job execute -m app.ETL.definitions -j ETL_job -d $DAGSTER_HOME"
             
-            with open(log_path, "w") as output_file:
+            with open(st_logs_path, "w") as output_file:
                 result = subprocess.run(f"{dbt_cmd}", shell=True, stdout=output_file, stderr=subprocess.STDOUT,executable="/bin/bash")
 
         # Read and display the output file content  
-            with open(log_path, "r") as output_file:
+            with open(st_logs_path, "r") as output_file:
                 output_content = output_file.read()
             st.code(output_content)
             con = duckdb.connect()
