@@ -12,6 +12,8 @@ sleeper:
 
 deploy: init_deploy sleeper dagster streamlit
 
+deploy-from-scratch: init_deploy sleeper loader dagster streamlit
+
 loader:
 	tmux send-keys -t loader.0 "source .venv/bin/activate && source .env && cd app/ETL && python loader.py" ENTER
 
