@@ -10,6 +10,9 @@ streamlit:
 sleeper:
 	sleep 10
 
+init_seed:
+	python app/helper/scaffold_seeds.py
+
 deploy: init_deploy sleeper dagster streamlit
 
 deploy-from-scratch: init_deploy sleeper loader dagster streamlit

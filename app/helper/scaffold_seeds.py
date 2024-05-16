@@ -17,6 +17,7 @@ def init_mapping_seed(results=None):
     with open(seed_path,'w') as f:
         writer = csv.writer(f)
         writer.writerows(mapping_sheet.get_values())
+    print(f'seeds mapping done. checkout the file at {seed_path}')
 
 
 if __name__ == '__main__':
