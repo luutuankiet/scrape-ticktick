@@ -31,7 +31,7 @@
             "database": "/Users/luutuankiet/Downloads/ETL_WO_activity_base_export.csv"
         },
         {
-            "previewLimit": 50,
+            "previewLimit": 500,
             "driver": "DuckDB",
             "database": "${workspaceFolder:scrape-ticktick}/database/memory.duckdb",
             "name": "ticktick-etl"

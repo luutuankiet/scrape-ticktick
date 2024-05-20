@@ -164,8 +164,5 @@
 				}
 			}
 		}
-	},
-	"features": {
-		"ghcr.io/devcontainers-contrib/features/npm-package:1": {}
 	}
 }
