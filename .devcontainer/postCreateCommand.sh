@@ -14,10 +14,14 @@ node -v # should print `v20.13.1`
 npm -v # should print `10.5.2`
 
 
+# deps for sqltools - duckdb driver
+npm install duckdb-async@0.9.2
+
+
 
 #### sets up python
 
-apt-get update && apt-get install -y python3-venv
+apt-get update && apt-get install -y python3-venv tmux
 
 # init then source env vars
 chmod +x ./env_init.sh
@@ -27,17 +31,21 @@ chmod +x ./source_env.sh
 source source_env.sh
 
 
+
+##### TODO: uncomment this for a true rebuild from scratch. currenlty broken due to packages deps in requirements file.
 # create env
-python3 -m venv $VIRTUAL_ENV
+python3 -m venv --clear  $VIRTUAL_ENV
 
-# add virt env to PATH which allows the next part of script to install packages directly to venv
-export PATH="$VIRTUAL_ENV/bin:$PATH"
+# # add virt env to PATH which allows the next part of script to install packages directly to venv
+# export PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# install reqs
+# # install reqs
 pip install --upgrade pip
 pip install -r requirements.txt
-pip install --upgrade requests urllib3 chardet charset_normalizer # address a bug url lib version incompatibility
 
-# run dbt 
-dbt deps
-dbt build
+# ad hoc : upgrade pandas for streamlit viz. known bug : https://github.com/streamlit/gsheets-connection/issues/20
+pip install pandas==2.2.0
+
+# # run dbt 
+# dbt deps
+# dbt build
