@@ -2,5 +2,9 @@
     "python.analysis.autoImportCompletions": true,
     "python.analysis.typeCheckingMode": "off",
     "dbt.queryLimit": 500,
-    "dbt.enableNewLineagePanel": true
+    "dbt.enableNewLineagePanel": true,
+    "files.associations": {
+        "*.sql": "jinja-sql",
+        "**/*.sql": "jinja-sql"
+    }
 }

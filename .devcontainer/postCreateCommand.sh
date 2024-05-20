@@ -4,8 +4,11 @@
 apt-get update && apt-get install -y python3-venv
 
 # init then source env vars
+chmod +x ./env_init.sh
+chmod +x ./source_env.sh
+
 . ./env_init.sh
-source .env
+source source_env.sh
 
 
 # create env
