@@ -1,6 +1,24 @@
 #!/bin/bash
+# Function to print a section header
+print_section() {
+    local section_title=$1
+    echo
+    echo "================================="
+    echo "================================="
+    echo "================================="
+    echo "   $section_title"
+    echo "================================="
+    echo "================================="
+    echo "================================="
+    echo
+}
+
+
+
 
 ##### install npm
+print_section "INSTALL NPM"
+
 # installs nvm (Node Version Manager)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 
@@ -19,11 +37,17 @@ npm install duckdb-async@0.9.2
 
 
 
-#### sets up python
+### sets up zsh terminal
+print_section "SETUP ZSH TERMINAL"
+curl -o- https://gist.githubusercontent.com/luutuankiet/fbb70fca0f7f948c4e102442d76c363e/raw/boilerplate-dev-env | bash
 
-apt-get update && apt-get install -y python3-venv tmux
+
+#### sets up python
+print_section "SETUP PYTHON"
+apt-get update && apt-get install -y python3-venv
 
 # init then source env vars
+print_section "INIT & SOURCE ENV VARS"
 chmod +x ./env_init.sh
 chmod +x ./source_env.sh
 
@@ -34,6 +58,7 @@ source source_env.sh
 
 ##### TODO: uncomment this for a true rebuild from scratch. currenlty broken due to packages deps in requirements file.
 # create env
+print_section "CREATE VENV & INSTALL REQUIREMENTS"
 python3 -m venv --clear $VIRTUAL_ENV
 
 # # add virt env to PATH which allows the next part of script to install packages directly to venv
@@ -41,7 +66,6 @@ python3 -m venv --clear $VIRTUAL_ENV
 
 # # install reqs. each lines is a separate process hence neeeds a source .venv in front
 source .venv/bin/activate && \
-pip install --upgrade pip && \
 pip install -r requirements.txt && \
 # ad hoc : upgrade pandas for streamlit viz. known bug : https://github.com/streamlit/gsheets-connection/issues/20
 pip install pandas==2.2.0
