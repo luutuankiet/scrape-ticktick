@@ -167,6 +167,10 @@
 	},
 	"features": {
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {
+			"moby": "false",
+			"azureDnsAutoDetection": "false",
+			"installDockerBuildx": "false",
+			"installDockerComposeSwitch": "false",
 			"version": "latest",
 			"dockerDashComposeVersion": "latest"
 		}
