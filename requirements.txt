@@ -4,7 +4,7 @@ dagster==1.7.3
 dagster-webserver==1.7.3
 dagster_dbt==0.23.3
 duckdb==0.10.2
-dbt-core==1.8.0
+dbt-core
 dbt-duckdb==1.7.4
 HTMLParser==0.0.2
 humanize==4.9.0
