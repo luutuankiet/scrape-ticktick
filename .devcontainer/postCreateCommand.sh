@@ -34,15 +34,15 @@ source source_env.sh
 
 ##### TODO: uncomment this for a true rebuild from scratch. currenlty broken due to packages deps in requirements file.
 # create env
-python3 -m venv --clear  $VIRTUAL_ENV
+python3 -m venv --clear $VIRTUAL_ENV
 
 # # add virt env to PATH which allows the next part of script to install packages directly to venv
 # export PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# # install reqs
-pip install --upgrade pip
-pip install -r requirements.txt
-
+# # install reqs. each lines is a separate process hence neeeds a source .venv in front
+source .venv/bin/activate && \
+pip install --upgrade pip && \
+pip install -r requirements.txt && \
 # ad hoc : upgrade pandas for streamlit viz. known bug : https://github.com/streamlit/gsheets-connection/issues/20
 pip install pandas==2.2.0
 
