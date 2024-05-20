@@ -46,6 +46,21 @@
 				"visualstudioexptteam.vscodeintellicode"
 			],
 			"settings": {
+				"terminal.integrated.env.osx": {
+					"PYTHONPATH": "${env:PYTHONPATH}:${workspaceFolder}/src:{workspaceFolder}/app"
+				},
+				"terminal.integrated.env.linux": {
+					"PYTHONPATH": "${env:PYTHONPATH}:${workspaceFolder}/src:{workspaceFolder}/app"
+				},
+				"terminal.integrated.env.windows": {
+					"PYTHONPATH": "${env:PYTHONPATH};${workspaceFolder}/src;{workspaceFolder}/app"
+				},
+				"python.defaultInterpreterPath": ".venv/bin/python",
+				"python.venvFolders": [
+					"${workspaceFolder}/.venv"
+				],
+				"python.envFile": "${workspaceFolder}/.env",
+				"python.terminal.activateEnvironment": true,
 				// "python.terminal.activateEnvInCurrentTerminal": true,
 				// "python.defaultInterpreterPath": "./.venv/bin/python",
 				// "editor.defaultFormatter": "dorzey.vscode-sqlfluff",
@@ -149,5 +164,8 @@
 				}
 			}
 		}
+	},
+	"features": {
+		"ghcr.io/devcontainers-contrib/features/npm-package:1": {}
 	}
 }

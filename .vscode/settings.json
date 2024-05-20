@@ -6,5 +6,35 @@
     "files.associations": {
         "*.sql": "jinja-sql",
         "**/*.sql": "jinja-sql"
-    }
+    },
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "localhost",
+            "database": "postgres",
+            "username": "postgres",
+            "password": "5432"
+        },
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "database": ":memory:",
+            "name": "local"
+        },
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "tmp",
+            "database": "/Users/luutuankiet/Downloads/ETL_WO_activity_base_export.csv"
+        },
+        {
+            "previewLimit": 50,
+            "driver": "DuckDB",
+            "database": "${workspaceFolder:scrape-ticktick}/database/memory.duckdb",
+            "name": "ticktick-etl"
+        }
+    ]
 }
