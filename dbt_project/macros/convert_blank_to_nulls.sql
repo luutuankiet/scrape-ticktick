@@ -4,11 +4,12 @@
 {% macro convert_blank_to_null(
     table_name
   ) %}
-  {%- for col in adapter.get_columns_in_relation(table_name) %}
+  {% set columns = adapter.get_columns_in_relation(table_name) %}
+  {%- for col in columns  %}
     NULLIF(
-      {{ col }},
+      {{ col.name }},
       ''
-    ) AS {{ col }}
+    ) AS {{ col.name }}
 
     {% if not loop.last %},
     {% endif %}
