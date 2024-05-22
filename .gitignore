@@ -24,3 +24,5 @@ app.log
 # database
 .logs_queue
 streamlit_logs/logs.txt
+node_modules/
+dbt_packages
