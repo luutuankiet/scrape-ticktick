@@ -4,6 +4,7 @@
 {% macro convert_blank_to_null(
     table_name
   ) %}
+  {# {% set relace_list = ["''", "[]"] %} #}
   {% set columns = adapter.get_columns_in_relation(table_name) %}
   {%- for col in columns  %}
     NULLIF(

@@ -22,7 +22,7 @@ lists AS (
             'lists_raw'
         ) }}
 ),
-renamed AS (
+base AS (
     SELECT
         t.id ,
         f.name ,
@@ -62,4 +62,4 @@ renamed AS (
 SELECT
     *
 FROM
-    renamed
+    base

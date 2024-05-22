@@ -7,4 +7,44 @@
         "*.sql": "jinja-sql",
         "*.yml": "yaml"
     },
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "localhost",
+            "database": "postgres",
+            "username": "postgres",
+            "password": "5432"
+        },
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "database": ":memory:",
+            "name": "local"
+        },
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "tmp",
+            "database": "/Users/luutuankiet/Downloads/ETL_WO_activity_base_export.csv"
+        },
+        {
+            "previewLimit": 50,
+            "server": "103.221.223.131",
+            "port": 5281,
+            "driver": "PostgreSQL",
+            "name": "inno airflow",
+            "database": "airflow",
+            "username": "airflow",
+            "password": "airflow"
+        },
+        {
+            "previewLimit": 50,
+            "driver": "DuckDB",
+            "name": "dw",
+            "database": "database/memory.duckdb"
+        }
+    ],
 }
