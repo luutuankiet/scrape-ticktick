@@ -1,84 +1,160 @@
 semantic_models:
-  - name: todo
-  description: |
-    facts for to do items; each row is one task.
-  model: ref('fact_todos')
-  entities:
-    - name: todo_id
-      type: 
-    
+  - name: todos
+    description: "facts for to do items; each row is one task."
+    model: ref('fact_todos')
+    defaults:
+      agg_time_dimension: completed_date
+    entities:
+      - name: todo_id
+        type: primary
+      - name: list_key
+        type: foreign
+      - name: folder_key
+        type: foreign
+      - name: status_key
+        type: foreign
+    dimensions:
+      - name: created_date
+        type: time
+        expr: date_trunc('day',created_time)
+        type_params:
+          time_granularity: day
+      - name: start_date
+        type: time
+        expr: date_trunc('day',start_date)
+        type_params:
+          time_granularity: day
+      - name: due_date
+        type: time
+        expr: date_trunc('day',due_date)
+        type_params:
+          time_granularity: day
+      - name: updated_date
+        type: time
+        expr: date_trunc('day',modified_date)
+        type_params:
+          time_granularity: day
+      - name: completed_date
+        type: time
+        expr: date_trunc('day',completed_time)
+        type_params:
+          time_granularity: day
+      - name: folder_dim
+        type: categorical
+        expr: folder_name
+      - name: list_dim
+        type: categorical
+        expr: list_name
+      - name: is_repeat
+        type: categorical
+        expr: case when <> 'default' then true else false end
+      - name: tags
+        description: the tags parsed from tasks.
+        type: categorical
+        expr: TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(tags, '[', ''), ']', ''), '''', ''))
+      - name: task_type
+        type: categorical
+        expr: case when NOT (kind = 'NOTE' or tags like '%tickler%') then 'task' else 'note' end
+        description: "the task type, as in list or a note."
+    measures:
+      - name: tasks_count
+        expr: todo_id
+        agg: count
 
-models:
-  - name: fact_todos
-    description: ""
-    columns:
-    - name: list_key
-      description: ""
-    - name: folder_key
-      description: ""
-    - name: status_key
-      description: ""
-    - name: date_start_key
-      description: ""
-    - name: date_due_key
-      description: ""
-    - name: date_completed_key
-      description: ""
-    - name: date_created_key
-      description: ""
-    - name: todo_id
-      description: ""
-    - name: folder_name
-      description: ""
-    - name: list_name
-      description: ""
-    - name: status_id
-      description: ""
-    - name: title
-      description: ""
-    - name: timezone
-      description: ""
-    - name: reminder
-      description: ""
-    - name: reminders
-      description: ""
-    - name: exdate
-      description: ""
-    - name: items
-      description: ""
-    - name: progress
-      description: ""
-    - name: modified_time
-      description: ""
-    - name: completed_time
-      description: ""
-    - name: created_time
-      description: ""
-    - name: etag
-      description: ""
-    - name: deleted
-      description: ""
-    - name: kind
-      description: ""
-    - name: tags
-      description: ""
-    - name: repeatfrom
-      description: ""
-    - name: repeattaskid
-      description: ""
-    - name: repeatflag
-      description: ""
-    - name: pinned_time
-      description: ""
-    - name: start_date
-      description: ""
-    - name: due_date
-      description: ""
-    - name: deletedtime
-      description: ""
-    - name: repeatfirstdate
-      description: ""
-    - name: parentid
-      description: ""
-    - name: remindtime
-      description: ""
+
+
+  - name: statuses
+    model: ref('dim_statuses')
+    entities:
+      - name: status_key
+        type: primary
+    dimensions:
+      - name: status_name
+        expr: desc
+        type: categorical
+        description: "status of the task from undone to wont do to done"
+
+      
+metrics:
+  - name: task_count_metric
+    type: simple
+    label: "Task Count"
+    type_params:
+      measure:
+        name: tasks_count
+      
+
+# models:
+#   - name: fact_todos
+#     description: ""
+#     columns:
+#     - name: list_key
+#       description: ""
+#     - name: folder_key
+#       description: ""
+#     - name: status_key
+#       description: ""
+#     - name: date_start_key
+#       description: ""
+#     - name: date_due_key
+#       description: ""
+#     - name: date_completed_key
+#       description: ""
+#     - name: date_created_key
+#       description: ""
+#     - name: todo_id
+#       description: ""
+#     - name: folder_name
+#       description: ""
+#     - name: list_name
+#       description: ""
+#     - name: status_id
+#       description: ""
+#     - name: title
+#       description: ""
+#     - name: timezone
+#       description: ""
+#     - name: reminder
+#       description: ""
+#     - name: reminders
+#       description: ""
+#     - name: exdate
+#       description: ""
+#     - name: items
+#       description: ""
+#     - name: progress
+#       description: ""
+#     - name: modified_time
+#       description: ""
+#     - name: completed_time
+#       description: ""
+#     - name: created_time
+#       description: ""
+#     - name: etag
+#       description: ""
+#     - name: deleted
+#       description: ""
+#     - name: kind
+#       description: ""
+#     - name: tags
+#       description: ""
+#     - name: repeatfrom
+#       description: ""
+#     - name: repeattaskid
+#       description: ""
+#     - name: repeatflag
+#       description: ""
+#     - name: pinned_time
+#       description: ""
+#     - name: start_date
+#       description: ""
+#     - name: due_date
+#       description: ""
+#     - name: deletedtime
+#       description: ""
+#     - name: repeatfirstdate
+#       description: ""
+#     - name: parentid
+#       description: ""
+#     - name: remindtime
+#       description: "" #}
