@@ -24,4 +24,7 @@ app.log
 # database
 .logs_queue
 streamlit_logs/logs.txt
-node_modules/*
+app/ETL/app.log*
+database/*
+node_modules/
+dbt_packages
