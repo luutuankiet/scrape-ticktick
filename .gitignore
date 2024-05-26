@@ -28,3 +28,6 @@ app/ETL/app.log*
 database/*
 node_modules/
 dbt_packages
+package-lock.json
+package.json
+deactivate

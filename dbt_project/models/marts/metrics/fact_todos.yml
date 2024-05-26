@@ -1,4 +1,84 @@
-# semantic_models:
-#   - name: todo
-#   description: |
+semantic_models:
+  - name: todo
+  description: |
+    facts for to do items; each row is one task.
+  model: ref('fact_todos')
+  entities:
+    - name: todo_id
+      type: 
     
+
+models:
+  - name: fact_todos
+    description: ""
+    columns:
+    - name: list_key
+      description: ""
+    - name: folder_key
+      description: ""
+    - name: status_key
+      description: ""
+    - name: date_start_key
+      description: ""
+    - name: date_due_key
+      description: ""
+    - name: date_completed_key
+      description: ""
+    - name: date_created_key
+      description: ""
+    - name: todo_id
+      description: ""
+    - name: folder_name
+      description: ""
+    - name: list_name
+      description: ""
+    - name: status_id
+      description: ""
+    - name: title
+      description: ""
+    - name: timezone
+      description: ""
+    - name: reminder
+      description: ""
+    - name: reminders
+      description: ""
+    - name: exdate
+      description: ""
+    - name: items
+      description: ""
+    - name: progress
+      description: ""
+    - name: modified_time
+      description: ""
+    - name: completed_time
+      description: ""
+    - name: created_time
+      description: ""
+    - name: etag
+      description: ""
+    - name: deleted
+      description: ""
+    - name: kind
+      description: ""
+    - name: tags
+      description: ""
+    - name: repeatfrom
+      description: ""
+    - name: repeattaskid
+      description: ""
+    - name: repeatflag
+      description: ""
+    - name: pinned_time
+      description: ""
+    - name: start_date
+      description: ""
+    - name: due_date
+      description: ""
+    - name: deletedtime
+      description: ""
+    - name: repeatfirstdate
+      description: ""
+    - name: parentid
+      description: ""
+    - name: remindtime
+      description: ""
