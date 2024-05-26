@@ -30,8 +30,6 @@ dates AS (
 
 facts_todo AS (
     SELECT
-        td.todo_id,
-        {{ dbt_utils.generate_surrogate_key(['td.todo_id']) }} AS todo_key,
         {{ dbt_utils.generate_surrogate_key(['l.list_id']) }} AS list_key,
         {{ dbt_utils.generate_surrogate_key(['fld.folder_id']) }} AS folder_key,
         {{ dbt_utils.generate_surrogate_key(['ss.status_id']) }} AS status_key,
