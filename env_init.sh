@@ -10,8 +10,9 @@ DAGSTER_HOME="$ENV_WORK_DIR"
 PYTHONPATH="$ENV_WORK_DIR/app"
 ST_LOGS_PATH="$ENV_WORK_DIR/streamlit_logs/logs.txt"
 DW_USER="ken"
-DW_PASSWORD="Boyluu96@"
+DW_PASSWORD="Boyluu96"
 DW_DBNAME="gtd_dash"
+TARGET_SCHEMA="dev"
 EOF
 
 # source env

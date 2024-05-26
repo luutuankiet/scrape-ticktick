@@ -4,22 +4,25 @@ sources:
   - name: raw_data
     meta:
       dagster:
-        asset_key : ["dump_to_motherduck"]
+        asset_key : ["dump_postgres"]
     description: A replica of the extracted ticktick data.
-    database: memory
-    schema: main
+    database: "{{env_var('DW_DBNAME')}}"
+    schema: "{{env_var('TARGET_SCHEMA')}}"
     tables:
       - name: tasks_raw
         description: raw tasks data from tickpy
+
       - name: lists_raw
         description: raw lists data from tickpy
+
       - name: folders_raw
         description: raw folders data from tickpy      
 
+
   - name: raw_seed_data
     description: split seed from raw data in the main schema.
-    database: memory
-    schema: main
+    database: "{{env_var('DW_DBNAME')}}"
+    schema: "{{env_var('TARGET_SCHEMA')}}"
     tables:
       - name: date_seed
         description: pre-generated dates

@@ -17,6 +17,6 @@ on subsequent run, provided the `loader` session is running, only need to run
 
 # fixes when changing to another adpater (duckdb to postgres)
 `pip uninstall -y dbt-adapters`
- `pip install --upgrade dbt-adapters dbt-core dbt-postgres dbt-common`
+ `pip install --upgrade dbt-adapters dbt-core dbt-postgres dbt-common dagster-dbt`
 
 

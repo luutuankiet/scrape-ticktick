@@ -29,3 +29,4 @@ def dbt_export_duckdb():
 #     con = duckdb.connect(dw_path,read_only=True)
 #     con.sql(f"EXPORT DATABASE '{os.path.dirname(dw_path)}/src' (FORMAT PARQUET);")
 #     con.close()
+# %%

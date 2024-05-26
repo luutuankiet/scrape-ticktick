@@ -5,20 +5,20 @@ todo_analytics:
       path: "{{env_var('DW_PATH')}}"
       threads: 12
       schema: main
-    postgres-dev:
+    dev:
       type: postgres
-      host: boyluu0819.ddns.net
+      host: "boyluu0819.ddns.net"
       port: 5433
       user: "{{env_var('DW_USER')}}"
       password: "{{env_var('DW_PASSWORD')}}"
       dbname: "{{env_var('DW_DBNAME')}}"
       schema: dev
-    postgres-prod:
+    prod:
       type: postgres
-      host: boyluu0819.ddns.net
+      host: "boyluu0819.ddns.net"
       port: 5433
       user: "{{env_var('DW_USER')}}"
       password: "{{env_var('DW_PASSWORD')}}"
       dbname: "{{env_var('DW_DBNAME')}}"
       schema: prod
-  target: postgres-dev
+  target: "{{env_var('TARGET_SCHEMA','dev')}}"
