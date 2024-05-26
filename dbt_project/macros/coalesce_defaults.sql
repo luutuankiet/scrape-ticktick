@@ -7,7 +7,7 @@
     default_value = 0 if col.data_type.lower() in  ["integer","numeric","bigint"]
     else '1900-01-01' if col.data_type.lower() in  "date" 
     else 'default' if col.data_type.lower() in  ["text","string"]
-    else '1900-01-01 00:00:00' if col.data_type.lower() in  "timestamp without timezone" 
+    else '1900-01-01 00:00:00' if col.data_type.lower() in  "timestamp without time zone" 
     else '1900-01-01 00:00.000+0000' if col.data_type.lower() in  "timestamp" 
     else 'false' if col.data_type.lower() in  "boolean" 
     else '0' if col.data_type.lower() in  "numeric" 

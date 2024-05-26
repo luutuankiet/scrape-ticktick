@@ -26,7 +26,7 @@ base AS (
     SELECT
         t.id ,
         f.name ,
-        l.name ,
+        l.name as name_1,
         t.status ,
         title ,
         timeZone ,
