@@ -1,11 +1,12 @@
 #%%
 import sys
 sys.path.append('..')
+from sqlalchemy import create_engine
 import streamlit as st
 import duckdb
 import os
 import pandas as pd
-from helper.source_env import dbt_project_dir,dw_path,st_logs_path,venv_path,project_dotenv_path
+from helper.source_env import dbt_project_dir,dw_path,st_logs_path,venv_path,project_dotenv_path,db_url
 from helper.query_retry import retry
 import datetime
 from datetime import timedelta, timezone
@@ -19,9 +20,11 @@ from streamlit_gsheets import GSheetsConnection
 #%%
 
 # the chart uses in-mem duckdb to avoid conflict with the dagster process' duckdb connection. 
-con = duckdb.connect()
-con.sql(f"IMPORT DATABASE '{os.path.dirname(dw_path)}/src';")
-cur = con.cursor()
+conn = create_engine(db_url)
+
+# con = duckdb.connect()
+# con.sql(f"IMPORT DATABASE '{os.path.dirname(dw_path)}/src';")
+# cur = con.cursor()
 
 #%%
 
@@ -74,13 +77,15 @@ st.header("🌏 Ken's GTD dashboard",divider="blue")
 
 @st.cache_data(ttl=datetime.timedelta(hours=24),max_entries=10)
 def get_table(query):
-    df = cur.sql(query).df()
-    df = convert_df_to_common_tz(df)
+    with conn.connect() as con:
+        df = pd.read_sql(query,con=con)
+        df = convert_df_to_common_tz(df)
     return df
 
 def get_table_nocache(query):
-    df = cur.sql(query).df()
-    df = convert_df_to_common_tz(df)
+    with conn.connect() as con:
+        df = pd.read_sql(query,con=con)
+        df = convert_df_to_common_tz(df)
     return df
 
 
@@ -183,9 +188,9 @@ with st.expander("server ops"):
             with open(st_logs_path, "r") as output_file:
                 output_content = output_file.read()
             st.code(output_content)
-            con = duckdb.connect()
-            con.sql(f"IMPORT DATABASE '{os.path.dirname(dw_path)}/src';")
-            cur = con.cursor()
+            # con = duckdb.connect()
+            # con.sql(f"IMPORT DATABASE '{os.path.dirname(dw_path)}/src';")
+            # cur = con.cursor()
             st.cache_data.clear()
 
 
