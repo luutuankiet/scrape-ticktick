@@ -46,7 +46,9 @@
 				"uloco.theme-bluloco-dark",
 				"visualstudioexptteam.intellicode-api-usage-examples",
 				"visualstudioexptteam.vscodeintellicode",
-				"ms-azuretools.vscode-docker"
+				"ms-azuretools.vscode-docker",
+				"redhat.vscode-yaml"
+
 			],
 			"settings": {
 				"terminal.integrated.env.osx": {
@@ -64,51 +66,6 @@
 				],
 				"python.envFile": "${workspaceFolder}/.env",
 				"python.terminal.activateEnvironment": true,
-				// "python.terminal.activateEnvInCurrentTerminal": true,
-				// "python.defaultInterpreterPath": "./.venv/bin/python",
-				// "editor.defaultFormatter": "dorzey.vscode-sqlfluff",
-				// "sqlfluff.executablePath": "./.venv/bin/sqlfluff",
-				// "sqlfluff.config": "./.sqlfluff",
-				// // "sqlfluff.config": "${workspaceFolder}/.sqlfluff",
-				// "sqlfluff.dialect": "postgres",
-				// // Linter
-				// "sqlfluff.linter.arguments": [],
-				// "sqlfluff.linter.run": "onSave",
-				// "sqlfluff.suppressNotifications": true,
-				// "sqlfluff.experimental.format.executeInTerminal": true,
-				// "editor.formatOnSave": false,
-				// "sqlfluff.linter.diagnosticSeverity": "error",
-				// "sqlfluff.linter.diagnosticSeverityByRule": [
-				// 	{
-				// 		"rule": "L010",
-				// 		"severity": "warning"
-				// 	}
-				// ],
-				// "sqlfluff.linter.lintEntireProject": true,
-				// // Formatter
-				// "sqlfluff.format.arguments": [
-				// 	"--FIX-EVEN-UNPARSABLE"
-				// ],
-				// "sqlfluff.format.enabled": true,
-				// "terminal.integrated.defaultProfile.linux#": "/bin/bash",
-				// "files.associations": {
-				// 	"*.sql": "jinja-sql",
-				// 	"*.sqlfluff": "ini",
-				// 	"*.yml": "yaml",
-				// 	"*.yaml": "jinja-yaml",
-				// 	"*.md": "jinja-md",
-				// 	"**/target/**": ""
-				// },
-				// "sql.linter.executablePath": "./.venv/bin/sqlfluff",
-				// "sql.format.enable": true,
-				// "files.exclude": {
-				// 	"**/.git": true,
-				// 	"**/.svn": true,
-				// 	"**/.hg": true,
-				// 	"**/CVS": true,
-				// 	"**/.DS_Store": true,
-				// 	"**/__pycache__": true
-				// },
 				"findrelated.workspaceRulesets": [
 					{
 						"name": "sql",
@@ -147,24 +104,24 @@
 					99
 				],
 				"yaml.schemas": {
-					"https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/dbt_yml_files.json": [
-						"/*.yml",
-						"!profiles.yml",
-						"!dbt_project.yml",
-						"!packages.yml",
-						"!selectors.yml",
-						"!profile_template.yml"
+					"https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/latest/dbt_yml_files-latest.json": [
+					  "/**/*.yml",
+					  "!profiles.yml",
+					  "!dbt_project.yml",
+					  "!packages.yml",
+					  "!selectors.yml",
+					  "!profile_template.yml"
 					],
-					"https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/dbt_project.json": [
-						"dbt_project.yml"
+					"https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/latest/dbt_project-latest.json": [
+					  "dbt_project.yml"
 					],
-					"https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/selectors.json": [
-						"selectors.yml"
+					"https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/latest/selectors-latest.json": [
+					  "selectors.yml"
 					],
-					"https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/packages.json": [
-						"packages.yml"
+					"https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/latest/packages-latest.json": [
+					  "packages.yml"
 					]
-				}
+				  }
 			}
 		}
 	},
