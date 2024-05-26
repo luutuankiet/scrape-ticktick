@@ -10,16 +10,6 @@
     "sqltools.connections": [
         {
             "previewLimit": 50,
-            "server": "localhost",
-            "port": 5432,
-            "driver": "PostgreSQL",
-            "name": "localhost",
-            "database": "postgres",
-            "username": "postgres",
-            "password": "5432"
-        },
-        {
-            "previewLimit": 50,
             "driver": "SQLite",
             "database": ":memory:",
             "name": "local"
@@ -35,6 +25,16 @@
             "driver": "DuckDB",
             "database": "${workspaceFolder:scrape-ticktick}/database/memory.duckdb",
             "name": "ticktick-etl"
+        },
+        {
+            "previewLimit": 50,
+            "server": "boyluu0819.ddns.net",
+            "port": 5433,
+            "driver": "PostgreSQL",
+            "name": "dell-gtd",
+            "database": "gtd_dash",
+            "username": "ken",
+            "password": "Boyluu96@"
         }
     ]
 }
