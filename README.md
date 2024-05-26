@@ -15,3 +15,8 @@ on the very first run, the loader service must be set up once and run indefinite
 on subsequent run, provided the `loader` session is running, only need to run 
 `make deploy`
 
+# fixes when changing to another adpater (duckdb to postgres)
+`pip uninstall -y dbt-adapters`
+ `pip install --upgrade dbt-adapters dbt-core dbt-postgres dbt-common`
+
+
