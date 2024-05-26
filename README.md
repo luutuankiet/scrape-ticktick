@@ -19,4 +19,7 @@ on subsequent run, provided the `loader` session is running, only need to run
 `pip uninstall -y dbt-adapters`
  `pip install --upgrade dbt-adapters dbt-core dbt-postgres dbt-common dagster-dbt`
 
-
+## step for prod deploy with postgres
+run EL to load raw and create the schema
+run seeds
+run dbt models

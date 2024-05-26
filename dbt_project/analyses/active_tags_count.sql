@@ -31,7 +31,7 @@ SELECT
         END
     ) AS cnt_waiting_for
 FROM
-    obt
+    {{ref('obt')}}
 WHERE
     td_kind = 'TEXT'
     AND ss_desc = 'undone'
