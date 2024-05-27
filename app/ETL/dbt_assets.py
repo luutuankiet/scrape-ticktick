@@ -10,6 +10,7 @@ from sqlalchemy import create_engine
 
 edges = os.listdir(dbt_models_core) + os.listdir(dbt_models_metrics)
 edges = [edge.replace('.sql','') for edge in edges]
+edges = [edge for edge in edges if '.yml' not in edge]
 # edges = core + metrics
 #%%
 
