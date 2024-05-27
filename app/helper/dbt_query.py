@@ -70,7 +70,7 @@ run_mf_query(
 
     # Convert each argument to a raw string if provided
     command.extend(["--metrics", fr"{metrics}"])
-    command.extend(["--group-by", fr"{group_by}"])
+    command.extend(["--group-by", fr"{group_by}"]) if group_by else None
 
     if end_time:
         command.extend(["--end-time", fr"{end_time}"])
