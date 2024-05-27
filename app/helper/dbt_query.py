@@ -9,17 +9,64 @@ import tempfile
 #%%
 
 # wrapper func for grabbing dbt mf
-def invoke_mf(query):
-    """
-    wrapper func for grabbing dbt mf
-    """
-    proc=subprocess.run("echo ",shell=True,input="$DBT_PROJECT_DIR")
-    output, code = proc.stdout,proc.returncode
-    print(output,code)
-    return output, code
 
-def run_mf_query(metrics, group_by, end_time=None, start_time=None, where=None, limit=None, order_by=None, compile=False, explain=False, show_dataflow_plan=False, display_plans=False, decimals=None, show_sql_descriptions=False, workdir=dbt_project_dir):
+def run_mf_query(debug=False,metrics=None, group_by=None, end_time=None, start_time=None, where=None, limit=None, order_by=None, compile=False, explain=False, show_dataflow_plan=False, display_plans=False, decimals=None, show_sql_descriptions=False, workdir=dbt_project_dir):
     command = ["mf", "query"]
+    """
+    wrapper func to execute mf query for metrics. only different arg is csv where we write to a pseudo in mem file instead.
+    if debug=True, preforms mf and output to stdout. otherwise returns a df.
+    Options:
+
+  --metrics SEQUENCE       Metrics to query for: syntax is --metrics bookings
+                           or for multiple metrics --metrics bookings, messages.
+
+  --group-by SEQUENCE      Dimensions and/or entities to group by: syntax is
+                           --group-by ds or for multiple group bys --group-by
+                           ds, org.
+
+  --end-time TEXT          Optional iso8601 timestamp to constraint the end
+                           time of the data (inclusive).
+                           *Not available in dbt Cloud yet 
+
+  --start-time TEXT        Optional iso8601 timestamp to constraint the start
+                           time of the data (inclusive)
+                           *Not available in dbt Cloud yet
+
+  --where TEXT             SQL-like where statement provided as a string. For
+                           example: --where "revenue > 100". To add a dimension filter to 
+                           a where filter, you have to indicate that the filter item is part of your model. 
+                           Refer to the FAQ for more info on how to do this using a template wrapper.
+
+  --limit TEXT             Limit the number of rows out using an int or leave
+                           blank for no limit. For example: --limit 100
+
+  --order-by SEQUENCE         Metrics or group bys to order by ("-" prefix for
+                           DESC). For example: --order-by -ds or --order-by
+                           ds,-revenue
+
+ --compile (dbt Cloud)    In the query output, show the query that was
+ --explain (dbt Core)     executed against the data warehouse         
+                           
+
+  --show-dataflow-plan     Display dataflow plan in explain output
+
+  --display-plans          Display plans (such as metric dataflow) in the browser
+
+  --decimals INTEGER       Choose the number of decimal places to round for
+                           the numerical values
+
+  --show-sql-descriptions  Shows inline descriptions of nodes in displayed SQL
+
+  --help                   Show this message and exit.
+
+  # Example usage with raw strings and working directory
+run_mf_query(
+    metrics="task_count_metric",
+    group_by="todo_id__folder_dim,todo_id__list_dim,todo_id__completed_date__year"
+    
+)
+
+    """
 
     # Convert each argument to a raw string if provided
     command.extend(["--metrics", fr"{metrics}"])
@@ -35,8 +82,6 @@ def run_mf_query(metrics, group_by, end_time=None, start_time=None, where=None, 
         command.extend(["--limit", fr"{limit}"])
     if order_by:
         command.extend(["--order-by", fr"{order_by}"])
-    # if csv:
-    #     command.extend(["--csv", fr"{csv}"])
     if compile:
         command.append("--compile")
     if explain:
@@ -52,39 +97,34 @@ def run_mf_query(metrics, group_by, end_time=None, start_time=None, where=None, 
 
     # Execute the command
     try:
-        with tempfile.NamedTemporaryFile(mode='r+',suffix='.csv',delete=True) as query_file:
-            query_path = query_file.name
-            command.extend(["--csv", query_path])
+        if debug==False:
+            with tempfile.NamedTemporaryFile(mode='r+',suffix='.csv',delete=True) as query_file:
+                query_path = query_file.name
+                command.extend(["--csv", query_path])
 
-        
-        
-        result = subprocess.run(command, capture_output=True, text=True, check=True, shell=False, cwd=workdir)
-        
-        # capture output in memory csv
-        with open(query_path,'r') as file:
-            csv_content = file.read()
-        csv_output = io.StringIO(csv_content)
-        df = pd.read_csv(csv_output)
-        os.remove(query_path)
-        
-        # print("Command Output:")
-        # print(result.stdout)
-        if result.stderr:
-            print("Command Errors:")
-            print(result.stderr)
-        return df
+            
+            
+            result = subprocess.run(command, capture_output=True, text=True, check=True, shell=False, cwd=workdir)
+            
+            # capture output in memory csv
+            with open(query_path,'r') as file:
+                csv_content = file.read()
+            csv_output = io.StringIO(csv_content)
+            df = pd.read_csv(csv_output)
+            os.remove(query_path)
+            return df
+
+        if debug==True:
+            result = subprocess.run(command, capture_output=True, text=True, check=True, shell=False, cwd=workdir)
+            print("Command Output:")
+            print(result.stdout)
+
     except subprocess.CalledProcessError as e:
         print(f"Error executing command: {e}")
         print(f"Return code: {e.returncode}")
         print(f"Output: {e.output}")
         print(f"Error Output: {e.stderr}")
 
-# Example usage with raw strings and working directory
-run_mf_query(
-    metrics="task_count_metric",
-    group_by="todo_id__folder_dim,todo_id__list_dim,todo_id__completed_date__year"
-    
-)
 
 # mf query --metrics task_count_metric --group-by todo_id__completed_date__year
 # %%
