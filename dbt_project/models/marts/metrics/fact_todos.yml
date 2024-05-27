@@ -3,7 +3,7 @@ semantic_models:
     description: "facts for to do items; each row is one task."
     model: ref('fact_todos')
     defaults:
-      agg_time_dimension: completed_date
+      agg_time_dimension: due_date
     entities:
       - name: todo_id
         type: primary
@@ -48,18 +48,42 @@ semantic_models:
       - name: is_repeat
         type: categorical
         expr: case when <> 'default' then true else false end
-      - name: tags
+      - name: tag_dim
         description: the tags parsed from tasks.
         type: categorical
-        expr: TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(tags, '[', ''), ']', ''), '''', ''))
+        expr: TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(tags, '[', ''), ']', ''), '''', ''))      
+      - name: tag_semantic
+        type: categorical
+        expr: >
+          case when tags like '%clarifyme%' then 'inbox' 
+          when tags = 'default' or tags like '%@%' then 'next action'
+          when tags like '%someday%' then 'someday'
+          when tags like '%waiting_for%' then 'waiting for' 
+          when tags like '%tickler%' then 'tickler' 
+          else TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(tags, '[', ''), ']', ''), '''', ''))      
+          end
       - name: task_type
         type: categorical
         expr: case when NOT (kind = 'NOTE' or tags like '%tickler%') then 'task' else 'note' end
         description: "the task type, as in list or a note."
+
+      - name: task_is_active
+        type: categorical
+        expr: case when completed_time::text like '%1900%' then true else false end
+
     measures:
       - name: tasks_count
         expr: todo_id
         agg: count
+      - name: tasks_active_count
+        description: count only active tasks
+        expr: case when completed_time::text not like '%1900%' then 1 else 0 end
+        agg: sum
+        
+        
+      - name: tags_count
+        agg: count
+        expr: tags
 
 
 
@@ -82,6 +106,27 @@ metrics:
     type_params:
       measure:
         name: tasks_count
+  - name: tags_count_metric
+    type: simple
+    label: "tags count"
+    type_params:
+      measure:
+        name: tags_count
+  
+
+  # daily metrics
+  - name: overdue_tasks_metric
+    type: simple
+    label: "overdue_tasks_metric"
+    description: "count of overdue tasks compared to today"
+    type_params:
+      measure: 
+        name: tasks_active_count
+    # now() is only applicable to postgres.
+    filter: |
+      {{TimeDimension('todo_id__due_date', 'day')}} < now() AND
+      {{Dimension('todo_id__task_is_active')}} is true
+    
       
 
 # models:
