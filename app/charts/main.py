@@ -8,6 +8,7 @@ import os
 import pandas as pd
 from helper.source_env import dbt_project_dir,dw_path,st_logs_path,venv_path,project_dotenv_path,db_url
 from helper.query_retry import retry
+from helper.dbt_query import run_mf_query
 import datetime
 from datetime import timedelta, timezone
 import re
@@ -16,6 +17,7 @@ import subprocess
 import pytz
 import humanize
 from streamlit_gsheets import GSheetsConnection
+from sqlalchemy import text
 
 #%%
 
@@ -77,12 +79,14 @@ st.header("🌏 Ken's GTD dashboard",divider="blue")
 
 @st.cache_data(ttl=datetime.timedelta(hours=24),max_entries=10)
 def get_table(query):
+    query = text(query)
     with conn.connect() as con:
         df = pd.read_sql(query,con=con)
         df = convert_df_to_common_tz(df)
     return df
 
 def get_table_nocache(query):
+    query = text(query)
     with conn.connect() as con:
         df = pd.read_sql(query,con=con)
         df = convert_df_to_common_tz(df)
@@ -128,7 +132,7 @@ def read_sql(file_path):
 
 
 
-ANALYTICS_PATH = os.path.join(dbt_project_dir,'analyses')
+ANALYTICS_PATH = os.path.join(dbt_project_dir,'target','compiled','todo_analytics','analyses')
 
 # queries compiled after a successful dbt run, which in turns feeds the df in streamlit.
 TAGS_COUNT_PATH = os.path.join(ANALYTICS_PATH,'active_tags_count.sql')
@@ -266,6 +270,8 @@ with tab1:
 
     col1,col2,col3,col4 = st.columns(4)
     with col1:
+          df = run_mf_query(metrics = 'overdue_tasks_metric')
+          overdue_count = df['overdue_tasks_metric'].iloc[0]
           st.metric(
             label="overdue tasks",
             value=overdue_count,
@@ -276,6 +282,17 @@ with tab1:
               debug_overdue_count = overdue_count_df
               debug_overdue_count.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True,inplace=True)
               st.dataframe(debug_overdue_count,hide_index=True)
+    # with col1:
+    #       st.metric(
+    #         label="overdue tasks",
+    #         value=overdue_count,
+    #         delta = "reschedule them!!!" if overdue_count > 0 else "all's well.",
+    #         delta_color="inverse" if overdue_count > 0 else "off",
+    #     )
+    #       with st.expander("query"):
+    #           debug_overdue_count = overdue_count_df
+    #           debug_overdue_count.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True,inplace=True)
+    #           st.dataframe(debug_overdue_count,hide_index=True)
 
 
     with col2:
