@@ -13,6 +13,8 @@ semantic_models:
         type: foreign
       - name: status_key
         type: foreign
+
+        
     dimensions:
       - name: created_date
         type: time
