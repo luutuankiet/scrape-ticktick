@@ -61,11 +61,15 @@ semantic_models:
           when tags like '%tickler%' then 'tickler' 
           else TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(tags, '[', ''), ']', ''), '''', ''))      
           end
+      - name: task_title
+        type: categorical
+        expr: title
+        description: "for debugging purpose; drills down to the name of task"
 
       # boolean-based dims
       - name: is_repeat
         type: categorical
-        expr: case when <> 'default' then true else false end
+        expr: case when repeatFlag <> 'default' then true else false end
       - name: is_task
         type: categorical
         expr: case when NOT (kind = 'NOTE' or tags like '%tickler%') then true else false end
@@ -147,6 +151,8 @@ semantic_models:
     dimensions:
       - name: folder_name
         type: categorical
+                    
+          
 
 
 
@@ -168,7 +174,14 @@ metrics:
     label: "overdue_tasks"
     description: |
       - use case : see if there are unattended tasks from the day before and take actions to it. mostly reschedule.
-      - logic : count of task that are active with due date before today.
+      - logic : count of task that 
+        - is a task type
+        - is active
+        - belongs to active list
+        - is undone
+        - do not have default due date
+        - due date before today
+      - example usage: "dbt parse && mf query --metrics overdue_tasks --group-by todo_id__is_repeat"
     type_params:
       measure: 
         name: tasks_count
@@ -177,8 +190,9 @@ metrics:
       {{Dimension('todo_id__is_task')}} is true AND
       {{Dimension('todo_id__is_active')}} is true AND
       {{Dimension('list_key__is_active')}} is true AND
-      {{TimeDimension('todo_id__due_date', 'day')}} < now() AND
-      {{Dimension('status_key__status_name')}} = 'undone' 
+      {{Dimension('status_key__status_name')}} = 'undone' AND
+      {{TimeDimension('todo_id__due_date', 'day')}}::text not like '%1900%' AND
+      {{TimeDimension('todo_id__due_date', 'day')}} < now() 
     
       
 
