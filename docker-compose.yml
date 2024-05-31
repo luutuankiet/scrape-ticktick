@@ -4,7 +4,9 @@ services:
     env_file:
       - path: ./.env
     platform: linux/amd64
-    image: lightdash/lightdash:latest
+    # image: lightdash/lightdash:latest
+    image: lightdash/lightdash:0.1116.0
+    # weird bug latest build stalling pull.
     depends_on:
       - db
     environment:
@@ -45,6 +47,8 @@ services:
     volumes:
       - "${DBT_PROJECT_DIR}:/usr/app/dbt"
       - "${DBT_PROFILES_DIR}:/usr/app/profiles"
+      - "${LIGHTDASH_CONFIG_FILE}:${LIGHTDASH_CONFIG_FILE}"
+      
 
     ports:
       - ${PORT:-8080}:${PORT:-8080}
@@ -66,7 +70,7 @@ services:
   headless-browser:
     env_file:
     - path: ./.env
-    image: browserless/chrome
+    image: browserless/chrome:1-chrome-stable
     restart: always
     ports:
       - "3001:3000"
