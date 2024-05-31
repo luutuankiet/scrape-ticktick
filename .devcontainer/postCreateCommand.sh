@@ -48,11 +48,9 @@ apt-get update && apt-get install -y python3-venv
 
 # init then source env vars
 print_section "INIT & SOURCE ENV VARS"
-chmod +x ./env_init.sh
-chmod +x ./source_env.sh
+chmod +x ./env.sh
 
-. ./env_init.sh
-source source_env.sh
+. ./env.sh
 
 
 
@@ -70,9 +68,6 @@ pip install -r requirements.txt && \
 # ad hoc : upgrade pandas for streamlit viz. known bug : https://github.com/streamlit/gsheets-connection/issues/20
 pip install pandas==2.2.0
 
-# # run dbt 
-# dbt deps
-# dbt build
 
 
 # fix for deactivate script : https://github.com/microsoft/vscode-python/wiki/Fixing-%22deactivate%22-command-for-Virtual-Environments
