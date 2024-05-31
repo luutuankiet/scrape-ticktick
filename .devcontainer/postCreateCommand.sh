@@ -82,4 +82,4 @@ echo "source $ENV_WORK_DIR/deactivate" >> ~/.zshrc
 
 
 # lightdash cli
-npm install -g @lightdash/cli@0.1115.0
+npm install -g @lightdash/cli@0.1116.0

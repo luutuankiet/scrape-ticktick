@@ -13,7 +13,6 @@ pytz==2024.1
 redis==5.0.4
 streamlit==1.33.0
 ticktick==0.1.4
-dbt-postgres==1.8.1
 ipykernel
 st-gsheets-connection
 metricflow
@@ -21,7 +20,6 @@ metricflow
 dbt-adapters==1.2.1
 dbt-common==1.1.0
 dbt-core==1.7.15
-dbt-duckdb==1.7.5
 dbt-extractor==0.5.1
 dbt-postgres==1.7.15
-dbt-semantic-interfaces==0.4.4
+dbt-semantic-interfaces
