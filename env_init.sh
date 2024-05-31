@@ -13,7 +13,12 @@ DW_USER="ken"
 DW_PASSWORD="Boyluu96"
 DW_DBNAME="gtd_dash"
 TARGET_SCHEMA="dev"
-EOF
 
-# source env
-# . ./.env
+PORT="3003"
+PGHOST="db"
+PGPORT="5432"
+PGUSER="root"
+PGPASSWORD=""
+PGDATABASE="postgres"
+LIGHTDASH_CONFIG_FILE="$ENV_WORK_DIR/lightdash.yml"
+EOF

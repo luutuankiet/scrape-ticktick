@@ -79,3 +79,7 @@ pip install pandas==2.2.0
 ENV_WORK_DIR=$(pwd)
 curl -o $ENV_WORK_DIR/deactivate https://gist.githubusercontent.com/karrtikr/963469ba74c9b7632d2c43224ffa2f25/raw/deactivate
 echo "source $ENV_WORK_DIR/deactivate" >> ~/.zshrc
+
+
+# lightdash cli
+npm install -g @lightdash/cli@0.1115.0

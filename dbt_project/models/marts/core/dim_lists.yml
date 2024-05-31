@@ -17,6 +17,9 @@ models:
         meta:
           dimension:
             type: string
+          metrics:
+            lists_count:
+              type: count
       - name: modified_time
         description: ""
         meta:
