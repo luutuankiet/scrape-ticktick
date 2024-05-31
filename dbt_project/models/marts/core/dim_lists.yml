@@ -33,7 +33,7 @@ models:
           dimension:
             type: string
       - name: is_active
-        description: ""
+        description: indicates if a list has been archived or not.
         meta:
           dimension:
             type: boolean

@@ -13,7 +13,11 @@ models:
           dimension:
             type: number
       - name: desc
-        description: ""
+        description: |
+          semantic description of the todo item's status. available values
+          - 'undone' : item has no completion time.
+          - 'wont do' : item has ben marked as wont do.
+          - 'done' : item has been marked as done with a valid completed_date.
         meta:
           dimension:
             type: string

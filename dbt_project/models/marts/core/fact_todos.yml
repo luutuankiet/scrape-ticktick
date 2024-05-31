@@ -1,6 +1,230 @@
 version: 2
 models:
   - name: fact_todos
+    meta:
+      joins:
+        - join: dim_lists
+          sql_on: ${fact_todos.list_key} = ${dim_lists.list_key}
+        - join: dim_folders
+          sql_on: ${fact_todos.folder_key} = ${dim_folders.folder_key}
+        - join: dim_statuses
+          sql_on: ${fact_todos.status_key} = ${dim_statuses.status_key}
+      columns:
+        - name: todo_id
+          description: ""
+          meta:
+            dimension:
+              type: string
+            metrics:
+              tasks_count:
+                type: count
+              overdue_tasks:
+                type: count
+                description: >
+                  - use case : see if there are unattended tasks from the day
+                  before and take actions to it. mostly reschedule.
+
+                  - logic : count of task that 
+                    - is a task type
+                    - is active
+                    - belongs to active list
+                    - is undone
+                    - do not have default due date
+                    - due date before today
+                  - example usage: "dbt parse && mf query --metrics
+                  overdue_tasks --group-by todo_id__is_repeat"
+                filters:
+                  - is_task: true
+                  - is_active: true
+                  - dim_lists.is_active: true
+                  - dim_statuses.status_name: undone
+                  - due_date: "!%1900%"
+                  - due_date: < now()
+        - name: folder_name
+          description: ""
+          meta:
+            dimension:
+              type: string
+        - name: list_name
+          description: ""
+          meta:
+            dimension:
+              type: string
+        - name: status_id
+          description: ""
+          meta:
+            dimension:
+              type: number
+        - name: title
+          description: ""
+          meta:
+            dimension:
+              type: string
+        - name: timezone
+          description: ""
+          meta:
+            dimension:
+              type: string
+        - name: reminder
+          description: ""
+          meta:
+            dimension:
+              type: string
+        - name: reminders
+          description: ""
+          meta:
+            dimension:
+              type: string
+        - name: exdate
+          description: ""
+          meta:
+            dimension:
+              type: date
+        - name: items
+          description: ""
+          meta:
+            dimension:
+              type: string
+        - name: progress
+          description: ""
+          meta:
+            dimension:
+              type: number
+        - name: modified_time
+          description: ""
+          meta:
+            dimension:
+              type: timestamp
+        - name: completed_time
+          description: ""
+          meta:
+            dimension:
+              type: timestamp
+        - name: created_time
+          description: ""
+          meta:
+            dimension:
+              type: timestamp
+        - name: etag
+          description: ""
+          meta:
+            dimension:
+              type: string
+        - name: deleted
+          description: ""
+          meta:
+            dimension:
+              type: number
+        - name: kind
+          description: ""
+          meta:
+            dimension:
+              type: string
+        - name: tags
+          description: ""
+          meta:
+            dimension:
+              type: string
+        - name: repeatfrom
+          description: ""
+          meta:
+            dimension:
+              type: string
+        - name: repeattaskid
+          description: ""
+          meta:
+            dimension:
+              type: string
+        - name: repeatflag
+          description: ""
+          meta:
+            dimension:
+              type: string
+        - name: pinned_time
+          description: ""
+          meta:
+            dimension:
+              type: timestamp
+        - name: start_date
+          description: ""
+          meta:
+            dimension:
+              type: timestamp
+        - name: due_date
+          description: ""
+          meta:
+            dimension:
+              type: timestamp
+        - name: deletedtime
+          description: ""
+          meta:
+            dimension:
+              type: string
+        - name: repeatfirstdate
+          description: ""
+          meta:
+            dimension:
+              type: timestamp
+        - name: parentid
+          description: ""
+          meta:
+            dimension:
+              type: string
+        - name: remindtime
+          description: ""
+          meta:
+            dimension:
+              type: timestamp
+        - name: dim_tag
+          description: the tags parsed from tasks.
+          type: string
+          sql: >-
+            TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(${fact_todos.tags}, '[',
+            ''), ']', ''), '''', ''))
+        - name: tag_semantic
+          type: string
+          sql: >
+            case when ${fact_todos.tags} like '%clarifyme%' then 'inbox'  when
+            ${fact_todos.tags} = 'default' or ${fact_todos.tags} like '%@%' then
+            'next action' when ${fact_todos.tags} like '%someday%' then
+            'someday' when ${fact_todos.tags} like '%waiting_for%' then 'waiting
+            for'  when ${fact_todos.tags} like '%tickler%' then 'tickler'  else
+            TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(${fact_todos.tags}, '[',
+            ''), ']', ''), '''', ''))       end
+          meta:
+            metrics:
+              tags_count:
+                type: count
+        - name: task_title
+          type: string
+          sql: title
+          description: for debugging purpose; drills down to the name of task
+        - name: is_repeat
+          type: boolean
+          sql: >-
+            case when ${fact_todos.repeatFlag} <> 'default' then true else false
+            end
+        - name: is_task
+          type: boolean
+          sql: >-
+            case when NOT (${fact_todos.kind} = 'NOTE' or ${fact_todos.tags}
+            like '%tickler%') then true else false end
+        - name: is_active
+          type: boolean
+          description: >
+            the item belongs to an active folder - not in ('🚀SOMEDAY
+            lists','🛩Horizon of focus','💤on hold lists')
+          sql: >
+            case when ${fact_todos.folder_name} not in ('🚀SOMEDAY
+            lists','🛩Horizon of focus','💤on hold lists') 
+
+            AND
+
+            ${fact_todos.list_name} not in ('🧳SOMEDAY','📍ref - tickler notes
+            for the day')
+
+
+            then true else false end
     columns:
       - name: list_key
         description: ""
