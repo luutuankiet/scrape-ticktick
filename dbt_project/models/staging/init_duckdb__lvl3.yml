@@ -1,0 +1,14 @@
+version: 2
+models:
+  - name: init_duckdb__lvl3
+    columns:
+      - name: goal_name
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: goal_id
+        description: ""
+        meta:
+          dimension:
+            type: number

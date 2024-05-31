@@ -1,0 +1,24 @@
+version: 2
+models:
+  - name: lvl1_lvl2_progress
+    columns:
+      - name: fld_folder_name
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: l_list_name
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: done_progress
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: clarify_progress
+        description: ""
+        meta:
+          dimension:
+            type: number

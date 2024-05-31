@@ -1,0 +1,39 @@
+version: 2
+models:
+  - name: lvl3_progress
+    columns:
+      - name: goal_id
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: lvl3_goal
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: lvl3_done_progress
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: lvl3_clarify_progress
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: l_list_name
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: l_done_progress
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: l_clarify_progress
+        description: ""
+        meta:
+          dimension:
+            type: number

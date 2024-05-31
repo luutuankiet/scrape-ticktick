@@ -13,6 +13,7 @@ todo_analytics:
       password: "{{env_var('DW_PASSWORD')}}"
       dbname: "{{env_var('DW_DBNAME')}}"
       schema: dev
+      sslmode: disable
     prod:
       type: postgres
       host: "boyluu0819.ddns.net"
@@ -21,4 +22,5 @@ todo_analytics:
       password: "{{env_var('DW_PASSWORD')}}"
       dbname: "{{env_var('DW_DBNAME')}}"
       schema: prod
+      sslmode: disable
   target: "{{env_var('TARGET_SCHEMA','dev')}}"

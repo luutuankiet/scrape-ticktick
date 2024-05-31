@@ -28,7 +28,7 @@
             "name": "ticktick-etl"
         },
         {
-            "previewLimit": 50,
+            "previewLimit": 5000,
             "server": "boyluu0819.ddns.net",
             "port": 5433,
             "driver": "PostgreSQL",

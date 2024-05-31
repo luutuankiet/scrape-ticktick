@@ -1,0 +1,44 @@
+version: 2
+models:
+  - name: dim_lists
+    columns:
+      - name: list_key
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_id
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_name
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: modified_time
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: folder_id
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: lkind
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: is_active
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: created_time
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
