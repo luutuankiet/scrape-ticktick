@@ -39,7 +39,7 @@ npm install duckdb-async@0.9.2
 
 ### sets up zsh terminal
 print_section "SETUP ZSH TERMINAL"
-curl -o- https://gist.githubusercontent.com/luutuankiet/fbb70fca0f7f948c4e102442d76c363e/raw/boilerplate-dev-env | bash
+curl -o- https://gist.githubusercontent.com/luutuankiet/fbb70fca0f7f948c4e102442d76c363e/raw/terminal-utils-setup | bash
 
 
 #### sets up python
