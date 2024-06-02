@@ -2,7 +2,6 @@
 
 import sys,os; sys.path.append('..')
 from helper.source_env import dw_path,dbt_models_core,dbt_models_metrics,db_url
-import duckdb
 from dagster_dbt import DbtCliResource, dbt_assets,get_asset_key_for_model,get_asset_keys_by_output_name_for_source
 from dagster import AssetExecutionContext, asset
 from constants import dbt_manifest_path
