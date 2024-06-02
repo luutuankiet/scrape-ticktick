@@ -2,21 +2,27 @@ version: 2
 
 sources:
   - name: raw_data
-    meta:
-      dagster:
-        asset_key : ["dump_postgres"]
     description: A replica of the extracted ticktick data.
     database: "{{env_var('DW_DBNAME')}}"
     schema: "{{env_var('TARGET_SCHEMA')}}"
     tables:
       - name: tasks_raw
         description: raw tasks data from tickpy
+        meta:
+          dagster:
+            asset_key : ["tasks_raw"]
 
       - name: lists_raw
         description: raw lists data from tickpy
+        meta:
+          dagster:
+            asset_key : ["lists_raw"]
 
       - name: folders_raw
         description: raw folders data from tickpy      
+        meta:
+          dagster:
+            asset_key : ["folders_raw"]
 
 
   - name: raw_seed_data

@@ -2,7 +2,6 @@
 
 import sys,os; sys.path.append('..')
 from helper.source_env import dw_path,dbt_models_core,dbt_models_metrics,db_url
-import duckdb
 from dagster_dbt import DbtCliResource, dbt_assets,get_asset_key_for_model,get_asset_keys_by_output_name_for_source
 from dagster import AssetExecutionContext, asset
 from constants import dbt_manifest_path
@@ -20,14 +19,3 @@ conn = create_engine(db_url)
 def ticktick_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
     yield from dbt.cli(["build"], context=context).stream()
 
-@asset(deps={edge for edge in edges})
-def dbt_export_duckdb():
-    # with conn.connect() as con:
-    #     con.sql(f"EXPORT DATABASE '{os.path.dirname(dw_path)}/src' (FORMAT PARQUET);")
-    pass
-# @asset(deps={edge for edge in edges})
-# def dbt_export_duckdb():
-#     con = duckdb.connect(dw_path,read_only=True)
-#     con.sql(f"EXPORT DATABASE '{os.path.dirname(dw_path)}/src' (FORMAT PARQUET);")
-#     con.close()
-# %%
