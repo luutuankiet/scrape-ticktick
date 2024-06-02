@@ -1,12 +1,12 @@
 #%%
 import sys
 sys.path.append('..')
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine,text
 import streamlit as st
 import duckdb
 import os
 import pandas as pd
-from helper.source_env import dbt_project_dir,dw_path,st_logs_path,venv_path,project_dotenv_path,db_url
+from helper.source_env import dbt_project_dir,dw_path,st_logs_path,venv_path,project_dotenv_path,db_url,target_schema
 from helper.query_retry import retry
 from helper.dbt_query import run_mf_query
 import datetime
@@ -17,7 +17,6 @@ import subprocess
 import pytz
 import humanize
 from streamlit_gsheets import GSheetsConnection
-from sqlalchemy import text
 
 #%%
 
@@ -76,12 +75,11 @@ st.set_page_config(page_title="MY GTD DASHBOARD", layout="wide", initial_sidebar
 st.header("🌏 Ken's GTD dashboard",divider="blue")
 
 
-
 @st.cache_data(ttl=datetime.timedelta(hours=24),max_entries=10)
 def get_table(query):
     query = text(query)
     with conn.connect() as con:
-        df = pd.read_sql(query,con=con)
+        df = pd.rean.execute(query,con=con)
         df = convert_df_to_common_tz(df)
     return df
 
@@ -219,7 +217,7 @@ with tab1:
                             ,fld_folder_name
                             ,l_list_name
                             
-                            ,* from obt where 
+                            ,* from {schema}.obt where 
                             completed_date_id is null
                             and l_is_active = '1'
                             and td_kind = 'TEXT'
@@ -229,6 +227,8 @@ with tab1:
                             and td_tags not like '%tickler%'
                                
                             """
+    replace_dict = {"schema":target_schema}
+    today_table_query= today_table_query.format(**replace_dict)
     today_table = get_table_nocache(today_table_query).reset_index(drop=True)
     today_clarify_count_df = today_table[(today_table['td_tags'].str.contains('clarifyme')) & 
                                          (today_table['td_title'].str.contains('clarifytoday')) &
