@@ -1,0 +1,272 @@
+semantic_models:
+  - name: todos
+    description: "facts for to do items; each row is one task."
+    model: ref('fact_todos')
+    defaults:
+      agg_time_dimension: due_date
+    entities:
+      - name: todo_id
+        type: primary
+      - name: list_key
+        type: foreign
+      - name: folder_key
+        type: foreign
+      - name: status_key
+        type: foreign
+
+
+    dimensions:
+      - name: created_date
+        type: time
+        expr: date_trunc('day',created_time)
+        type_params:
+          time_granularity: day
+      - name: start_date
+        type: time
+        expr: date_trunc('day',start_date)
+        type_params:
+          time_granularity: day
+      - name: due_date
+        type: time
+        expr: date_trunc('day',due_date)
+        type_params:
+          time_granularity: day
+      - name: updated_date
+        type: time
+        expr: date_trunc('day',modified_date)
+        type_params:
+          time_granularity: day
+      - name: completed_date
+        type: time
+        expr: date_trunc('day',completed_time)
+        type_params:
+          time_granularity: day
+      - name: dim_folder
+        type: categorical
+        expr: folder_name
+      - name: dim_list
+        type: categorical
+        expr: list_name
+      - name: dim_tag
+        description: the tags parsed from tasks.
+        type: categorical
+        expr: TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(tags, '[', ''), ']', ''), '''', ''))      
+      - name: tag_semantic
+        type: categorical
+        expr: >
+          case when tags like '%clarifyme%' then 'inbox' 
+          when tags = 'default' or tags like '%@%' then 'next action'
+          when tags like '%someday%' then 'someday'
+          when tags like '%waiting_for%' then 'waiting for' 
+          when tags like '%tickler%' then 'tickler' 
+          else TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(tags, '[', ''), ']', ''), '''', ''))      
+          end
+      - name: task_title
+        type: categorical
+        expr: title
+        description: "for debugging purpose; drills down to the name of task"
+
+      # boolean-based dims
+      - name: is_repeat
+        type: categorical
+        expr: case when repeatFlag <> 'default' then true else false end
+      - name: is_task
+        type: categorical
+        expr: case when NOT (kind = 'NOTE' or tags like '%tickler%') then true else false end
+      - name: is_active
+        type: categorical
+        description: |
+          the item belongs to an active folder - not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists')
+        expr: | 
+          case when folder_name not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists') 
+          AND
+          list_name not in ('🧳SOMEDAY','📍ref - tickler notes for the day')
+          
+          then true else false end
+        
+    measures:
+      - name: tasks_count
+        expr: todo_id
+        agg: count
+      - name: tags_count
+        agg: count
+        expr: tags
+      - name: lists_count
+        expr: list_name
+        agg: count_distinct
+        create_metric: true
+      - name: folders_count
+        expr: folder_name
+        agg: count_distinct
+        create_metric: true
+
+
+
+  - name: statuses
+    model: ref('dim_statuses')
+    entities:
+      - name: status_key
+        type: primary
+    dimensions:
+      - name: status_name
+        expr: desc
+        type: categorical
+        description: |
+          semantic description of the todo item's status. available values
+          - 'undone' : item has no completion time.
+          - 'wont do' : item has ben marked as wont do.
+          - 'done' : item has been marked as done with a valid completed_date.
+            
+
+  - name: lists
+    model: ref('dim_lists')
+    defaults:
+      agg_time_dimension: created_time
+    entities:
+      - name: list_key
+        type: primary
+    dimensions:
+      - name: list_name
+        type: categorical
+      - name: is_active
+        description: indicates if a list has been archived or not.
+        type: categorical
+      - name: created_time
+        description: time the list is created.
+        type: time
+        type_params:
+          time_granularity: day
+      - name: modified_time
+        description: time the list is modified.
+        type: time
+        type_params:
+          time_granularity: day
+      
+
+  - name: folders
+    model: ref('dim_folders')
+    entities:
+      - name: folder_key
+        type: primary
+    dimensions:
+      - name: folder_name
+        type: categorical
+                    
+          
+
+
+
+metrics:
+  - name: task_count_metric
+    type: simple
+    label: "Task Count"
+    type_params:
+      measure:
+        name: tasks_count
+  - name: tags_count_metric
+    type: simple
+    label: "tags count"
+    type_params:
+      measure:
+        name: tags_count
+  - name: overdue_tasks
+    type: simple
+    label: "overdue_tasks"
+    description: |
+      - use case : see if there are unattended tasks from the day before and take actions to it. mostly reschedule.
+      - logic : count of task that 
+        - is a task type
+        - is active
+        - belongs to active list
+        - is undone
+        - do not have default due date
+        - due date before today
+      - example usage: "dbt parse && mf query --metrics overdue_tasks --group-by todo_id__is_repeat"
+    type_params:
+      measure: 
+        name: tasks_count
+    # now() is only applicable to postgres.
+    filter: |
+      {{Dimension('todo_id__is_task')}} is true AND
+      {{Dimension('todo_id__is_active')}} is true AND
+      {{Dimension('list_key__is_active')}} is true AND
+      {{Dimension('status_key__status_name')}} = 'undone' AND
+      {{TimeDimension('todo_id__due_date', 'day')}}::text not like '%1900%' AND
+      {{TimeDimension('todo_id__due_date', 'day')}} < now() 
+    
+      
+
+# models:
+#   - name: fact_todos
+#     description: ""
+#     columns:
+#     - name: list_key
+#       description: ""
+#     - name: folder_key
+#       description: ""
+#     - name: status_key
+#       description: ""
+#     - name: date_start_key
+#       description: ""
+#     - name: date_due_key
+#       description: ""
+#     - name: date_completed_key
+#       description: ""
+#     - name: date_created_key
+#       description: ""
+#     - name: todo_id
+#       description: ""
+#     - name: folder_name
+#       description: ""
+#     - name: list_name
+#       description: ""
+#     - name: status_id
+#       description: ""
+#     - name: title
+#       description: ""
+#     - name: timezone
+#       description: ""
+#     - name: reminder
+#       description: ""
+#     - name: reminders
+#       description: ""
+#     - name: exdate
+#       description: ""
+#     - name: items
+#       description: ""
+#     - name: progress
+#       description: ""
+#     - name: modified_time
+#       description: ""
+#     - name: completed_time
+#       description: ""
+#     - name: created_time
+#       description: ""
+#     - name: etag
+#       description: ""
+#     - name: deleted
+#       description: ""
+#     - name: kind
+#       description: ""
+#     - name: tags
+#       description: ""
+#     - name: repeatfrom
+#       description: ""
+#     - name: repeattaskid
+#       description: ""
+#     - name: repeatflag
+#       description: ""
+#     - name: pinned_time
+#       description: ""
+#     - name: start_date
+#       description: ""
+#     - name: due_date
+#       description: ""
+#     - name: deletedtime
+#       description: ""
+#     - name: repeatfirstdate
+#       description: ""
+#     - name: parentid
+#       description: ""
+#     - name: remindtime
+#       description: "" #}

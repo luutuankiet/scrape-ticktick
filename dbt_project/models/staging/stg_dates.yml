@@ -1,0 +1,144 @@
+version: 2
+models:
+  - name: stg_dates
+    columns:
+      - name: date_key
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: date_id
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: day_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: week_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: week_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: iso_day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: day_name
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: first_day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: last_day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: month_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: month_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: day_of_month
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: month_name_short
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: month_name
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: first_day_of_month
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: last_day_of_month
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: quarter_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: quarter_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: day_of_quarter
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: quarter_desc_short
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: quarter_desc
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: first_day_of_quarter
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: last_day_of_quarter
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: year_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: first_day_of_year
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: last_day_of_year
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: ordinal_weekday_of_month
+        description: ""
+        meta:
+          dimension:
+            type: number

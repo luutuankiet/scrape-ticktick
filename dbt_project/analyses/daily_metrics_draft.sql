@@ -1,18 +1,14 @@
 SELECT
     due_date_id,
-    
     fld_folder_name,
     l_list_name,
-    td_title
-
-    ,*
-    {# COUNT(*) AS cnt #}
+    td_title,* {# COUNT(*) AS cnt #}
 FROM
     (
         SELECT
             *
         FROM
-            obt
+            {{ schema }}.obt
         WHERE
             completed_date_id IS NULL
             AND l_is_active = '1'
@@ -25,7 +21,9 @@ FROM
             AND l_list_name NOT LIKE '%tickler note%'
     ) NEW
 WHERE
-    due_date_id IS NOT NULL
-{# GROUP BY
+    due_date_id IS NOT NULL {# GROUP BY
     due_date_id #}
-    order by 1,2,3
+ORDER BY
+    1,
+    2,
+    3

@@ -21,3 +21,5 @@ seeds:
         goal_ids: "text"
     date_seed:
 
+vars:
+    "dbt_date:time_zone": "Asia/Ho_Chi_Minh"

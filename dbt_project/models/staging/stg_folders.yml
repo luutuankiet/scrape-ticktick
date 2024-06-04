@@ -1,0 +1,19 @@
+version: 2
+models:
+  - name: stg_folders
+    columns:
+      - name: folder_key
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: folder_id
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: folder_name
+        description: ""
+        meta:
+          dimension:
+            type: string

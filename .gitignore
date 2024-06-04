@@ -26,3 +26,8 @@ app.log
 streamlit_logs/logs.txt
 app/ETL/app.log*
 database/*
+node_modules/
+dbt_packages
+package-lock.json
+package.json
+deactivate

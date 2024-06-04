@@ -1,4 +1,4 @@
-WITH tasks AS (
+{# WITH tasks AS (
     SELECT
         *
     FROM
@@ -83,4 +83,10 @@ renamed AS (
 SELECT
     {{ dbt_utils.generate_surrogate_key(['todo_id']) }} AS todo_key,*
 FROM
-    renamed
+    renamed #}
+
+with source as  (
+    select {{coalesce_defaults(ref('init__trans_dtypes__todos'))}}
+    from {{ ref('init__trans_dtypes__todos') }}
+)
+ select * from source

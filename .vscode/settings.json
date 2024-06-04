@@ -2,5 +2,60 @@
     "python.analysis.autoImportCompletions": true,
     "python.analysis.typeCheckingMode": "off",
     "dbt.queryLimit": 500,
-    "dbt.enableNewLineagePanel": true
+    "dbt.enableNewLineagePanel": true,
+    "files.associations": {
+        "*.sql": "jinja-sql",
+        "**/*.sql": "jinja-sql",
+        "*.yml": "yaml"
+    },
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "database": ":memory:",
+            "name": "local"
+        },
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "tmp",
+            "database": "/Users/luutuankiet/Downloads/ETL_WO_activity_base_export.csv"
+        },
+        {
+            "previewLimit": 500,
+            "driver": "DuckDB",
+            "database": "${workspaceFolder:scrape-ticktick}/database/memory.duckdb",
+            "name": "ticktick-etl"
+        },
+        {
+            "previewLimit": 5000,
+            "server": "boyluu0819.ddns.net",
+            "port": 5433,
+            "driver": "PostgreSQL",
+            "name": "dell-gtd",
+            "database": "gtd_dash",
+            "username": "ken",
+            "password": "Boyluu96"
+        }
+    ],
+    "yaml.schemas": {
+        "https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/latest/dbt_yml_files-latest.json": [
+            "/**/*.yml",
+            "!profiles.yml",
+            "!dbt_project.yml",
+            "!packages.yml",
+            "!selectors.yml",
+            "!profile_template.yml",
+            "!docker-compose.yml"
+        ],
+        "https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/latest/dbt_project-latest.json": [
+            "dbt_project.yml"
+        ],
+        "https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/latest/selectors-latest.json": [
+            "selectors.yml"
+        ],
+        "https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/latest/packages-latest.json": [
+            "packages.yml"
+        ]
+    }
 }

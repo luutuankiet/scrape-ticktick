@@ -41,15 +41,15 @@ renamed AS (
                 (
                     {# grabs min date from the tasks table to generate lists' created time #}
                     SELECT
-                        "projectId",
-                        MIN("createdTime") AS created_time
+                        projectid,
+                        MIN(createdTime) AS created_time
                     FROM
                         tasks
                     GROUP BY
-                        "projectId"
+                        projectid
                 ) AS t
                 RIGHT JOIN lists l
-                ON l.id = t.projectId
+                ON l.id = t.projectid
         ) AS p2
 )
 SELECT

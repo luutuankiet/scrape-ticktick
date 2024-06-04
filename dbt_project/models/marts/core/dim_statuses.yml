@@ -1,0 +1,28 @@
+version: 2
+models:
+  - name: dim_statuses
+    columns:
+      - name: status_key
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: status_id
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: desc
+        description: |
+          semantic description of the todo item's status. available values
+          - 'undone' : item has no completion time.
+          - 'wont do' : item has ben marked as wont do.
+          - 'done' : item has been marked as done with a valid completed_date.
+        meta:
+          dimension:
+            type: string
+      - name: status_comments
+        description: ""
+        meta:
+          dimension:
+            type: string
