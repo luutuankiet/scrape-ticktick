@@ -3,11 +3,6 @@
     "python.analysis.typeCheckingMode": "off",
     "dbt.queryLimit": 500,
     "dbt.enableNewLineagePanel": true,
-    "files.associations": {
-        "*.sql": "jinja-sql",
-        "**/*.sql": "jinja-sql",
-        "*.yml": "yaml"
-    },
     "sqltools.connections": [
         {
             "previewLimit": 50,
