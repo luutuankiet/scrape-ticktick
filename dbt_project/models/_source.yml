@@ -4,7 +4,7 @@ sources:
   - name: raw_data
     description: A replica of the extracted ticktick data.
     database: "{{env_var('DW_DBNAME')}}"
-    schema: "{{env_var('TARGET_SCHEMA')}}"
+    schema: "{{env_var('TARGET_SCHEMA','dev')}}_raw"
     tables:
       - name: tasks_raw
         description: raw tasks data from tickpy
@@ -28,7 +28,7 @@ sources:
   - name: raw_seed_data
     description: split seed from raw data in the main schema.
     database: "{{env_var('DW_DBNAME')}}"
-    schema: "{{env_var('TARGET_SCHEMA')}}"
+    schema: "{{env_var('TARGET_SCHEMA','dev')}}_raw"
     tables:
       - name: date_seed
         description: pre-generated dates

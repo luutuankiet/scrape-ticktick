@@ -51,9 +51,9 @@ username=environ.get('username')
 password=environ.get('password')
 redirect_uri=environ.get('redirect_uri')
 
-tasks_file_path = os.path.join(raw_path,'tasks.json')
-lists_file_path = os.path.join(raw_path,'lists.json')
-folders_file_path = os.path.join(raw_path,'folders.json')
+tasks_file_path = os.path.join(raw_path,'tasks_raw.json')
+lists_file_path = os.path.join(raw_path,'lists_raw.json')
+folders_file_path = os.path.join(raw_path,'folders_raw.json')
 
 default_start = datetime(2022, 7, 23,tzinfo=timezone.utc)
 date_format = '%Y-%m-%dT%H:%M:%S.%f%z'
@@ -74,7 +74,6 @@ def new_login(self, username, password):
     }
 
     response = self.http_post(url, json=user_info, params=parameters, headers=self.HEADERS)
-    print(response)
     self.access_token = response['token']
     self.cookies['t'] = self.access_token
 
@@ -90,6 +89,37 @@ auth_client = OAuth2(client_id=client_id,
 client = TickTickClient(username, password, auth_client)
 
 
+
+
+cutoff_date = datetime(2024, 4, 1, tzinfo=timezone.utc)
+
+def _delete_tasks(start=None, end=cutoff_date, full_load=True):
+    """_summary_
+    a utility to delete completed tasks. make sure you archive the data before doing this operation!
+    usage : specify the cutoffdate, the start date, then _delete_tasks()
+    """
+    
+    logging.info('start deleting tasks')
+
+    if full_load:
+        current_date=default_start
+    elif not full_load: 
+        current_date=start
+    while current_date <= end+timedelta(days=1):
+        tasks=client.task.get_completed(current_date)
+        if tasks != []:
+            deleted = client.task.delete(tasks)
+            logging.info(f'deleted {len(deleted)} tasks from {current_date}. next interation...')
+        current_date += timedelta(days=1)
+    print('all specified tasks deleted.')
+
+
+
+
+
+
+
+#%%
 def deduplicate(source) -> list:
     """
     checks each item and remove duplicated
@@ -287,11 +317,3 @@ async def check_for_flag_file_forever():
 if __name__ == '__main__':
     asyncio.run(main())
 
-# if __name__ == '__main__':
-#     while True:
-#         sleep_time = 1800
-#         logging.info('start loading...')
-#         dump_to_file(extract_json())
-#         logging.info(f'done loading. next iteration in {sleep_time} seconds...')
-#         time.sleep(sleep_time)
-        
