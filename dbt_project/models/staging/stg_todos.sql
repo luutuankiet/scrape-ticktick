@@ -30,14 +30,28 @@ dates AS (
 ),
 joined AS (
     SELECT
+        {# gotta handle the NULLs from this join; they are hashed. next up is to generate that hashed null in other tables #}
         {{ dbt_utils.generate_surrogate_key(['dds.date_id']) }} AS date_start_key,
         {{ dbt_utils.generate_surrogate_key(['ddd.date_id']) }} AS date_due_key,
         {{ dbt_utils.generate_surrogate_key(['ddcm.date_id']) }} AS date_completed_key,
         {{ dbt_utils.generate_surrogate_key(['ddc.date_id']) }} AS date_created_key,
+        {{ dbt_utils.generate_surrogate_key(['todo_id']) }} AS todo_key,
+        {{ dbt_utils.generate_surrogate_key(['list_id']) }} AS list_key,
+        {{ dbt_utils.generate_surrogate_key(['folder_id']) }} AS folder_key,
+        {{ dbt_utils.generate_surrogate_key(['status_id']) }} AS status_key,
         t.*,
-        l.list_id,
-        f.folder_id,
-        ss.status_id
+        COALESCE(
+            l.list_id,
+            'default'
+        ) AS list_id,
+        COALESCE(
+            f.folder_id,
+            'default'
+        ) AS folder_id,
+        COALESCE(
+            ss.status_id,
+            'default'
+        ) AS status_id
     FROM
         todo t
         LEFT JOIN lists l
@@ -56,9 +70,6 @@ joined AS (
         ON ddcm.date_id = t.todo_completedtime_derived_date
 )
 SELECT
-    {{ dbt_utils.generate_surrogate_key(['todo_id']) }} AS todo_key,
-    {{ dbt_utils.generate_surrogate_key(['list_id']) }} AS list_key,
-    {{ dbt_utils.generate_surrogate_key(['folder_id']) }} AS folder_key,
-    {{ dbt_utils.generate_surrogate_key(['status_id']) }} AS status_key,*
+    *
 FROM
     joined

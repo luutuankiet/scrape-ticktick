@@ -1,5 +1,6 @@
 WITH source AS (
-    SELECT *
+    SELECT
+        *
     FROM
         {{ ref('stg_dates') }}
 ),

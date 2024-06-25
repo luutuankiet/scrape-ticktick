@@ -8,10 +8,10 @@
   {%- for col in columns %}
     case 
       {%- for item in replace_list %}
-        when {{ col.name }} = {{ item }} then NULL 
+        when "{{ col.name }}" = {{ item }} then NULL 
       {% endfor %}
-      else {{ col.name }} 
-    end as {{ col.name }}
+      else "{{ col.name }}" 
+    end as "{{ col.name }}"
     {% if not loop.last %}, {% endif %}
   {% endfor %}
 {% endmacro %}
