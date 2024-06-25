@@ -7,6 +7,7 @@ import sys; sys.path.append('..') # to allow import helper which is 1 dir away
 from helper.source_env import raw_path,dw_path,ETL_workdir,db_url,target_schema
 import time
 from sqlalchemy import create_engine
+from . import dbt_assets
 #%%
 
 engine = create_engine(db_url)
@@ -24,77 +25,21 @@ def init_extract():
         else:
             break
 
+names = ['tasks_raw', 'lists_raw', 'folders_raw']
+@multi_asset(
+    outs={
+        'tasks_raw': AssetOut(key=AssetKey('tasks_raw')),
+        'lists_raw': AssetOut(key=AssetKey('lists_raw')),
+        'folders_raw': AssetOut(key=AssetKey('folders_raw'))
 
-# @multi_asset(
-#     outs={
-#         name: AssetOut(key=asset_key)
-#         for name, asset_key in get_asset_keys_by_output_name_for_source(
-#             [dbt_assets.ticktick_dbt_assets], "raw_data"
-#         ).items()
-#     },
-#     compute_kind='python',deps=[init_extract]
-# )
-# def dump_postgres(context: AssetExecutionContext):
-
-    
-#     names = ['source_todo_analytics_raw_data_tasks_raw', 'source_todo_analytics_raw_data_lists_raw', 'source_todo_analytics_raw_data_folders_raw']
-
-#     tasks_path = os.path.join(raw_path,'tasks.json')
-#     tasks_df = pd.read_json(tasks_path,dtype=str)
-#     lists_path = os.path.join(raw_path,'lists.json')
-#     lists_df = pd.read_json(lists_path,dtype=str)
-#     folders_path = os.path.join(raw_path,'folders.json')
-#     folders_df = pd.read_json(folders_path,dtype=str)
-#     entity_df = [tasks_df,lists_df,folders_df]
-
-#     # Convert all columns to lowercase
-#     tasks_df.columns = tasks_df.columns.str.lower()
-#     lists_df.columns = lists_df.columns.str.lower()
-#     folders_df.columns = folders_df.columns.str.lower()
-
-#     engine = create_engine(db_url)
-#     tasks_df.to_sql('tasks_raw', engine, if_exists='replace', index=False, schema=target_schema)
-#     lists_df.to_sql('lists_raw', engine, if_exists='replace', index=False,schema=target_schema)
-#     folders_df.to_sql('folders_raw', engine, if_exists='replace', index=False,schema=target_schema)
-
-#     # yield the materialization result
-#     for name, entity_df in zip(names,entity_df):
-#         yield Output(entity_df,output_name=name)
-
-@asset(deps=[init_extract])
-def tasks_raw():
-    TASKS_PATH = os.path.join(raw_path,'tasks.json')
-    tasks_df = pd.read_json(TASKS_PATH,dtype=str)
-    
-
-    # Convert all columns to lowercase
-    tasks_df.columns = tasks_df.columns.str.lower()
-    
-    tasks_df.to_sql('tasks_raw', engine, if_exists='replace', index=False, schema=target_schema)
-    return tasks_df
-
-@asset(deps=[init_extract])
-def lists_raw():
-
-    lists_path = os.path.join(raw_path,'lists.json')
-    lists_df = pd.read_json(lists_path,dtype=str)
-
-    # Convert all columns to lowercase
-    lists_df.columns = lists_df.columns.str.lower()
-
-    lists_df.to_sql('lists_raw', engine, if_exists='replace', index=False,schema=target_schema)
-    return lists_df
-
-
-@asset(deps=[init_extract])
-def folders_raw():
-    
-    folders_path = os.path.join(raw_path,'folders.json')
-    folders_df = pd.read_json(folders_path,dtype=str)
-
-    # Convert all columns to lowercase
-    folders_df.columns = folders_df.columns.str.lower()
-
-    folders_df.to_sql('folders_raw', engine, if_exists='replace', index=False,schema=target_schema)
-    return folders_df
-
+    },
+    compute_kind='python',deps=[init_extract]
+)
+def raw_data():
+    for name in names:
+        raw_file_path = os.path.join(raw_path,name+'.json')
+        df = pd.read_json(raw_file_path,dtype=str)
+        df.columns = df.columns.str.lower()
+        df.to_sql(name, engine, if_exists='replace', index=False, schema=target_schema+'_raw')
+   
+        yield Output(value=df,output_name=name)
