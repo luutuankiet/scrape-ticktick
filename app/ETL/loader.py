@@ -51,9 +51,9 @@ username=environ.get('username')
 password=environ.get('password')
 redirect_uri=environ.get('redirect_uri')
 
-tasks_file_path = os.path.join(raw_path,'tasks.json')
-lists_file_path = os.path.join(raw_path,'lists.json')
-folders_file_path = os.path.join(raw_path,'folders.json')
+tasks_file_path = os.path.join(raw_path,'tasks_raw.json')
+lists_file_path = os.path.join(raw_path,'lists_raw.json')
+folders_file_path = os.path.join(raw_path,'folders_raw.json')
 
 default_start = datetime(2022, 7, 23,tzinfo=timezone.utc)
 date_format = '%Y-%m-%dT%H:%M:%S.%f%z'
