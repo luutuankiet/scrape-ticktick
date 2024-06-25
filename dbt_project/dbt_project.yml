@@ -10,6 +10,8 @@ models:
   todo_analytics:
     raw_source:
       +materialized: table
+    staging:
+      +materialized: table
       +tags: "raw"
     staging:
       +materialized: view
