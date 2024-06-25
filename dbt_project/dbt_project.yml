@@ -8,6 +8,8 @@ macro-paths: ["macros"]
 
 models:
   todo_analytics:
+    raw_source:
+      +materialized: table
     staging:
       +materialized: table
     marts:

@@ -34,7 +34,7 @@ user=os.environ.get('DW_USER')
 password=os.environ.get('DW_PASSWORD')
 database=os.environ.get('DW_DBNAME')
 password_encoded = urllib.parse.quote(password)
-target_schema = os.environ.get('TARGET_SCHEMA')
+target_schema = os.environ.get('TARGET_SCHEMA','prod')
 db_url = f'postgresql://{user}:{password_encoded}@boyluu0819.ddns.net:5433/{database}?options='
 db_url = db_url + f'-csearch_path=={target_schema}'
 
