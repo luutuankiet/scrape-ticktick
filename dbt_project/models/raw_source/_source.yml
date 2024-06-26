@@ -23,12 +23,3 @@ sources:
         meta:
           dagster:
             asset_key : ["folders_raw"]
-
-
-  - name: raw_seed_data
-    description: split seed from raw data in the main schema.
-    database: "{{env_var('DW_DBNAME')}}"
-    schema: "{{env_var('TARGET_SCHEMA','dev')}}_raw"
-    tables:
-      - name: date_seed
-        description: pre-generated dates

@@ -3,38 +3,38 @@ WITH pool AS (
     SELECT
         *,
         CASE
-            WHEN td_tags LIKE '%clarifyme%' THEN 'not_clarified'
-            WHEN td_tags NOT LIKE '%clarifyme%' THEN 'clarified'
+            WHEN todo_tags LIKE '%clarifyme%' THEN 'not_clarified'
+            WHEN todo_tags NOT LIKE '%clarifyme%' THEN 'clarified'
         END AS progress_type
     FROM
         {{ ref('obt') }}
     WHERE
-        --ss_desc ='undone'
-        td_tags NOT LIKE '%someday%'
-        AND td_tags NOT LIKE '%waiting_for%'
-        AND td_tags NOT LIKE '%tickler%'
-        AND td_kind = 'TEXT'
-        AND l_is_active = TRUE
-        AND fld_folder_name NOT IN (
+        --status_desc ='undone'
+        todo_tags NOT LIKE '%someday%'
+        AND todo_tags NOT LIKE '%waiting_for%'
+        AND todo_tags NOT LIKE '%tickler%'
+        AND todo_kind = 'TEXT'
+        AND list_isactive = TRUE
+        AND folder_name NOT IN (
             '🚀SOMEDAY lists',
             '🛩Horizon of focus'
         )
-        AND l_list_name NOT IN ('🧳SOMEDAY')
+        AND list_name NOT IN ('🧳SOMEDAY')
 ),
 done_progress AS (
     SELECT
-        fld_folder_name,
-        l_list_name,
+        folder_name,
+        list_name,
         SUM(
             CASE
-                WHEN ss_desc = 'done' THEN 1
+                WHEN status_desc = 'done' THEN 1
                 ELSE 0
             END
         ) AS cnt_done,
         (
             SUM(
                 CASE
-                    WHEN ss_desc = 'undone' THEN 1
+                    WHEN status_desc = 'undone' THEN 1
                     ELSE 0
                 END
             )
@@ -42,7 +42,7 @@ done_progress AS (
         (
             SUM(
                 CASE
-                    WHEN ss_desc = 'done' THEN 1
+                    WHEN status_desc = 'done' THEN 1
                     ELSE 0
                 END
             ) * 100.0 / (
@@ -51,12 +51,12 @@ done_progress AS (
                         (
                             SUM(
                                 CASE
-                                    WHEN ss_desc = 'done' THEN 1
+                                    WHEN status_desc = 'done' THEN 1
                                     ELSE 0
                                 END
                             ) + SUM(
                                 CASE
-                                    WHEN ss_desc = 'undone' THEN 1
+                                    WHEN status_desc = 'undone' THEN 1
                                     ELSE 0
                                 END
                             )
@@ -70,24 +70,24 @@ done_progress AS (
     FROM
         pool
     GROUP BY
-        fld_folder_name,
-        l_list_name
+        folder_name,
+        list_name
 ),
 clarify_progress AS (
     SELECT
-        fld_folder_name,
-        l_list_name,
+        folder_name,
+        list_name,
         SUM(
             CASE
                 WHEN progress_type = 'clarified'
-                AND ss_desc = 'undone' THEN 1
+                AND status_desc = 'undone' THEN 1
                 ELSE 0
             END
         ) AS cnt_clarified,
         SUM(
             CASE
                 WHEN progress_type = 'not_clarified'
-                AND ss_desc = 'undone' THEN 1
+                AND status_desc = 'undone' THEN 1
                 ELSE 0
             END
         ) AS cnt_not_clarified,
@@ -96,7 +96,7 @@ clarify_progress AS (
                 SUM(
                     CASE
                         WHEN progress_type = 'clarified'
-                        AND ss_desc = 'undone' THEN 1
+                        AND status_desc = 'undone' THEN 1
                         ELSE 0
                     END
                 ) * 100.0 / (
@@ -106,13 +106,13 @@ clarify_progress AS (
                                 SUM(
                                     CASE
                                         WHEN progress_type = 'clarified'
-                                        AND ss_desc = 'undone' THEN 1
+                                        AND status_desc = 'undone' THEN 1
                                         ELSE 0
                                     END
                                 ) + SUM(
                                     CASE
                                         WHEN progress_type = 'not_clarified'
-                                        AND ss_desc = 'undone' THEN 1
+                                        AND status_desc = 'undone' THEN 1
                                         ELSE 0
                                     END
                                 )
@@ -128,13 +128,13 @@ clarify_progress AS (
     FROM
         pool
     GROUP BY
-        fld_folder_name,
-        l_list_name
+        folder_name,
+        list_name
 ),
     lists_progress AS (
         SELECT
-            clarify_progress.fld_folder_name,
-            clarify_progress.l_list_name,
+            clarify_progress.folder_name,
+            clarify_progress.list_name,
             cnt_done,
             cnt_not_done,
             done_progress.done_progress,
@@ -144,14 +144,14 @@ clarify_progress AS (
         FROM
             done_progress
             INNER JOIN clarify_progress
-            ON done_progress.l_list_name = clarify_progress.l_list_name
-            AND done_progress.fld_folder_name = clarify_progress.fld_folder_name
+            ON done_progress.list_name = clarify_progress.list_name
+            AND done_progress.folder_name = clarify_progress.folder_name
     ),
     folder_progress AS (
         -- aggregate folder progresss
         SELECT
-            fld_folder_name,
-            '-----------------------' AS l_list_name,
+            folder_name,
+            '-----------------------' AS list_name,
             100 AS cnt_done,
             100 AS cnt_not_done,
             folder_progress.folder_progress AS done_progress,
@@ -161,13 +161,13 @@ clarify_progress AS (
         FROM
             (
                 SELECT
-                    fld_folder_name,
+                    folder_name,
                     AVG(done_progress) AS folder_progress,
                     AVG(clarify_progress) AS list_progress
                 FROM
                     lists_progress
                 GROUP BY
-                    fld_folder_name
+                    folder_name
             ) AS folder_progress
         UNION ALL
         SELECT
@@ -178,13 +178,13 @@ clarify_progress AS (
     staging AS (
         SELECT
             COALESCE(
-                fld_folder_name,
+                folder_name,
                 'Default'
-            ) AS fld_folder_name,
+            ) AS folder_name,
             COALESCE(
-                l_list_name,
+                list_name,
                 'Inbox'
-            ) AS l_list_name,
+            ) AS list_name,
             done_progress :: DECIMAL(
                 10,
                 2

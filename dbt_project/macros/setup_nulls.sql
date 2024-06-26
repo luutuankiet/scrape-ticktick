@@ -3,7 +3,7 @@
   usage : SELECT {{ setup_nulls('table_name') }} from table_name 
 #}
 {% macro setup_nulls(table_name) %}
-  {% set replace_list = ["''", "'[]'","'nan'"] %}
+  {% set replace_list = ["''", "'[]'","'nan'","'None'"] %}
   {% set columns = adapter.get_columns_in_relation(table_name) %}
   {%- for col in columns %}
     case 

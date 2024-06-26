@@ -17,3 +17,53 @@ models:
         meta:
           dimension:
             type: string
+      - name: folder_etag
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: folder_showall
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: folder_sortorder
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: folder_viewmode
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: folder_deleted
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: folder_userid
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: folder_sorttype
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: folder_sortoption
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: folder_teamid
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: folder_timeline
+        description: ""
+        meta:
+          dimension:
+            type: string

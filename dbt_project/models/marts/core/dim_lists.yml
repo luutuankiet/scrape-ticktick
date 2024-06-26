@@ -20,28 +20,133 @@ models:
           metrics:
             lists_count:
               type: count
-      - name: modified_time
+      - name: list_isowner
         description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: folder_id
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: lkind
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: is_active
-        description: indicates if a list has been archived or not.
         meta:
           dimension:
             type: boolean
-      - name: created_time
+      - name: list_color
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_inall
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: list_sortorder
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: list_sortoption
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_sorttype
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_usercount
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: list_etag
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_modifiedtime
         description: ""
         meta:
           dimension:
             type: timestamp
+      - name: list_closed
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: list_muted
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: list_transferred
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_groupid
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_viewmode
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_notificationoptions
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_teamid
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_permission
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_kind
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_timeline
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_needaudit
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: list_barcodeneedaudit
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: list_opentoteam
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: list_teammemberpermission
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_source
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_created_time
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: list_isactive
+        description: ""
+        meta:
+          dimension:
+            type: boolean

@@ -228,50 +228,68 @@ models:
     columns:
       - name: list_key
         description: ""
+        tests:
+          - relationships:
+              field: list_key
+              to: ref('dim_lists')
         meta:
           dimension:
             type: string
       - name: folder_key
         description: ""
+        tests:
+          - relationships:
+              field: folder_key
+              to: ref('dim_folders')
         meta:
           dimension:
             type: string
       - name: status_key
         description: ""
+        tests:
+          - relationships:
+              field: status_key
+              to: ref('dim_statuses')
         meta:
           dimension:
             type: string
       - name: date_start_key
         description: ""
+        tests:
+          - relationships:
+              field: date_key
+              to: ref('dim_dates')
         meta:
           dimension:
             type: string
       - name: date_due_key
         description: ""
+        tests:
+          - relationships:
+              field: date_key
+              to: ref('dim_dates')
         meta:
           dimension:
             type: string
       - name: date_completed_key
         description: ""
+        tests:
+          - relationships:
+              field: date_key
+              to: ref('dim_dates')
         meta:
           dimension:
             type: string
       - name: date_created_key
         description: ""
+        tests:
+          - relationships:
+              field: date_key
+              to: ref('dim_dates')
         meta:
           dimension:
             type: string
       - name: todo_id
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: folder_name
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: list_name
         description: ""
         meta:
           dimension:
@@ -281,123 +299,228 @@ models:
         meta:
           dimension:
             type: number
-      - name: title
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: timezone
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: reminder
-        description: ""
-        meta:
-          dimension:
-            type: string
       - name: reminders
         description: ""
         meta:
           dimension:
             type: string
-      - name: exdate
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: items
+      - name: todo_key
         description: ""
         meta:
           dimension:
             type: string
-      - name: progress
+      - name: todo_projectid
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_sortorder
         description: ""
         meta:
           dimension:
             type: number
-      - name: modified_time
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: completed_time
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: created_time
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: etag
+      - name: todo_title
         description: ""
         meta:
           dimension:
             type: string
-      - name: deleted
+      - name: todo_content
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_desc
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_timezone
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_isfloating
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: todo_isallday
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: todo_reminder
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_exdate
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_priority
         description: ""
         meta:
           dimension:
             type: number
-      - name: kind
+      - name: todo_status
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: todo_items
         description: ""
         meta:
           dimension:
             type: string
-      - name: tags
+      - name: todo_progress
         description: ""
         meta:
           dimension:
-            type: string
-      - name: repeatfrom
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: repeattaskid
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: repeatflag
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: pinned_time
+            type: number
+      - name: todo_modifiedtime
         description: ""
         meta:
           dimension:
             type: timestamp
-      - name: start_date
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: due_date
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: deletedtime
+      - name: todo_etag
         description: ""
         meta:
           dimension:
             type: string
-      - name: repeatfirstdate
+      - name: todo_deleted
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: todo_createdtime
         description: ""
         meta:
           dimension:
             type: timestamp
-      - name: parentid
+      - name: todo_creator
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: todo_focussummaries
         description: ""
         meta:
           dimension:
             type: string
-      - name: remindtime
+      - name: todo_columnid
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_kind
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_imgmode
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_tags
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_repeatfrom
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: todo_attachments
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_repeattaskid
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_commentcount
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: todo_completedtime
         description: ""
         meta:
           dimension:
             type: timestamp
+      - name: todo_completeduserid
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_repeatflag
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_startdate
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: todo_duedate
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: todo_pinnedtime
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: childids
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_deletedtime
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_repeatfirstdate
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: todo_pomodorosummaries
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_parentid
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_annoyingalert
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_remindtime
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_id
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: folder_id
+        description: ""
+        meta:
+          dimension:
+            type: string

@@ -10,18 +10,25 @@ models:
   todo_analytics:
     raw_source:
       +materialized: table
+      +tags: "raw"
     staging:
-      +materialized: table
+      +materialized: view
+      +tags: "staging"
     marts:
-      +materialized: table
+      core:
+        +materialized: table
+        +tags: "core"
+      metrics:
+        +tags: "metrics"
 
 seeds:
   todo_analytics:
     +full_refresh: true
+    +tags: "seeds"
     list_goal_mapping:
       +column_types:
         goal_ids: "text"
     date_seed:
-
+        
 vars:
     "dbt_date:time_zone": "Asia/Ho_Chi_Minh"
