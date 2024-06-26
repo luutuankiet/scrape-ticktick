@@ -11,7 +11,7 @@ models:
     raw_source:
       +materialized: table
     staging:
-      +materialized: table
+      +materialized: view
     marts:
       +materialized: table
 

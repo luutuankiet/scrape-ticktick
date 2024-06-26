@@ -1,92 +1,36 @@
-{# WITH tasks AS (
+WITH todo AS (
     SELECT
-        *
+        {{coalesce_defaults(ref('src__tasks_raw'))}}
     FROM
-        {{ ref ('init_todos') }}
-),
-folders AS (
-    SELECT
-        *
-    FROM
-        {{ source(
-            'raw_data',
-            'folders_raw'
-        ) }}
+        {{ ref('src__tasks_raw') }}
 ),
 lists AS (
     SELECT
-        *
+        {{coalesce_defaults(ref('src__lists_raw'))}}
+        
     FROM
-        {{ source(
-            'raw_data',
-            'lists_raw'
-        ) }}
+        {{ ref('src__lists_raw') }}
 ),
-renamed AS (
+folders AS (
     SELECT
-        t.id :: text AS todo_id,
-        COALESCE(
-            f.name,
-            'Default'
-        ) :: text AS folder_name,
-        COALESCE(
-            l.name,
-            'Default'
-        ) :: text AS list_name,
-        status :: INT AS status_id,
-        title :: text AS title,
-        timeZone :: text AS timezone,
-        reminder,
-        reminders,
-        exDate,
-        items,
-        progress,
-        t.modifiedTime :: TIMESTAMP AS modified_time,
-        CASE
-            WHEN t.completedTime = 'nan' THEN '1900-01-01T00:00:00'
-            ELSE t.completedTime :: TIMESTAMP
-        END AS completed_time,
-         CASE
-            WHEN t.createdTime = 'nan' THEN '1900-01-01T00:00:00'
-            ELSE t.createdTime :: TIMESTAMP
-        END AS created_time,
-        t.etag :: text AS etag,
-        t.deleted :: INT AS deleted,
-        t.kind :: text AS kind,
-        tags :: text AS tags,
-        repeatFrom,
-        repeatTaskId,
-        repeatFlag,
-        CASE
-            WHEN pinnedTime = 'nan' THEN '1900-01-01T00:00:00'
-            ELSE pinnedTime :: TIMESTAMP
-        END AS pinned_time,
-        CASE
-            WHEN startDate = 'nan' THEN '1900-01-01T00:00:00'
-            ELSE startDate :: TIMESTAMP
-        END AS start_date,
-        CASE
-            WHEN dueDate = 'nan' THEN '1900-01-01T00:00:00'
-            ELSE dueDate :: TIMESTAMP
-        END AS due_date,
-        deletedTime,
-        repeatFirstdate,
-        parentId,
-        remindTime
+        {{coalesce_defaults(ref('src__folders_raw'))}}
+        
     FROM
-        tasks t
+        {{ ref('src__folders_raw') }}
+),
+joined AS (
+    SELECT
+        t.*,
+        coalesce(l.list_name,'default') as list_name,
+        coalesce(f.folder_name,'default') as folder_name
+    FROM
+        todo t
         LEFT JOIN lists l
-        ON t.projectId = l.id
+        ON t.todo_projectid = l.list_id
         LEFT JOIN folders f
-        ON f.id = l.groupId
+        ON l.list_groupid = f.folder_id
 )
 SELECT
-    {{ dbt_utils.generate_surrogate_key(['todo_id']) }} AS todo_key,*
+    {{dbt_utils.generate_surrogate_key(['todo_id'])}} as todo_key,*
 FROM
-    renamed #}
-
-with source as  (
-    select {{coalesce_defaults(ref('init__trans_dtypes__todos'))}}
-    from {{ ref('init__trans_dtypes__todos') }}
-)
- select * from source
+    joined
