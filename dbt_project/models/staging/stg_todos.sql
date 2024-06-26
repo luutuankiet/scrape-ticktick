@@ -30,6 +30,7 @@ dates AS (
 ),
 joined AS (
     SELECT
+    {# gotta handle the NULLs from this join; they are hashed. next up is to generate that hashed null in other tables #}
         {{ dbt_utils.generate_surrogate_key(['dds.date_id']) }} AS date_start_key,
         {{ dbt_utils.generate_surrogate_key(['ddd.date_id']) }} AS date_due_key,
         {{ dbt_utils.generate_surrogate_key(['ddcm.date_id']) }} AS date_completed_key,

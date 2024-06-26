@@ -50,25 +50,21 @@ SELECT
     {{ dbt_utils.star(
         from = ref('fact_todos'),
         relation_alias = 'f_todos',
-        prefix = 'td_',
-        except = [ 'list_key', 'folder_key','status_key','todo_key','date_start_key','date_due_key','date_completed_key', 'date_created_key' ]
+        except = [ 'list_key', 'folder_key','status_key','todo_key','date_start_key','date_due_key','date_completed_key', 'date_created_key','list_id','folder_id','status_id' ]
     ) }},
     {{ dbt_utils.star(
         from = ref('dim_lists'),
         relation_alias = 'd_lists',
-        prefix = 'l_',
         except = [ 'list_key' ]
     ) }},
     {{ dbt_utils.star(
         from = ref('dim_folders'),
         relation_alias = 'd_folders',
-        prefix = 'fld_',
         except = [ 'folder_key' ]
     ) }},
     {{ dbt_utils.star(
         from = ref('dim_statuses'),
         relation_alias = 'd_statuses',
-        prefix = 'ss_',
         except = [ 'status_key' ]
     ) }},
     -- dates roleplay
