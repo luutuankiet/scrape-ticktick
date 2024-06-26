@@ -33,11 +33,11 @@ joined AS (
         {{ dbt_utils.generate_surrogate_key(['dds.date_id']) }} AS date_start_key,
         {{ dbt_utils.generate_surrogate_key(['ddd.date_id']) }} AS date_due_key,
         {{ dbt_utils.generate_surrogate_key(['ddcm.date_id']) }} AS date_completed_key,
-        {{ dbt_utils.generate_surrogate_key(['ddc.date_id']) }} AS date_created_key
+        {{ dbt_utils.generate_surrogate_key(['ddc.date_id']) }} AS date_created_key,
         t.*,
         l.list_id,
         f.folder_id,
-        ss.status_id,
+        ss.status_id
     FROM
         todo t
         LEFT JOIN lists l

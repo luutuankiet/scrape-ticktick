@@ -10,14 +10,18 @@ models:
   todo_analytics:
     raw_source:
       +materialized: table
+      +tags: "raw"
     staging:
       +materialized: view
+      +tags: "staging"
     marts:
       +materialized: table
+      +tags: "marts"
 
 seeds:
   todo_analytics:
     +full_refresh: true
+    +tags: "seeds"
     list_goal_mapping:
       +column_types:
         goal_ids: "text"
