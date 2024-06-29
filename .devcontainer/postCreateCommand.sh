@@ -65,8 +65,7 @@ python3 -m venv --clear $VIRTUAL_ENV
 # # install reqs. each lines is a separate process hence neeeds a source .venv in front
 source .venv/bin/activate && \
 pip install -r requirements.txt && \
-# ad hoc : upgrade pandas for streamlit viz. known bug : https://github.com/streamlit/gsheets-connection/issues/20
-pip install pandas==2.2.0
+pip install pandas==2.2.0 # ad hoc : upgrade pandas for streamlit viz. known bug : https://github.com/streamlit/gsheets-connection/issues/20
 
 
 

@@ -6,17 +6,25 @@ with map as (
 goals as (
     select * from {{ ref('init_duckdb__lvl3') }}
 ),
-
-joined as (
-
-    select
+joined AS (
+    SELECT
         goals.*,
         map.fld_folder_name,
         map.l_list_name
-    from
-        map full outer join
-        goals on position(',' || goals.goal_id || ',' in ',' || map.goal_ids ||  ',') > 0
-        {# to allow for multi link rows  #}
+    FROM
+        goals
+    LEFT JOIN map ON ',' || goals.goal_id || ',' LIKE '%,' || map.goal_ids || ',%'
 )
 
-select * from joined
+SELECT * FROM joined
+UNION ALL
+SELECT
+    goals.*,
+    map.fld_folder_name,
+    map.l_list_name
+FROM
+    map
+LEFT JOIN
+    goals ON ',' || goals.goal_id || ',' LIKE '%,' || map.goal_ids || ',%'
+WHERE
+    goals.goal_id IS NULL

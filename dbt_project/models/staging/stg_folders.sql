@@ -10,7 +10,7 @@ WITH folders AS (
 renamed AS (
     SELECT
         id :: text AS folder_id,
-        NAME :: text AS folder_name,
+        NAME :: text AS folder_name
     FROM
         folders
 )

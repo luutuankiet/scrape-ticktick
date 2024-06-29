@@ -1,12 +1,14 @@
 #%%
 import sys
 sys.path.append('..')
+from sqlalchemy import create_engine,text
 import streamlit as st
 import duckdb
 import os
 import pandas as pd
-from helper.source_env import dbt_project_dir,dw_path,st_logs_path,venv_path,project_dotenv_path
+from helper.source_env import dbt_project_dir,dw_path,st_logs_path,venv_path,project_dotenv_path,db_url,target_schema
 from helper.query_retry import retry
+from helper.dbt_query import run_mf_query
 import datetime
 from datetime import timedelta, timezone
 import re
@@ -17,15 +19,16 @@ import humanize
 from streamlit_gsheets import GSheetsConnection
 
 #%%
-motherduck_token = os.environ.get("motherduck_token")
-# con = duckdb.connect(f'md:ticktick_gtd?motherduck_token={motherduck_token}')
-con = duckdb.connect()
-con.sql(f"IMPORT DATABASE '{os.path.dirname(dw_path)}/src';")
-cur = con.cursor()
+
+# the chart uses in-mem duckdb to avoid conflict with the dagster process' duckdb connection. 
+conn = create_engine(db_url)
+
+# con = duckdb.connect()
+# con.sql(f"IMPORT DATABASE '{os.path.dirname(dw_path)}/src';")
+# cur = con.cursor()
 
 #%%
 
-utc = pytz.timezone('UTC')
 
 # to make date comparison work, 
 # 1 create a common timezone. using ecuador gmt-5
@@ -33,14 +36,14 @@ utc = pytz.timezone('UTC')
 # 3 convert the result to the common tz
 # 4 every comparison with external dates, always use the external date's timezone aware at the common timezone.
     # ajust the timezone 
-common_tz = pytz.timezone('America/Guayaquil')
+COMMON_TZ = pytz.timezone('America/Guayaquil')
 def convert_row_to_common_tz(row,date_column):
     #create tz aware
     val = row[date_column]
     try:
         tz = pytz.timezone(row['td_timezone'])
     except Exception as e:
-        tz = common_tz
+        tz = COMMON_TZ
     
     tz_aware = pd.to_datetime(val).tz_localize(tz="UTC")
     tz_aware = tz_aware.astimezone(tz)
@@ -51,7 +54,7 @@ def convert_row_to_common_tz(row,date_column):
     # st.write(f'caught tz {tz}. "{tz_debug}" swapped to "{tz_aware}"')
     # fix ticktick bug setting default time of due item wihtout time = 00:00 
     # TODO : handle time conversion for fields already UTC in raw : completedTime, modifiedTime, createdTime
-    return tz_aware.astimezone(common_tz)
+    return tz_aware.astimezone(COMMON_TZ)
 
 
 
@@ -66,56 +69,27 @@ def convert_df_to_common_tz(df):
 
 
 
-analytics_path = os.path.join(dbt_project_dir,'analyses')
-tags_count_path = os.path.join(analytics_path,'active_tags_count.sql')
-loops_count_path = os.path.join(analytics_path,'open_loops_count.sql')
-active_count_path = os.path.join(analytics_path,'modified_counts.sql')
-created_count_path = os.path.join(analytics_path,'created_counts.sql')
-completed_count_path = os.path.join(analytics_path,'completed_counts.sql')
 
 st.set_page_config(page_title="MY GTD DASHBOARD", layout="wide", initial_sidebar_state="collapsed", menu_items=None)
 
 st.header("🌏 Ken's GTD dashboard",divider="blue")
 
 
-
-# @retry()
 @st.cache_data(ttl=datetime.timedelta(hours=24),max_entries=10)
 def get_table(query):
-    df = cur.sql(query).df()
-    df = convert_df_to_common_tz(df)
+    query = text(query)
+    with conn.connect() as con:
+        df = pd.rean.execute(query,con=con)
+        df = convert_df_to_common_tz(df)
     return df
 
-# @retry()
 def get_table_nocache(query):
-    df = cur.sql(query).df()
-    df = convert_df_to_common_tz(df)
+    query = text(query)
+    with conn.connect() as con:
+        df = pd.read_sql(query,con=con)
+        df = convert_df_to_common_tz(df)
     return df
 
-with st.expander("server ops"):
-
-    if st.button("run ETL"):
-            log_path = "/logs/dbt/manual_run_log.txt"
-            dbt_cmd = "source /main/scrape-ticktick/.venv/bin/activate && source /main/scrape-ticktick/.env && dagster job execute -m app.ETL.definitions -j ETL_job -d $DAGSTER_HOME"
-            
-            with open(log_path, "w") as output_file:
-                result = subprocess.run(f"{dbt_cmd}", shell=True, stdout=output_file, stderr=subprocess.STDOUT,executable="/bin/bash")
-
-        # Read and display the output file content  
-            with open(log_path, "r") as output_file:
-                output_content = output_file.read()
-            st.code(output_content)
-            con = duckdb.connect()
-            con.sql(f"IMPORT DATABASE '{os.path.dirname(dw_path)}/src';")
-            cur = con.cursor()
-            st.cache_data.clear()
-
-
-
-# with st.sidebar:
-#     obt=get_table("select * from obt")
-#     folders = obt['fld_folder_name'].drop_duplicates().to_list()
-#     filter_folder = st.multiselect('folders',folders,default=folders)
 
 
 def highlight_cell(val):
@@ -148,6 +122,78 @@ def highlight_row(row):
         return ['background-color: #D3D3D3; font-weight: bold;'] * len(row)
     else:
         return [''] * len(row)
+def read_sql(file_path):
+    """reads dbt compiled sql and returns as string
+    """
+    with open(file_path,'r') as file:
+        return file.read()
+
+
+
+ANALYTICS_PATH = os.path.join(dbt_project_dir,'target','compiled','todo_analytics','analyses')
+
+# queries compiled after a successful dbt run, which in turns feeds the df in streamlit.
+TAGS_COUNT_PATH = os.path.join(ANALYTICS_PATH,'active_tags_count.sql')
+LOOPS_COUNT_PATH = os.path.join(ANALYTICS_PATH,'open_loops_count.sql')
+ACTIVE_COUNT_PATH = os.path.join(ANALYTICS_PATH,'modified_counts.sql')
+CREATED_COUNT_PATH = os.path.join(ANALYTICS_PATH,'created_counts.sql')
+COMPLETED_COUNT_PATH = os.path.join(ANALYTICS_PATH,'completed_counts.sql')
+
+def get_metric_open_loops():
+    # count the number of open loops in the loops note
+    loops_query=read_sql(LOOPS_COUNT_PATH)
+    loops_count = get_table_nocache(loops_query)
+
+    loops = loops_count['content'].iloc[0]
+    lines = loops.split('\n')
+    counter = 0
+    for line in lines:
+        if re.search('[a-z0-9]',line.lower()):
+            counter+=1 
+    return counter
+
+
+tags_query=read_sql(TAGS_COUNT_PATH)
+tags_count = get_table_nocache(tags_query)
+
+def get_metric_clarify():
+    if tags_count.shape[0] > 0:
+        compare_clarify = int(tags_count['cnt_clarifyme'].iloc[0]) 
+        clarifyme_count = tags_count['cnt_clarifyme'].iloc[0]
+        clarify_progress = tags_count['clarification_progress'].iloc[0]
+    else:
+        compare_clarify  = 0
+        clarifyme_count  = 0
+        clarify_progress = 0
+    return compare_clarify,clarifyme_count,clarify_progress
+
+
+
+def get_metric_avg(metric_type):
+    """returns the average of the metric"""
+    pass
+
+
+
+# main streamlit code
+
+
+with st.expander("server ops"):
+
+    if st.button("run ETL"):
+            dbt_cmd = f"source {venv_path}/bin/activate && source {project_dotenv_path} && dagster job execute -m app.ETL.definitions -j ETL_job -d $DAGSTER_HOME"
+            
+            with open(st_logs_path, "w") as output_file:
+                result = subprocess.run(f"{dbt_cmd}", shell=True, stdout=output_file, stderr=subprocess.STDOUT,executable="/bin/bash")
+
+        # Read and display the output file content  
+            with open(st_logs_path, "r") as output_file:
+                output_content = output_file.read()
+            st.code(output_content)
+            # con = duckdb.connect()
+            # con.sql(f"IMPORT DATABASE '{os.path.dirname(dw_path)}/src';")
+            # cur = con.cursor()
+            st.cache_data.clear()
 
 
 
@@ -171,7 +217,7 @@ with tab1:
                             ,fld_folder_name
                             ,l_list_name
                             
-                            ,* from obt where 
+                            ,* from {schema}.obt where 
                             completed_date_id is null
                             and l_is_active = '1'
                             and td_kind = 'TEXT'
@@ -181,10 +227,12 @@ with tab1:
                             and td_tags not like '%tickler%'
                                
                             """
+    replace_dict = {"schema":target_schema}
+    today_table_query= today_table_query.format(**replace_dict)
     today_table = get_table_nocache(today_table_query).reset_index(drop=True)
     today_clarify_count_df = today_table[(today_table['td_tags'].str.contains('clarifyme')) & 
                                          (today_table['td_title'].str.contains('clarifytoday')) &
-                                         ((today_table['td_due_date'].dt.date == pd.Timestamp.utcnow().tz_convert(tz=common_tz).date()) |
+                                         ((today_table['td_due_date'].dt.date == pd.Timestamp.utcnow().tz_convert(tz=COMMON_TZ).date()) |
                                           (today_table['td_due_date'].dt.date < pd.to_datetime('2020-01-01T00:00:00').date())
                                           )] # for metrics clarifyme
 
@@ -192,41 +240,21 @@ with tab1:
     today_clarify_count =  today_clarify_count_df.shape[0] if today_clarify_count_df.shape[0] > 0 else 0
 
 
-    with open(tags_count_path, 'r') as f:
-        tags_query=f.read()
-    tags_count = get_table_nocache(tags_query)
 
-    with open(loops_count_path, 'r') as f:
-        loops_query=f.read()
-
-
-    loops_count = get_table_nocache(loops_query)
-    loops = loops_count['content'].iloc[0]
-    lines = loops.split('\n')
-    counter = 0
-    for line in lines:
-        if re.search('[a-z0-9]',line.lower()):
-            counter+=1 
-
-    if tags_count.shape[0] > 0:
-        compare_clarify = int(tags_count['cnt_clarifyme'].iloc[0]) 
-        clarifyme_count = tags_count['cnt_clarifyme'].iloc[0]
-        clarify_progress = tags_count['clarification_progress'].iloc[0]
-    else:
-        compare_clarify  = 0
-        clarifyme_count  = 0
-        clarify_progress = 0
-        
-    counter_delta = counter - compare_clarify        
-
+    compare_clarify,clarifyme_count,clarify_progress = get_metric_clarify()
+    counter = get_metric_open_loops()
     clarifyme_avg = 80 # TODO : count average clarifyme across dataset.
-    delta_clarifyme =  clarifyme_count - clarifyme_avg
-    
-    overdue_count_df = today_table[today_table['td_due_date'].dt.date < pd.Timestamp.utcnow().tz_convert(tz=common_tz).date()]
+    today_avg = 8 # TODO : implement average count over dataset.
+    tmr_avg = 12 # TODO : implement average count over dataset.
+    tmr_1d_avg = 12 # TODO : implement average count over dataset.
 
+
+    
+    # get counts for metrics
+    overdue_count_df = today_table[today_table['td_due_date'].dt.date < pd.Timestamp.utcnow().tz_convert(tz=COMMON_TZ).date()]
     overdue_count = overdue_count_df.shape[0]
 
-    today_count_df = today_table[today_table['td_due_date'].dt.date == pd.Timestamp.utcnow().tz_convert(tz=common_tz).date()]
+    today_count_df = today_table[today_table['td_due_date'].dt.date == pd.Timestamp.utcnow().tz_convert(tz=COMMON_TZ).date()]
     today_count_norepeat_df = today_count_df[today_count_df['td_repeatFlag'] == 'nan']
     today_count_repeat_df = today_count_df[today_count_df['td_repeatFlag'] != 'nan']
     
@@ -234,13 +262,16 @@ with tab1:
     today_count_repeat = today_count_repeat_df.shape[0]
     today_count = today_count_norepeat + today_count_repeat
 
-
-    today_avg = 8 # TODO : implement average count over dataset.
+    # deltas
+    delta_clarifyme =  clarifyme_count - clarifyme_avg
+    delta_counter = counter - compare_clarify        
     delta_today = today_count_norepeat - today_avg
 
 
     col1,col2,col3,col4 = st.columns(4)
     with col1:
+          df = run_mf_query(metrics = 'overdue_tasks_metric')
+          overdue_count = df['overdue_tasks_metric'].iloc[0]
           st.metric(
             label="overdue tasks",
             value=overdue_count,
@@ -251,6 +282,17 @@ with tab1:
               debug_overdue_count = overdue_count_df
               debug_overdue_count.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True,inplace=True)
               st.dataframe(debug_overdue_count,hide_index=True)
+    # with col1:
+    #       st.metric(
+    #         label="overdue tasks",
+    #         value=overdue_count,
+    #         delta = "reschedule them!!!" if overdue_count > 0 else "all's well.",
+    #         delta_color="inverse" if overdue_count > 0 else "off",
+    #     )
+    #       with st.expander("query"):
+    #           debug_overdue_count = overdue_count_df
+    #           debug_overdue_count.sort_values(by=['due_date_id','fld_folder_name','l_list_name'], ascending=True,inplace=True)
+    #           st.dataframe(debug_overdue_count,hide_index=True)
 
 
     with col2:
@@ -278,7 +320,7 @@ with tab1:
         st.metric(
             "open loops",
             value = counter,
-            delta = f"capture them!!! (gap {counter_delta} vs clarify)" if counter > 0 else "all's well.",
+            delta = f"capture them!!! (gap {delta_counter} vs clarify)" if counter > 0 else "all's well.",
             delta_color="inverse" if counter > 0 else "off",
             )
     with col4:
@@ -295,20 +337,24 @@ with tab1:
           else:
               pass
 
+
+
+
+
     st.divider()
     st.write("## look ahead")
     st.write("*what is queued in for the times ahead? give yourself the best chance of completing them in time.*")
 
-    future_count_df = today_table[today_table['td_due_date'].dt.date >= pd.Timestamp.utcnow().tz_convert(tz=common_tz).date()]
-    tmr_count_df = future_count_df[(future_count_df['td_due_date'].dt.date <= pd.Timestamp.utcnow().tz_convert(tz=common_tz).date() + datetime.timedelta(days=1))&
-                                   (future_count_df['td_due_date'].dt.date > pd.Timestamp.utcnow().tz_convert(tz=common_tz).date())
+    future_count_df = today_table[today_table['td_due_date'].dt.date >= pd.Timestamp.utcnow().tz_convert(tz=COMMON_TZ).date()]
+    tmr_count_df = future_count_df[(future_count_df['td_due_date'].dt.date <= pd.Timestamp.utcnow().tz_convert(tz=COMMON_TZ).date() + datetime.timedelta(days=1))&
+                                   (future_count_df['td_due_date'].dt.date > pd.Timestamp.utcnow().tz_convert(tz=COMMON_TZ).date())
                                    ]
-    tmr_1d_count_df = future_count_df[(future_count_df['td_due_date'].dt.date > pd.Timestamp.utcnow().tz_convert(tz=common_tz).date() + datetime.timedelta(days=1)) &
-                                      (future_count_df['td_due_date'].dt.date <= pd.Timestamp.utcnow().tz_convert(tz=common_tz).date() + datetime.timedelta(days=2))
+    tmr_1d_count_df = future_count_df[(future_count_df['td_due_date'].dt.date > pd.Timestamp.utcnow().tz_convert(tz=COMMON_TZ).date() + datetime.timedelta(days=1)) &
+                                      (future_count_df['td_due_date'].dt.date <= pd.Timestamp.utcnow().tz_convert(tz=COMMON_TZ).date() + datetime.timedelta(days=2))
                                       ]
     
-    heatmap_count_df = today_table[(today_table['td_due_date'].dt.date >= pd.Timestamp.utcnow().tz_convert(tz=common_tz).date() ) &
-                                   (today_table['td_due_date'].dt.date <= pd.Timestamp.utcnow().tz_convert(tz=common_tz).date() + timedelta(days=365)) &
+    heatmap_count_df = today_table[(today_table['td_due_date'].dt.date >= pd.Timestamp.utcnow().tz_convert(tz=COMMON_TZ).date() ) &
+                                   (today_table['td_due_date'].dt.date <= pd.Timestamp.utcnow().tz_convert(tz=COMMON_TZ).date() + timedelta(days=365)) &
                                    (today_table['td_repeatFlag'] == 'nan')
                                    ]
     
@@ -331,7 +377,6 @@ with tab1:
         tmr_count = tmr_count_next_norepeat + tmr_count_clarify_norepeat + tmr_count_repeat
 
 
-        tmr_avg = 12 # TODO : implement average count over dataset.
         delta_tmr = tmr_count_norepeat - tmr_avg
         
 
@@ -373,7 +418,6 @@ with tab1:
         tmr_1d_count = tmr_1d_count_next_norepeat + tmr_1d_count_clarify_norepeat + tmr_1d_count_repeat
 
 
-        tmr_1d_avg = 12 # TODO : implement average count over dataset.
         delta_1d_tmr = tmr_1d_count_norepeat - tmr_avg
 
 
@@ -478,7 +522,7 @@ with tab2:
 
     st.write('## your activities')
 
-    today = datetime.datetime.now(tz=common_tz)
+    today = datetime.datetime.now(tz=COMMON_TZ)
     this_week_begin = today - datetime.timedelta(days=today.weekday())
 
     start,end = st.date_input(
@@ -491,12 +535,9 @@ with tab2:
 
 
 
-    with open(active_count_path, 'r') as f:
-        active_query=f.read()
-    with open(created_count_path, 'r') as f:
-        created_count_path=f.read()
-    with open(completed_count_path, 'r') as f:
-        completed_count_path=f.read()
+    active_query=read_sql(ACTIVE_COUNT_PATH)
+    CREATED_COUNT_PATH=read_sql(CREATED_COUNT_PATH)
+    COMPLETED_COUNT_PATH=read_sql(COMPLETED_COUNT_PATH)
 
 # TODO : conform to UTC time 
         
@@ -509,7 +550,7 @@ with tab2:
     active_count_grouped['group'] = 'active'
     
 
-    created_count = get_table(created_count_path)
+    created_count = get_table(CREATED_COUNT_PATH)
     filtered_created_count = created_count[(created_count['key'] >= pd.to_datetime(start)) & (created_count['key'] <= pd.to_datetime(end))]
     filtered_created_count.sort_values(by=['key'],ascending=True,inplace=True)
     created_count_grouped = filtered_created_count.groupby('day_of_year')['tasks_created'].sum().astype(int)
@@ -517,7 +558,7 @@ with tab2:
     created_count_grouped['group'] = 'created'
 
 
-    completed_count = get_table(completed_count_path)
+    completed_count = get_table(COMPLETED_COUNT_PATH)
     filtered_completed_count = completed_count[(completed_count['key'] >= pd.to_datetime(start)) & (completed_count['key'] <= pd.to_datetime(end))]
     filtered_completed_count.sort_values(by=['key'],ascending=True,inplace=True)
     completed_count_grouped = filtered_completed_count.groupby('day_of_year')['tasks_completed'].sum().astype(int)
@@ -561,16 +602,9 @@ with tab2:
 
     
     created_df_delta = created_df
-    # created_df_delta['max_day_created_timestamp'] = pd.Timestamp.now(tz=common_tz) - pd.to_datetime(created_df_delta['max_day_created_timestamp']).dt.tz_localize(common_tz)
-    created_df_delta['max_day_created_timestamp'] = pd.Timestamp.now(tz=common_tz) - pd.to_datetime(created_df_delta['max_day_created_timestamp'])
+    created_df_delta['max_day_created_timestamp'] = pd.Timestamp.now(tz=COMMON_TZ) - pd.to_datetime(created_df_delta['max_day_created_timestamp'])
     created_df_delta['max_day_created_timestamp'] = created_df_delta['max_day_created_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
     create_progress = pd.merge(created_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left').drop(['fld_folder_name','done_progress','clarify_progress'],axis=1)
-        
-    # create_progress = create_progress.style.map(
-    #     highlight_text,subset=['done_progress','clarify_progress']
-    # ).apply(
-    #     highlight_row,axis=1
-    # )
     create_progress_lvl3_detailed = pd.merge(created_df_delta,lvl3_progress,on=['l_list_name'],how='left') # to grab all the goals
 
 
@@ -601,15 +635,9 @@ with tab2:
 
 
     active_df_delta = active_df
-    # active_df_delta['max_day_active_timestamp'] = pd.Timestamp.now(tz=common_tz) - active_df_delta['max_day_active_timestamp'].dt.tz_localize(common_tz)
-    active_df_delta['max_day_active_timestamp'] = pd.Timestamp.now(tz=common_tz) - active_df_delta['max_day_active_timestamp']
+    active_df_delta['max_day_active_timestamp'] = pd.Timestamp.now(tz=COMMON_TZ) - active_df_delta['max_day_active_timestamp']
     active_df_delta['max_day_active_timestamp'] = active_df_delta['max_day_active_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
     active_progress = pd.merge(active_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left').drop(['fld_folder_name','done_progress','clarify_progress'],axis=1)
-    # active_progress = active_progress.style.map(
-    #     highlight_text,subset=['done_progress','clarify_progress']
-    # ).apply(
-    #     highlight_row,axis=1
-    # )
     active_progress_lvl3_detailed = pd.merge(active_df_delta,lvl3_progress,on=['l_list_name'],how='left') # to grab all the goals
 
 
@@ -640,15 +668,9 @@ with tab2:
 
 
     completed_df_delta = completed_df
-    # completed_df_delta['max_day_completed_timestamp'] = pd.Timestamp.now(tz=common_tz) - completed_df_delta['max_day_completed_timestamp'].dt.tz_localize(common_tz)
-    completed_df_delta['max_day_completed_timestamp'] = pd.Timestamp.now(tz=common_tz) - completed_df_delta['max_day_completed_timestamp']
+    completed_df_delta['max_day_completed_timestamp'] = pd.Timestamp.now(tz=COMMON_TZ) - completed_df_delta['max_day_completed_timestamp']
     completed_df_delta['max_day_completed_timestamp'] = completed_df_delta['max_day_completed_timestamp'].apply(lambda x: humanize.naturaltime(x.total_seconds(),future=False))
     complete_progress = pd.merge(completed_df_delta,filtered_lvl1_lvl2_progress,on=['fld_folder_name','l_list_name'],how='left').drop(['fld_folder_name','done_progress','clarify_progress'],axis=1)
-    # complete_progress = complete_progress.style.map(
-    #     highlight_text,subset=['done_progress','clarify_progress']
-    # ).apply(
-    #     highlight_row,axis=1
-    # )
     complete_progress_lvl3_detailed = pd.merge(completed_df_delta,lvl3_progress,on=['l_list_name'],how='left') # to grab all the goals
 
 
@@ -704,21 +726,6 @@ with tab2:
     with st.expander("complete",expanded = False):
         st.dataframe(
             complete_progress,
-            # column_config={
-            #     "done_progress": st.column_config.ProgressColumn(
-            #     "done_progress",
-            #     format="%f",
-            #     min_value=0,
-            #     max_value=100
-            # ),
-            # "clarify_progress": st.column_config.ProgressColumn(
-            #     "clarify_progress",
-            #     format="%f",
-            #     min_value=0,
-            #     max_value=100
-            # )
-            # },
-
             hide_index=True,
             use_container_width=True
             )
@@ -735,21 +742,6 @@ with tab2:
     with st.expander("created",expanded = False):
         st.dataframe(
             create_progress,
-            # column_config={
-            #     "done_progress": st.column_config.ProgressColumn(
-            #     "done_progress",
-            #     format="%f",
-            #     min_value=0,
-            #     max_value=100
-            # ),
-            # "clarify_progress": st.column_config.ProgressColumn(
-            #     "clarify_progress",
-            #     format="%f",
-            #     min_value=0,
-            #     max_value=100
-            # )
-            # },
-
             hide_index=True,
             use_container_width=True
             )
@@ -766,21 +758,6 @@ with tab2:
     with st.expander("active",expanded = False):
         st.dataframe(
             active_progress,
-            # column_config={
-            #     "done_progress": st.column_config.ProgressColumn(
-            #     "done_progress",
-            #     format="%f",
-            #     min_value=0,
-            #     max_value=100
-            # ),
-            # "clarify_progress": st.column_config.ProgressColumn(
-            #     "clarify_progress",
-            #     format="%f",
-            #     min_value=0,
-            #     max_value=100
-            # )
-            # },
-
             hide_index=True,
             use_container_width=True
             )

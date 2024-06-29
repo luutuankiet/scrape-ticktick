@@ -1,58 +1,104 @@
-with source as (
-
-select 
-coalesce(fld_folder_name,'Default') as fld_folder_name,
-coalesce(l_list_name,'Inbox') as l_list_name,
-datepart('day',completed) as day,
-datepart('month',completed) as month,
-datepart('year',completed) as year,
-max_day_completed_timestamp,
-count(*) as cnt
-from 
-(
-select 
-td_completed_time::timestamp as completed,
-max(completed) over(partition by fld_folder_name,l_list_name,datepart('day',completed),datepart('month',completed),datepart('year',completed)) as max_day_completed_timestamp,
-
-*
-from obt) a
-group by 
-fld_folder_name,
-l_list_name,
-datepart('day',completed),
-datepart('month',completed),
-datepart('year',completed),
-max_day_completed_timestamp
+WITH source AS (
+    SELECT
+        COALESCE(
+            fld_folder_name,
+            'Default'
+        ) AS fld_folder_name,
+        COALESCE(
+            l_list_name,
+            'Inbox'
+        ) AS l_list_name,
+        datepart(
+            'day',
+            completed
+        ) AS DAY,
+        datepart(
+            'month',
+            completed
+        ) AS MONTH,
+        datepart(
+            'year',
+            completed
+        ) AS YEAR,
+        max_day_completed_timestamp,
+        COUNT(*) AS cnt
+    FROM
+        (
+            SELECT
+                td_completed_time :: TIMESTAMP AS completed,
+                MAX(completed) over(
+                    PARTITION BY fld_folder_name,
+                    l_list_name,
+                    datepart(
+                        'day',
+                        completed
+                    ),
+                    datepart(
+                        'month',
+                        completed
+                    ),
+                    datepart(
+                        'year',
+                        completed
+                    )
+                ) AS max_day_completed_timestamp,*
+            FROM
+                {{ schema }}.obt
+        ) A
+    GROUP BY
+        fld_folder_name,
+        l_list_name,
+        datepart(
+            'day',
+            completed
+        ),
+        datepart(
+            'month',
+            completed
+        ),
+        datepart(
+            'year',
+            completed
+        ),
+        max_day_completed_timestamp
 ),
-
-task_level as (
-
-select 
-fld_folder_name,
-l_list_name,
-sum(cnt)::int as tasks_completed,
-max_day_completed_timestamp,
- day,month,year
-
-from source group by day,month,year,l_list_name,fld_folder_name,max_day_completed_timestamp
-
-
+task_level AS (
+    SELECT
+        fld_folder_name,
+        l_list_name,
+        SUM(cnt) :: INT AS tasks_completed,
+        max_day_completed_timestamp,
+        DAY,
+        MONTH,
+        YEAR
+    FROM
+        source
+    GROUP BY
+        DAY,
+        MONTH,
+        YEAR,
+        l_list_name,
+        fld_folder_name,
+        max_day_completed_timestamp
 )
-
-select t.*
-,td_timezone
-,(year||'-'||month||'-'||day)::date as key
-,(year||'-'||month||'-'||day) as day_of_year
- from task_level t
- inner join 
-
-(select
- td_timezone,
- fld_folder_name,
- l_list_name,
- td_completed_time
- from obt
- ) o on o.td_completed_time=t.max_day_completed_timestamp
- and o.fld_folder_name=t.fld_folder_name
- and o.l_list_name=t.l_list_name
- 
+SELECT
+    t.*,
+    td_timezone,(
+        YEAR || '-' || MONTH || '-' || DAY
+    ) :: DATE AS key,(
+        YEAR || '-' || MONTH || '-' || DAY
+    ) AS day_of_year
+FROM
+    task_level t
+    INNER JOIN (
+        SELECT
+            td_timezone,
+            fld_folder_name,
+            l_list_name,
+            td_completed_time
+        FROM
+            {{ schema }}.obt
+    ) o
+    ON o.td_completed_time = t.max_day_completed_timestamp
+    AND o.fld_folder_name = t.fld_folder_name
+    AND o.l_list_name = t.l_list_name

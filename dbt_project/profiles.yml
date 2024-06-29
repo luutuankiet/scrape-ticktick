@@ -5,4 +5,22 @@ todo_analytics:
       path: "{{env_var('DW_PATH')}}"
       threads: 12
       schema: main
-  target: duckdb
+    dev:
+      type: postgres
+      host: "boyluu0819.ddns.net"
+      port: 5433
+      user: "{{env_var('DW_USER')}}"
+      password: "{{env_var('DW_PASSWORD')}}"
+      dbname: "{{env_var('DW_DBNAME')}}"
+      schema: dev
+      sslmode: disable
+    prod:
+      type: postgres
+      host: "boyluu0819.ddns.net"
+      port: 5433
+      user: "{{env_var('DW_USER')}}"
+      password: "{{env_var('DW_PASSWORD')}}"
+      dbname: "{{env_var('DW_DBNAME')}}"
+      schema: prod
+      sslmode: disable
+  target: "{{env_var('TARGET_SCHEMA','dev')}}"

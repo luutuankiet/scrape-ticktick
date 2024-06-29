@@ -2,7 +2,7 @@
 . ./.venv/bin/activate
 
 . ./env_init.sh
-. ./.env
+/bin/bash ./source_env.sh # the git CD runner uses sh shell which dont support source commands.
 
 # pip install --upgrade -q -r requirements.txt
 
