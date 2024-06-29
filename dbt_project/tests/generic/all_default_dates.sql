@@ -2,37 +2,32 @@
     model,
     column_name
 ) %}
-WITH cte AS (
+{{ config (
+    error_if = "=1",
+    warn_if = "<3"
+) }}
+
+WITH default_pool AS (
+
     SELECT
-        DISTINCT {{ column_name }} AS default_dates
+        "{{ column_name }}" AS default_dates
     FROM
         {{ model }}
+    WHERE
+        "{{ column_name }}" :: text LIKE '%1900%'
 ),
-test_case AS (
+total_pool AS (
     SELECT
-        default_dates,
-        DENSE_RANK() over (
-            ORDER BY
-                default_dates
-        ) AS rnk
+        "{{ column_name }}" AS default_dates
     FROM
-        cte
-),
-results AS(
-    SELECT
-        CASE
-            WHEN exists (
-                SELECT
-                    default_dates
-                FROM
-                    test_case
-                WHERE
-                    rnk > 1
-            ) THEN 'fail'
-            ELSE NULL
-        END
+        {{ model }}
 )
 SELECT
     *
 FROM
-    results {% endtest %}
+    total_pool
+EXCEPT
+SELECT
+    *
+FROM
+    default_pool {% endtest %}
