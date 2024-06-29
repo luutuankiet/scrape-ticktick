@@ -1,51 +1,51 @@
 WITH f_todos AS (
-    SELECT *
+    SELECT
+        *
     FROM
         {{ ref('fact_todos') }}
 ),
-
 d_lists AS (
-    SELECT *
+    SELECT
+        *
     FROM
         {{ ref('dim_lists') }}
 ),
-
 d_folders AS (
-    SELECT *
+    SELECT
+        *
     FROM
         {{ ref('dim_folders') }}
 ),
-
 d_statuses AS (
-    SELECT *
+    SELECT
+        *
     FROM
         {{ ref('dim_statuses') }}
 ),
-
 d_start_dates AS (
-    SELECT *
+    SELECT
+        *
     FROM
         {{ ref('dim_dates') }}
 ),
-
 d_due_dates AS (
-    SELECT *
+    SELECT
+        *
     FROM
         {{ ref('dim_dates') }}
 ),
-
 d_created_dates AS (
-    SELECT *
+    SELECT
+        *
     FROM
         {{ ref('dim_dates') }}
 ),
-
 d_completed_dates AS (
-    SELECT *
+    SELECT
+        *
     FROM
         {{ ref('dim_dates') }}
 )
-
 SELECT
     {{ dbt_utils.star(
         from = ref('fact_todos'),
@@ -94,17 +94,17 @@ SELECT
     ) }}
 FROM
     f_todos
-LEFT JOIN d_lists
+    LEFT JOIN d_lists
     ON f_todos.list_key = d_lists.list_key
-LEFT JOIN d_folders
+    LEFT JOIN d_folders
     ON f_todos.folder_key = d_folders.folder_key
-LEFT JOIN d_statuses
+    LEFT JOIN d_statuses
     ON f_todos.status_key = d_statuses.status_key
-LEFT JOIN d_start_dates
+    LEFT JOIN d_start_dates
     ON f_todos.date_start_key = d_start_dates.date_key
-LEFT JOIN d_due_dates
+    LEFT JOIN d_due_dates
     ON f_todos.date_due_key = d_due_dates.date_key
-LEFT JOIN d_completed_dates
+    LEFT JOIN d_completed_dates
     ON f_todos.date_completed_key = d_completed_dates.date_key
-LEFT JOIN d_created_dates
+    LEFT JOIN d_created_dates
     ON f_todos.date_created_key = d_created_dates.date_key

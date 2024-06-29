@@ -3,6 +3,8 @@ models:
   - name: obt
     columns:
       - name: start_date_id
+        tests:
+          - not_null
         description: ""
         meta:
           dimension:
@@ -138,6 +140,8 @@ models:
           dimension:
             type: number
       - name: due_date_id
+        tests:
+          - not_null
         description: ""
         meta:
           dimension:
@@ -273,6 +277,8 @@ models:
           dimension:
             type: number
       - name: completed_date_id
+        tests:
+          - not_null
         description: ""
         meta:
           dimension:
@@ -408,6 +414,8 @@ models:
           dimension:
             type: number
       - name: created_date_id
+        tests:
+          - not_null
         description: ""
         meta:
           dimension:
@@ -543,6 +551,8 @@ models:
           dimension:
             type: number
       - name: todo_id
+        tests:
+          - not_null
         description: ""
         meta:
           dimension:
@@ -758,6 +768,8 @@ models:
           dimension:
             type: string
       - name: list_id
+        tests:
+          - not_null
         description: ""
         meta:
           dimension:
@@ -898,6 +910,8 @@ models:
           dimension:
             type: boolean
       - name: folder_id
+        tests:
+          - not_null
         description: ""
         meta:
           dimension:
@@ -958,6 +972,8 @@ models:
           dimension:
             type: string
       - name: status_id
+        tests:
+          - not_null
         description: ""
         meta:
           dimension:

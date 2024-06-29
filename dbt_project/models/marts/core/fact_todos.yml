@@ -52,6 +52,8 @@ models:
               type: string
         - name: status_id
           description: ""
+          tests:
+            - not_null
           meta:
             dimension:
               type: number
@@ -515,12 +517,16 @@ models:
           dimension:
             type: string
       - name: list_id
+        tests:
+          - not_null
         description: ""
         meta:
           dimension:
             type: string
       - name: folder_id
         description: ""
+        tests:
+          - not_null
         meta:
           dimension:
             type: string

@@ -19,7 +19,7 @@ renamed as (
         {{ adapter.quote("reminders") }}:: text as "reminders" , -- array
         {{ adapter.quote("exdate") }}:: text as "todo_exdate",
         {{ adapter.quote("priority") }}:: int as "todo_priority",
-        {{ adapter.quote("status") }}:: int as "todo_status",
+        {{ adapter.quote("status") }}:: text as "todo_status",
         {{ adapter.quote("items") }}:: text as "todo_items",
         {{ adapter.quote("progress") }}:: float as "todo_progress",
         {{ adapter.quote("modifiedtime") }}:: timestamp as "todo_modifiedtime",

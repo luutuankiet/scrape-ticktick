@@ -43,9 +43,9 @@ joined AS (
         list_isActive :: BOOLEAN AS list_isActive
     FROM
         lists l
-        RIGHT JOIN list_created t
+        INNER JOIN list_created t
         ON l.list_id = t.todo_projectid
-        LEFT JOIN list_isActive i
+        INNER JOIN list_isActive i
         ON l.list_id = i.list_id
 )
 SELECT
