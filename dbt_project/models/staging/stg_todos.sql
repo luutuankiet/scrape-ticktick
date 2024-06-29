@@ -61,13 +61,13 @@ joined AS (
         LEFT JOIN statuses ss
         ON ss.status_id = t.todo_status
         LEFT JOIN dates dds
-        ON dds.date_id = t.todo_startdate
+        ON dds.date_id = t.todo_startdate_derived_date
         LEFT JOIN dates ddd
-        ON ddd.date_id = t.todo_duedate
+        ON ddd.date_id = t.todo_duedate_derived_date
         LEFT JOIN dates ddc
-        ON ddc.date_id = t.todo_createdtime
+        ON ddc.date_id = t.todo_createdtime_derived_date
         LEFT JOIN dates ddcm
-        ON ddcm.date_id = t.todo_completedtime
+        ON ddcm.date_id = t.todo_completedtime_derived_date
 )
 SELECT
     *

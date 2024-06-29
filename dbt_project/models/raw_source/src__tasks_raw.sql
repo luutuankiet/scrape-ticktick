@@ -1,56 +1,76 @@
-with source as (
-      select 
-        {{setup_nulls(source('raw_data', 'tasks_raw'))}}
-      
-       from {{ source('raw_data', 'tasks_raw') }}
+{% set datetime_list = ['todo_createdtime', 'todo_completedtime', 'todo_startdate', 'todo_duedate'] %}
+WITH source AS (
+    SELECT
+        {{ setup_nulls(source('raw_data', 'tasks_raw')) }}
+    FROM
+        {{ source(
+            'raw_data',
+            'tasks_raw'
+        ) }}
 ),
-renamed as (
-    select
-        {{ adapter.quote("id") }}:: text as "todo_id",
-        {{ adapter.quote("projectid") }}:: text as "todo_projectid",
-        {{ adapter.quote("sortorder") }}:: bigint as "todo_sortorder",
-        {{ adapter.quote("title") }}:: text as "todo_title",
-        {{ adapter.quote("content") }}:: text as "todo_content",
-        {{ adapter.quote("desc") }}:: text as "todo_desc",
-        {{ adapter.quote("timezone") }}:: text as "todo_timezone",
-        {{ adapter.quote("isfloating") }}:: boolean as "todo_isfloating",
-        {{ adapter.quote("isallday") }}:: boolean as "todo_isallday",
-        {{ adapter.quote("reminder") }}:: text as "todo_reminder",
-        {{ adapter.quote("reminders") }}:: text as "reminders" , -- array
-        {{ adapter.quote("exdate") }}:: text as "todo_exdate",
-        {{ adapter.quote("priority") }}:: int as "todo_priority",
-        {{ adapter.quote("status") }}:: text as "todo_status",
-        {{ adapter.quote("items") }}:: text as "todo_items",
-        {{ adapter.quote("progress") }}:: float as "todo_progress",
-        {{ adapter.quote("modifiedtime") }}:: timestamp as "todo_modifiedtime",
-        {{ adapter.quote("etag") }}:: text as "todo_etag",
-        {{ adapter.quote("deleted") }}:: boolean as "todo_deleted",
-        {{ adapter.quote("createdtime") }}:: timestamp as "todo_createdtime",
-        {{ adapter.quote("creator") }}:: int as "todo_creator",
-        {{ adapter.quote("focussummaries") }}:: text as "todo_focussummaries",
-        {{ adapter.quote("columnid") }}:: text as "todo_columnid",
-        {{ adapter.quote("kind") }}:: text as "todo_kind",
-        {{ adapter.quote("imgmode") }}:: text as "todo_imgmode",
-        {{ adapter.quote("tags") }}:: text as "todo_tags",
-        {{ adapter.quote("repeatfrom") }}:: int as "todo_repeatfrom",
-        {{ adapter.quote("attachments") }}:: text as "todo_attachments", -- json
-        {{ adapter.quote("repeattaskid") }}:: text as "todo_repeattaskid",
-        {{ adapter.quote("commentcount") }}:: float as "todo_commentcount",
-        {{ adapter.quote("completedtime") }}:: timestamp as "todo_completedtime",
-        {{ adapter.quote("completeduserid") }}:: text as "todo_completeduserid", -- "120295392.0"
-        {{ adapter.quote("repeatflag") }}:: text as "todo_repeatflag",
-        {{ adapter.quote("startdate") }}:: timestamp as "todo_startdate",
-        {{ adapter.quote("duedate") }}:: timestamp as "todo_duedate",
-        {{ adapter.quote("pinnedtime") }}:: timestamp as "todo_pinnedtime",
-        {{ adapter.quote("childids") }}:: text as "childids" , -- array
-        {{ adapter.quote("deletedtime") }}:: text as "todo_deletedtime", -- some weird epoc time ? "120295392.0" >>> to_timestamp(1669956236000 / 1000)
-        {{ adapter.quote("repeatfirstdate") }}:: timestamp as "todo_repeatfirstdate",
-        {{ adapter.quote("pomodorosummaries") }}:: text as "todo_pomodorosummaries", -- array
-        {{ adapter.quote("parentid") }}:: text as "todo_parentid",
-        {{ adapter.quote("annoyingalert") }}:: text as "todo_annoyingalert",
-        {{ adapter.quote("remindtime") }}:: text as "todo_remindtime"
-
-    from source
+renamed AS (
+    SELECT
+        {{ adapter.quote("id") }} :: text AS "todo_id",
+        {{ adapter.quote("createdtime") }} :: TIMESTAMP AS "todo_createdtime",
+        {{ adapter.quote("completedtime") }} :: TIMESTAMP AS "todo_completedtime",
+        {{ adapter.quote("startdate") }} :: TIMESTAMP AS "todo_startdate",
+        {{ adapter.quote("duedate") }} :: TIMESTAMP AS "todo_duedate",
+        {{ adapter.quote("projectid") }} :: text AS "todo_projectid",
+        {{ adapter.quote("sortorder") }} :: bigint AS "todo_sortorder",
+        {{ adapter.quote("title") }} :: text AS "todo_title",
+        {{ adapter.quote("content") }} :: text AS "todo_content",
+        {{ adapter.quote("desc") }} :: text AS "todo_desc",
+        {{ adapter.quote("timezone") }} :: text AS "todo_timezone",
+        {{ adapter.quote("isfloating") }} :: BOOLEAN AS "todo_isfloating",
+        {{ adapter.quote("isallday") }} :: BOOLEAN AS "todo_isallday",
+        {{ adapter.quote("reminder") }} :: text AS "todo_reminder",
+        {{ adapter.quote("reminders") }} :: text AS "reminders",
+        -- array
+        {{ adapter.quote("exdate") }} :: text AS "todo_exdate",
+        {{ adapter.quote("priority") }} :: INT AS "todo_priority",
+        {{ adapter.quote("status") }} :: text AS "todo_status",
+        {{ adapter.quote("items") }} :: text AS "todo_items",
+        {{ adapter.quote("progress") }} :: FLOAT AS "todo_progress",
+        {{ adapter.quote("modifiedtime") }} :: TIMESTAMP AS "todo_modifiedtime",
+        {{ adapter.quote("etag") }} :: text AS "todo_etag",
+        {{ adapter.quote("deleted") }} :: BOOLEAN AS "todo_deleted",
+        {{ adapter.quote("creator") }} :: INT AS "todo_creator",
+        {{ adapter.quote("focussummaries") }} :: text AS "todo_focussummaries",
+        {{ adapter.quote("columnid") }} :: text AS "todo_columnid",
+        {{ adapter.quote("kind") }} :: text AS "todo_kind",
+        {{ adapter.quote("imgmode") }} :: text AS "todo_imgmode",
+        {{ adapter.quote("tags") }} :: text AS "todo_tags",
+        {{ adapter.quote("repeatfrom") }} :: INT AS "todo_repeatfrom",
+        {{ adapter.quote("attachments") }} :: text AS "todo_attachments",
+        -- json
+        {{ adapter.quote("repeattaskid") }} :: text AS "todo_repeattaskid",
+        {{ adapter.quote("commentcount") }} :: FLOAT AS "todo_commentcount",
+        {{ adapter.quote("completeduserid") }} :: text AS "todo_completeduserid",
+        -- "120295392.0"
+        {{ adapter.quote("repeatflag") }} :: text AS "todo_repeatflag",
+        {{ adapter.quote("pinnedtime") }} :: TIMESTAMP AS "todo_pinnedtime",
+        {{ adapter.quote("childids") }} :: text AS "childids",
+        -- array
+        {{ adapter.quote("deletedtime") }} :: text AS "todo_deletedtime",
+        -- some weird epoc time ? "120295392.0" >>> to_timestamp(1669956236000 / 1000)
+        {{ adapter.quote("repeatfirstdate") }} :: TIMESTAMP AS "todo_repeatfirstdate",
+        {{ adapter.quote("pomodorosummaries") }} :: text AS "todo_pomodorosummaries",
+        -- array
+        {{ adapter.quote("parentid") }} :: text AS "todo_parentid",
+        {{ adapter.quote("annoyingalert") }} :: text AS "todo_annoyingalert",
+        {{ adapter.quote("remindtime") }} :: text AS "todo_remindtime"
+    FROM
+        source
+),
+refine_dates AS (
+    {# create derived fields to parse date from timestamp fields #}
+    SELECT
+        *,
+        {{ parse_date(datetime_list) }}
+    FROM
+        renamed
 )
-select * from renamed
-  
+SELECT
+    *
+FROM
+    refine_dates
