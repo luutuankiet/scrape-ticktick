@@ -5,6 +5,7 @@ models:
       - name: start_date_id
         tests:
           - not_null
+          - all_default_dates
         description: ""
         meta:
           dimension:
@@ -142,6 +143,7 @@ models:
       - name: due_date_id
         tests:
           - not_null
+          - all_default_dates
         description: ""
         meta:
           dimension:
@@ -279,6 +281,7 @@ models:
       - name: completed_date_id
         tests:
           - not_null
+          - all_default_dates
         description: ""
         meta:
           dimension:
@@ -416,6 +419,7 @@ models:
       - name: created_date_id
         tests:
           - not_null
+          - all_default_dates
         description: ""
         meta:
           dimension:
