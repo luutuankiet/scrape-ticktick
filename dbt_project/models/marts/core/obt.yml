@@ -2,206 +2,6 @@ version: 2
 models:
   - name: obt
     columns:
-      - name: td_todo_id
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: td_folder_name
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: td_list_name
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: td_status_id
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: td_title
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: td_timezone
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: td_reminder
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: td_reminders
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: td_exdate
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: td_items
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: td_progress
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: td_modified_time
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: td_completed_time
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: td_created_time
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: td_etag
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: td_deleted
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: td_kind
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: td_tags
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: td_repeatfrom
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: td_repeattaskid
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: td_repeatflag
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: td_pinned_time
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: td_start_date
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: td_due_date
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: td_deletedtime
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: td_repeatfirstdate
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: td_parentid
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: td_remindtime
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: l_list_id
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: l_list_name
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: l_modified_time
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: l_folder_id
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: l_lkind
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: l_is_active
-        description: ""
-        meta:
-          dimension:
-            type: boolean
-      - name: l_created_time
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: fld_folder_id
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: fld_folder_name
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: ss_status_id
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: ss_desc
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: ss_status_comments
-        description: ""
-        meta:
-          dimension:
-            type: string
       - name: start_date_id
         description: ""
         meta:
@@ -742,3 +542,433 @@ models:
         meta:
           dimension:
             type: number
+      - name: todo_id
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_projectid
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_sortorder
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: todo_title
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_content
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_desc
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_timezone
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_isfloating
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: todo_isallday
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: todo_reminder
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: reminders
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_exdate
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_priority
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: todo_status
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: todo_items
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_progress
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: todo_modifiedtime
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: todo_etag
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_deleted
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: todo_createdtime
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: todo_creator
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: todo_focussummaries
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_columnid
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_kind
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_imgmode
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_tags
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_repeatfrom
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: todo_attachments
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_repeattaskid
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_commentcount
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: todo_completedtime
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: todo_completeduserid
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_repeatflag
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_startdate
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: todo_duedate
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: todo_pinnedtime
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: childids
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_deletedtime
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_repeatfirstdate
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: todo_pomodorosummaries
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_parentid
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_annoyingalert
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_remindtime
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_id
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_name
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_isowner
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: list_color
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_inall
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: list_sortorder
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: list_sortoption
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_sorttype
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_usercount
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: list_etag
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_modifiedtime
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: list_closed
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: list_muted
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: list_transferred
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_groupid
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_viewmode
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_notificationoptions
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_teamid
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_permission
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_kind
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_timeline
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_needaudit
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: list_barcodeneedaudit
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: list_opentoteam
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: list_teammemberpermission
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_source
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: list_created_time
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: list_isactive
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: folder_id
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: folder_etag
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: folder_name
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: folder_showall
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: folder_sortorder
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: folder_viewmode
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: folder_deleted
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+      - name: folder_userid
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: folder_sorttype
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: folder_sortoption
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: folder_teamid
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: folder_timeline
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: status_id
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: status_desc
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: status_comments
+        description: ""
+        meta:
+          dimension:
+            type: string

@@ -5,11 +5,8 @@ WITH source AS (
         {{ ref('stg_todos') }}
 )
 SELECT
-    {{ coalesce_defaults(ref('stg_todos'), seed = True) }}
-FROM
-    source
-UNION ALL
-SELECT
     *
 FROM
     source
+
+    {# dont need a coalesce_defaults at fact table cause the nulls FK already hashed at stg fact  #}

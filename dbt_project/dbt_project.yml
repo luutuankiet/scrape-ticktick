@@ -15,8 +15,11 @@ models:
       +materialized: view
       +tags: "staging"
     marts:
-      +materialized: table
-      +tags: "marts"
+      core:
+        +materialized: table
+        +tags: "core"
+      metrics:
+        +tags: "metrics"
 
 seeds:
   todo_analytics:
