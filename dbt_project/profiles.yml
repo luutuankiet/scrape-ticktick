@@ -14,6 +14,8 @@ todo_analytics:
       dbname: "{{env_var('DW_DBNAME')}}"
       schema: dev
       sslmode: disable
+      threads: 12
+
     prod:
       type: postgres
       host: "boyluu0819.ddns.net"
@@ -23,4 +25,6 @@ todo_analytics:
       dbname: "{{env_var('DW_DBNAME')}}"
       schema: prod
       sslmode: disable
+      threads: 12
+
   target: "{{env_var('TARGET_SCHEMA','dev')}}"

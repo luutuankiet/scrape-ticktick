@@ -1,20 +1,15 @@
-WITH folders AS (
+WITH source AS (
     SELECT
-        *
+         {{coalesce_defaults(ref(
+            'src__folders_raw'
+        ) )}}
     FROM
-        {{ source (
-            'raw_data',
-            'folders_raw'
+        {{ ref(
+            'src__folders_raw'
         ) }}
-),
-renamed AS (
-    SELECT
-        id :: text AS folder_id,
-        NAME :: text AS folder_name
-    FROM
-        folders
 )
+
 SELECT
     {{ dbt_utils.generate_surrogate_key(['folder_id']) }} AS folder_key,*
 FROM
-    renamed
+    source

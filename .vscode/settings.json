@@ -3,11 +3,6 @@
     "python.analysis.typeCheckingMode": "off",
     "dbt.queryLimit": 500,
     "dbt.enableNewLineagePanel": true,
-    "files.associations": {
-        "*.sql": "jinja-sql",
-        "**/*.sql": "jinja-sql",
-        "*.yml": "yaml"
-    },
     "sqltools.connections": [
         {
             "previewLimit": 50,
@@ -57,5 +52,6 @@
         "https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/latest/packages-latest.json": [
             "packages.yml"
         ]
-    }
+    },
+    "dbt.perspectiveTheme": "Monokai"
 }

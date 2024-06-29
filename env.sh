@@ -16,7 +16,6 @@ ST_LOGS_PATH="$ENV_WORK_DIR/streamlit_logs/logs.txt"
 DW_USER="ken"
 DW_PASSWORD="Boyluu96"
 DW_DBNAME="gtd_dash"
-TARGET_SCHEMA="dev"
 DAGSTER_DBT_PARSE_PROJECT_ON_LOAD=1
 
 PORT="3003"

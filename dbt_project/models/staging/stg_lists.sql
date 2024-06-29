@@ -1,58 +1,54 @@
 WITH lists AS (
     SELECT
-        *
+        {{ coalesce_defaults(ref('src__lists_raw')) }}
     FROM
-        {{ source (
-            'raw_data',
-            'lists_raw'
+        {{ ref(
+            'src__lists_raw'
         ) }}
 ),
-tasks AS (
+todo AS (
     SELECT
-        *
+        {{ coalesce_defaults(ref('src__tasks_raw')) }}
     FROM
-        {{ source(
-            "raw_data",
-            "tasks_raw"
+        {{ ref(
+            "src__tasks_raw"
         ) }}
 ),
-renamed AS (
+list_created AS (
     SELECT
-        DISTINCT id AS list_id,
-        NAME :: text AS list_name,
-        modifiedTime :: TIMESTAMP AS modified_time,
-        groupId :: text AS folder_id,
-        kind :: text AS lkind,
-        isactive :: BOOLEAN AS is_active,
+        todo_projectid,
+        MIN(todo_createdTime) AS list_created_time
+    FROM
+        todo
+    GROUP BY
+        todo_projectid
+),
+list_isActive AS (
+    SELECT
+        CASE
+            WHEN list_closed = 'True' THEN 0
+            ELSE 1
+        END AS list_isActive,
+        list_id
+    FROM
+        lists
+),
+joined AS (
+    SELECT
+        l.*,
         COALESCE(
-            created_time,
+            t.list_created_time,
             '1900-01-01T00:00:00'
-        ) :: TIMESTAMP AS created_time {# created_time::timestamp AS created_time #}
+        ) :: TIMESTAMP AS list_created_time,
+        list_isActive :: BOOLEAN AS list_isActive
     FROM
-        (
-            SELECT
-                CASE
-                    WHEN closed = 'True' THEN 0
-                    ELSE 1
-                END AS isactive,
-                created_time,
-                l.*
-            FROM
-                (
-                    {# grabs min date from the tasks table to generate lists' created time #}
-                    SELECT
-                        projectid,
-                        MIN(createdTime) AS created_time
-                    FROM
-                        tasks
-                    GROUP BY
-                        projectid
-                ) AS t
-                RIGHT JOIN lists l
-                ON l.id = t.projectid
-        ) AS p2
+        lists l
+        INNER JOIN list_created t
+        ON l.list_id = t.todo_projectid
+        INNER JOIN list_isActive i
+        ON l.list_id = i.list_id
 )
 SELECT
     {{ dbt_utils.generate_surrogate_key(['list_id']) }} AS list_key,*
 FROM
-    renamed
+    joined

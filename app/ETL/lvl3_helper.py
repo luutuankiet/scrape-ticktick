@@ -7,7 +7,7 @@ import gspread
 import csv
 from dagster import op,Definitions,job
 from sqlalchemy import create_engine,text
-from EL import db_url
+from .EL import db_url
 import pandas as pd
 
 #%%

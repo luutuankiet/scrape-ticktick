@@ -24,3 +24,15 @@ on subsequent run, provided the `loader` session is running, only need to run
 run EL to load raw and create the schema
 run seeds
 run dbt models
+
+
+# migration to postgres db
+- the raw files must have new names : 
+    - tasks_raw.json
+    - lists_raw.json
+    - folders_raw.json
+
+
+# to cleanup completed tasks for performance :
+- best to use interactive mode, there's a func _delete_task() found in `loader.py`
+
