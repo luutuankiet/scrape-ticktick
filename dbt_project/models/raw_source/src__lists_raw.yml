@@ -1,12 +1,7 @@
 version: 2
 models:
-  - name: stg_lists
+  - name: src__lists_raw
     columns:
-      - name: list_key
-        description: ""
-        meta:
-          dimension:
-            type: string
       - name: list_id
         description: ""
         meta:
@@ -137,13 +132,3 @@ models:
         meta:
           dimension:
             type: string
-      - name: list_created_time
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: list_isactive
-        description: ""
-        meta:
-          dimension:
-            type: boolean
