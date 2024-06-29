@@ -31,8 +31,9 @@ run dbt models
     - tasks_raw.json
     - lists_raw.json
     - folders_raw.json
+- remember to update the gsheets the column name to the new models standard name
+
 
 
 # to cleanup completed tasks for performance :
 - best to use interactive mode, there's a func _delete_task() found in `loader.py`
-
