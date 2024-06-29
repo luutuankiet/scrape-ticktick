@@ -9,7 +9,7 @@ map as (
 select source.*
 
 
-from source left join map on source.l_list_name = map.l_list_name
+from source left join map on source.list_name = map.list_name
 where
-    map.l_list_name is null
-    and source.l_list_name not like '%------%'
+    map.list_name is null
+    and source.list_name not like '%------%'

@@ -9,8 +9,8 @@ goals as (
 joined AS (
     SELECT
         goals.*,
-        map.fld_folder_name,
-        map.l_list_name
+        map.folder_name,
+        map.list_name
     FROM
         goals
     LEFT JOIN map ON ',' || goals.goal_id || ',' LIKE '%,' || map.goal_ids || ',%'
@@ -20,8 +20,8 @@ SELECT * FROM joined
 UNION ALL
 SELECT
     goals.*,
-    map.fld_folder_name,
-    map.l_list_name
+    map.folder_name,
+    map.list_name
 FROM
     map
 LEFT JOIN
