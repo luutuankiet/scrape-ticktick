@@ -1,58 +1,8 @@
 version: 2
 models:
-  - name: stg_todos
+  - name: src__tasks_raw
     columns:
       - name: todo_id
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: status_id
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: reminders
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: date_start_key
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: date_due_key
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: date_completed_key
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: date_created_key
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: todo_key
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: list_key
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: folder_key
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: status_key
         description: ""
         meta:
           dimension:
@@ -118,6 +68,11 @@ models:
           dimension:
             type: boolean
       - name: todo_reminder
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: reminders
         description: ""
         meta:
           dimension:
@@ -282,13 +237,3 @@ models:
         meta:
           dimension:
             type: date
-      - name: list_id
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: folder_id
-        description: ""
-        meta:
-          dimension:
-            type: string

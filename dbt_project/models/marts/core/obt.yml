@@ -992,3 +992,23 @@ models:
         meta:
           dimension:
             type: string
+      - name: todo_createdtime_derived_date
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: todo_completedtime_derived_date
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: todo_startdate_derived_date
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: todo_duedate_derived_date
+        description: ""
+        meta:
+          dimension:
+            type: date
