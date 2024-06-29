@@ -22,7 +22,7 @@ surr_nulls AS (
 SELECT
     *
 FROM
-    seeds
+    surr_nulls
 UNION ALL
 SELECT
     *
