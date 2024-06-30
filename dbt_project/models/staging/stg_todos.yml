@@ -2,21 +2,6 @@ version: 2
 models:
   - name: stg_todos
     columns:
-      - name: todo_id
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: status_id
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: reminders
-        description: ""
-        meta:
-          dimension:
-            type: string
       - name: date_start_key
         description: ""
         meta:
@@ -53,6 +38,11 @@ models:
           dimension:
             type: string
       - name: status_key
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_id
         description: ""
         meta:
           dimension:
@@ -118,6 +108,11 @@ models:
           dimension:
             type: boolean
       - name: todo_reminder
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: reminders
         description: ""
         meta:
           dimension:
@@ -288,6 +283,11 @@ models:
           dimension:
             type: string
       - name: folder_id
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: status_id
         description: ""
         meta:
           dimension:

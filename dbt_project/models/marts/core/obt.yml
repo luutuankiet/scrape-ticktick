@@ -2,565 +2,33 @@ version: 2
 models:
   - name: obt
     columns:
-      - name: start_date_id
-        tests:
-          - not_null
-          - all_default_dates
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: start_day_of_year
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: start_week_key
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: start_week_of_year
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: start_day_of_week
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: start_iso_day_of_week
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: start_day_name
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: start_first_day_of_week
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: start_last_day_of_week
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: start_month_key
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: start_month_of_year
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: start_day_of_month
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: start_month_name_short
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: start_month_name
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: start_first_day_of_month
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: start_last_day_of_month
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: start_quarter_key
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: start_quarter_of_year
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: start_day_of_quarter
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: start_quarter_desc_short
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: start_quarter_desc
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: start_first_day_of_quarter
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: start_last_day_of_quarter
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: start_year_key
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: start_first_day_of_year
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: start_last_day_of_year
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: start_ordinal_weekday_of_month
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: due_date_id
-        tests:
-          - not_null
-          - all_default_dates
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: due_day_of_year
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: due_week_key
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: due_week_of_year
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: due_day_of_week
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: due_iso_day_of_week
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: due_day_name
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: due_first_day_of_week
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: due_last_day_of_week
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: due_month_key
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: due_month_of_year
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: due_day_of_month
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: due_month_name_short
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: due_month_name
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: due_first_day_of_month
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: due_last_day_of_month
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: due_quarter_key
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: due_quarter_of_year
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: due_day_of_quarter
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: due_quarter_desc_short
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: due_quarter_desc
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: due_first_day_of_quarter
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: due_last_day_of_quarter
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: due_year_key
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: due_first_day_of_year
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: due_last_day_of_year
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: due_ordinal_weekday_of_month
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: completed_date_id
-        tests:
-          - not_null
-          - all_default_dates
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: completed_day_of_year
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: completed_week_key
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: completed_week_of_year
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: completed_day_of_week
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: completed_iso_day_of_week
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: completed_day_name
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: completed_first_day_of_week
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: completed_last_day_of_week
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: completed_month_key
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: completed_month_of_year
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: completed_day_of_month
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: completed_month_name_short
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: completed_month_name
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: completed_first_day_of_month
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: completed_last_day_of_month
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: completed_quarter_key
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: completed_quarter_of_year
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: completed_day_of_quarter
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: completed_quarter_desc_short
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: completed_quarter_desc
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: completed_first_day_of_quarter
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: completed_last_day_of_quarter
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: completed_year_key
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: completed_first_day_of_year
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: completed_last_day_of_year
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: completed_ordinal_weekday_of_month
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: created_date_id
-        tests:
-          - not_null
-          - all_default_dates
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: created_day_of_year
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: created_week_key
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: created_week_of_year
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: created_day_of_week
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: created_iso_day_of_week
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: created_day_name
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: created_first_day_of_week
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: created_last_day_of_week
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: created_month_key
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: created_month_of_year
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: created_day_of_month
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: created_month_name_short
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: created_month_name
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: created_first_day_of_month
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: created_last_day_of_month
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: created_quarter_key
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: created_quarter_of_year
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: created_day_of_quarter
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: created_quarter_desc_short
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: created_quarter_desc
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: created_first_day_of_quarter
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: created_last_day_of_quarter
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: created_year_key
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: created_first_day_of_year
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: created_last_day_of_year
-        description: ""
-        meta:
-          dimension:
-            type: date
-      - name: created_ordinal_weekday_of_month
-        description: ""
-        meta:
-          dimension:
-            type: number
       - name: todo_id
-        tests:
-          - not_null
         description: ""
+        tests:
+          - not_null              
         meta:
           dimension:
             type: string
+      - name: todo_createdtime
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: todo_completedtime
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: todo_startdate
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: todo_duedate
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
       - name: todo_projectid
         description: ""
         meta:
@@ -625,7 +93,7 @@ models:
         description: ""
         meta:
           dimension:
-            type: number
+            type: string
       - name: todo_items
         description: ""
         meta:
@@ -651,11 +119,6 @@ models:
         meta:
           dimension:
             type: boolean
-      - name: todo_createdtime
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
       - name: todo_creator
         description: ""
         meta:
@@ -706,11 +169,6 @@ models:
         meta:
           dimension:
             type: number
-      - name: todo_completedtime
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
       - name: todo_completeduserid
         description: ""
         meta:
@@ -721,16 +179,6 @@ models:
         meta:
           dimension:
             type: string
-      - name: todo_startdate
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: todo_duedate
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
       - name: todo_pinnedtime
         description: ""
         meta:
@@ -771,10 +219,30 @@ models:
         meta:
           dimension:
             type: string
-      - name: list_id
-        tests:
-          - not_null
+      - name: todo_createdtime_derived_date
         description: ""
+        meta:
+          dimension:
+            type: date
+      - name: todo_completedtime_derived_date
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: todo_startdate_derived_date
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: todo_duedate_derived_date
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: list_id
+        description: ""
+        tests:
+          - not_null                      
         meta:
           dimension:
             type: string
@@ -914,9 +382,9 @@ models:
           dimension:
             type: boolean
       - name: folder_id
-        tests:
-          - not_null
         description: ""
+        tests:
+          - not_null                      
         meta:
           dimension:
             type: string
@@ -976,12 +444,12 @@ models:
           dimension:
             type: string
       - name: status_id
-        tests:
-          - not_null
         description: ""
+        tests:
+          - not_null                      
         meta:
           dimension:
-            type: number
+            type: string
       - name: status_desc
         description: ""
         meta:
@@ -992,23 +460,555 @@ models:
         meta:
           dimension:
             type: string
-      - name: todo_createdtime_derived_date
+      - name: start_date_id
+        description: ""
+        tests:
+          - all_default_dates
+          - not_null
+        meta:
+          dimension:
+            type: date
+      - name: start_day_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: start_week_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: start_week_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: start_day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: start_iso_day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: start_day_name
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: start_first_day_of_week
         description: ""
         meta:
           dimension:
             type: date
-      - name: todo_completedtime_derived_date
+      - name: start_last_day_of_week
         description: ""
         meta:
           dimension:
             type: date
-      - name: todo_startdate_derived_date
+      - name: start_month_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: start_month_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: start_day_of_month
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: start_month_name_short
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: start_month_name
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: start_first_day_of_month
         description: ""
         meta:
           dimension:
             type: date
-      - name: todo_duedate_derived_date
+      - name: start_last_day_of_month
         description: ""
         meta:
           dimension:
             type: date
+      - name: start_quarter_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: start_quarter_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: start_day_of_quarter
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: start_quarter_desc_short
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: start_quarter_desc
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: start_first_day_of_quarter
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: start_last_day_of_quarter
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: start_year_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: start_first_day_of_year
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: start_last_day_of_year
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: start_ordinal_weekday_of_month
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: due_date_id
+        description: ""
+        tests:
+          - not_null
+          - all_default_dates
+        meta:
+          dimension:
+            type: date
+      - name: due_day_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: due_week_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: due_week_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: due_day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: due_iso_day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: due_day_name
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: due_first_day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: due_last_day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: due_month_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: due_month_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: due_day_of_month
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: due_month_name_short
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: due_month_name
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: due_first_day_of_month
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: due_last_day_of_month
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: due_quarter_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: due_quarter_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: due_day_of_quarter
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: due_quarter_desc_short
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: due_quarter_desc
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: due_first_day_of_quarter
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: due_last_day_of_quarter
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: due_year_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: due_first_day_of_year
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: due_last_day_of_year
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: due_ordinal_weekday_of_month
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: completed_date_id
+        description: ""
+        tests:
+          - all_default_dates
+          - not_null        
+        meta:
+          dimension:
+            type: date
+      - name: completed_day_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: completed_week_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: completed_week_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: completed_day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: completed_iso_day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: completed_day_name
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: completed_first_day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: completed_last_day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: completed_month_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: completed_month_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: completed_day_of_month
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: completed_month_name_short
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: completed_month_name
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: completed_first_day_of_month
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: completed_last_day_of_month
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: completed_quarter_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: completed_quarter_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: completed_day_of_quarter
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: completed_quarter_desc_short
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: completed_quarter_desc
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: completed_first_day_of_quarter
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: completed_last_day_of_quarter
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: completed_year_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: completed_first_day_of_year
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: completed_last_day_of_year
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: completed_ordinal_weekday_of_month
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: created_date_id
+        description: ""
+        tests:
+          - all_default_dates
+          - not_null        
+        meta:
+          dimension:
+            type: date
+      - name: created_day_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: created_week_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: created_week_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: created_day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: created_iso_day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: created_day_name
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: created_first_day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: created_last_day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: created_month_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: created_month_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: created_day_of_month
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: created_month_name_short
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: created_month_name
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: created_first_day_of_month
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: created_last_day_of_month
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: created_quarter_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: created_quarter_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: created_day_of_quarter
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: created_quarter_desc_short
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: created_quarter_desc
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: created_first_day_of_quarter
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: created_last_day_of_quarter
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: created_year_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: created_first_day_of_year
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: created_last_day_of_year
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: created_ordinal_weekday_of_month
+        description: ""
+        meta:
+          dimension:
+            type: number

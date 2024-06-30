@@ -17,9 +17,6 @@ models:
         meta:
           dimension:
             type: string
-          metrics:
-            lists_count:
-              type: count
       - name: list_isowner
         description: ""
         meta:

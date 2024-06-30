@@ -22,6 +22,11 @@ models:
         meta:
           dimension:
             type: number
+      - name: list_name
+        description: ""
+        meta:
+          dimension:
+            type: string
       - name: l_done_progress
         description: ""
         meta:
@@ -32,8 +37,3 @@ models:
         meta:
           dimension:
             type: number
-      - name: list_name
-        description: ""
-        meta:
-          dimension:
-            type: string
