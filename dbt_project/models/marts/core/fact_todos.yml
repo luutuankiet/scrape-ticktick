@@ -1,6 +1,37 @@
 version: 2
 models:
   - name: fact_todos
+    meta:
+      order_fields_by: 'index'
+      required_filters:
+        - due_date.date_id: "inTheNext 4 weeks"
+      
+      joins:
+      - join: dim_lists
+        type: inner
+        sql_on: ${fact_todos.list_key} = ${dim_lists.list_key}
+      - join: dim_folders
+        type: inner
+        sql_on: ${fact_todos.folder_key} = ${dim_folders.folder_key}
+      - join: dim_statuses
+        type: inner
+        sql_on: ${fact_todos.status_key} = ${dim_statuses.status_key}
+      - join: dim_dates
+        type: inner
+        alias: start_date
+        sql_on: ${start_date.date_key} = ${fact_todos.date_start_key}
+      - join: dim_dates
+        type: inner
+        alias: due_date
+        sql_on: ${due_date.date_key} = ${fact_todos.date_due_key}
+      - join: dim_dates
+        type: inner
+        alias: completed_date
+        sql_on: ${completed_date.date_key} = ${fact_todos.date_completed_key}
+      - join: dim_dates
+        type: inner
+        alias: created_date
+        sql_on: ${created_date.date_key} = ${fact_todos.date_created_key}
     columns:
       - name: date_start_key
         description: ""
@@ -10,6 +41,7 @@ models:
               to: ref('dim_dates')
         meta:
           dimension:
+            hidden: true
             type: string
       - name: date_due_key
         description: ""
@@ -19,6 +51,7 @@ models:
               to: ref('dim_dates')
         meta:
           dimension:
+            hidden: true
             type: string
       - name: date_completed_key
         description: ""
@@ -28,6 +61,7 @@ models:
               to: ref('dim_dates')
         meta:
           dimension:
+            hidden: true
             type: string
       - name: date_created_key
         description: ""
@@ -42,6 +76,7 @@ models:
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: list_key
         description: ""
@@ -51,6 +86,7 @@ models:
               to: ref('dim_lists')
         meta:
           dimension:
+            hidden: true
             type: string
       - name: folder_key
         description: ""
@@ -60,6 +96,7 @@ models:
               to: ref('dim_folders')
         meta:
           dimension:
+            hidden: true
             type: string
       - name: status_key
         description: ""
@@ -69,12 +106,25 @@ models:
               to: ref('dim_statuses')
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_id
         description: ""
         meta:
           dimension:
             type: string
+          metrics:
+            lookahead_count:
+              type: count
+              description: "count of undone tasks ahead. replacement for the habit heatmap"
+              filters:
+                - dim_lists.list_isActive: true
+                - dim_statuses.status_desc: "undone"
+                - todo_derived__is_task: true
+                - todo_derived__is_active: true
+                - todo_derived__tag_semantic: "next action"
+                - completed_date.year_key: "0" # cause this logic isnt working on the date_key intervals
+                - due_date.date_id: "inTheNext 10 months"
       - name: todo_createdtime
         description: ""
         meta:
@@ -326,3 +376,62 @@ models:
         meta:
           dimension:
             type: string
+
+
+# DERIVED DIMS
+      - name: todo_derived__tags
+        description: the tags parsed from tasks.
+        meta:
+          dimension:
+            groups: ['derived']
+            type: string
+            sql: >-
+              TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(${todo_tags}, '[',
+              ''), ']', ''), '''', ''))
+      - name: todo_derived__tag_semantic
+        meta:
+          dimension:
+            groups: ['derived']
+            label: 'tag semantic'
+            type: string
+            sql: |
+              case when ${todo_tags} like '%clarifyme%' then 'inbox' 
+              when ${todo_tags} = 'default' or ${todo_tags} like '%@%' then 'next action'
+              when ${todo_tags} like '%someday%' then 'someday'
+              when ${todo_tags} like '%waiting_for%' then 'waiting for' 
+              when ${todo_tags} like '%tickler%' then 'tickler' 
+              else TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(${todo_tags}, '[', ''), ']', ''), '''', ''))      
+              end
+          metrics:
+            tags_count:
+              type: count
+      - name: todo_derived__is_repeat
+        meta: 
+          dimension:
+            groups: ['derived']
+            label: 'is repeat'
+            type: boolean
+            sql: >-
+              case when ${todo_repeatflag} <> 'default' then true else false
+              end
+      - name : todo_derived__is_task
+        description: "derived from custom sql logic"
+        meta:
+          dimension:
+            groups: ['derived']
+            label: 'is task'
+            type: boolean
+            sql: case when NOT (${todo_kind} = 'NOTE' or ${todo_tags} like '%tickler%') then true else false end
+        
+      - name : todo_derived__is_active
+        description: |
+          the item belongs to an active folder - not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists')
+        meta:
+          dimension:
+            label: 'is active'
+            type: boolean
+            sql: |
+              case when ${dim_folders.folder_name} not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists') 
+              AND
+              ${dim_lists.list_name} not in ('🧳SOMEDAY','📍ref - tickler notes for the day')
+              then true else false end
