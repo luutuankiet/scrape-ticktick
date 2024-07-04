@@ -5,7 +5,7 @@ models:
       - name: todo_id
         description: ""
         tests:
-          - not_null              
+          - not_null
         meta:
           dimension:
             type: string
@@ -242,7 +242,7 @@ models:
       - name: list_id
         description: ""
         tests:
-          - not_null                      
+          - not_null
         meta:
           dimension:
             type: string
@@ -384,7 +384,7 @@ models:
       - name: folder_id
         description: ""
         tests:
-          - not_null                      
+          - not_null
         meta:
           dimension:
             type: string
@@ -446,7 +446,7 @@ models:
       - name: status_id
         description: ""
         tests:
-          - not_null                      
+          - not_null
         meta:
           dimension:
             type: string
@@ -740,7 +740,7 @@ models:
         description: ""
         tests:
           - all_default_dates
-          - not_null        
+          - not_null
         meta:
           dimension:
             type: date
@@ -878,7 +878,7 @@ models:
         description: ""
         tests:
           - all_default_dates
-          - not_null        
+          - not_null
         meta:
           dimension:
             type: date
@@ -1012,3 +1012,13 @@ models:
         meta:
           dimension:
             type: number
+      - name: date_due_lookahead_key
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: lookahead_flag
+        description: ""
+        meta:
+          dimension:
+            type: boolean

@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: dim_dates
+  - name: stg_dates_lookahead
     columns:
       - name: date_key
         description: ""
@@ -12,12 +12,6 @@ models:
         meta:
           dimension:
             type: date
-            time_intervals:
-              - DAY
-              - WEEK
-              - MONTH
-              - YEAR
-              - QUARTER
       - name: day_of_year
         description: ""
         meta:

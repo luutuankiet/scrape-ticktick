@@ -292,3 +292,13 @@ models:
         meta:
           dimension:
             type: string
+      - name: date_due_lookahead_key
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: lookahead_flag
+        description: ""
+        meta:
+          dimension:
+            type: boolean
