@@ -1,12 +1,7 @@
 version: 2
 models:
-  - name: dim_folders
+  - name: src__folders_raw
     columns:
-      - name: folder_key
-        description: ""
-        meta:
-          dimension:
-            type: string
       - name: folder_id
         description: ""
         meta:

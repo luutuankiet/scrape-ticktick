@@ -2,259 +2,43 @@ version: 2
 models:
   - name: fact_todos
     meta:
+      order_fields_by: index
+      required_filters:
+        - due_date.date_id: inTheNext 4 weeks
+        # - todo_id_lookahead: "!null" # todo: watch when LD allows triggers overriding this filter. for now define it @ metric level
       joins:
         - join: dim_lists
+          type: inner
           sql_on: ${fact_todos.list_key} = ${dim_lists.list_key}
         - join: dim_folders
+          type: inner
           sql_on: ${fact_todos.folder_key} = ${dim_folders.folder_key}
         - join: dim_statuses
+          type: inner
           sql_on: ${fact_todos.status_key} = ${dim_statuses.status_key}
-      columns:
-        - name: todo_id
-          description: ""
-          meta:
-            dimension:
-              type: string
-            metrics:
-              tasks_count:
-                type: count
-              overdue_tasks:
-                type: count
-                description: >
-                  - use case : see if there are unattended tasks from the day
-                  before and take actions to it. mostly reschedule.
-
-                  - logic : count of task that 
-                    - is a task type
-                    - is active
-                    - belongs to active list
-                    - is undone
-                    - do not have default due date
-                    - due date before today
-                  - example usage: "dbt parse && mf query --metrics
-                  overdue_tasks --group-by todo_id__is_repeat"
-                filters:
-                  - is_task: true
-                  - is_active: true
-                  - dim_lists.is_active: true
-                  - dim_statuses.status_name: undone
-                  - due_date: "!%1900%"
-                  - due_date: < now()
-        - name: folder_name
-          description: ""
-          meta:
-            dimension:
-              type: string
-        - name: list_name
-          description: ""
-          meta:
-            dimension:
-              type: string
-        - name: status_id
-          description: ""
-          tests:
-            - not_null
-          meta:
-            dimension:
-              type: number
-        - name: title
-          description: ""
-          meta:
-            dimension:
-              type: string
-        - name: timezone
-          description: ""
-          meta:
-            dimension:
-              type: string
-        - name: reminder
-          description: ""
-          meta:
-            dimension:
-              type: string
-        - name: reminders
-          description: ""
-          meta:
-            dimension:
-              type: string
-        - name: exdate
-          description: ""
-          meta:
-            dimension:
-              type: date
-        - name: items
-          description: ""
-          meta:
-            dimension:
-              type: string
-        - name: progress
-          description: ""
-          meta:
-            dimension:
-              type: number
-        - name: modified_time
-          description: ""
-          meta:
-            dimension:
-              type: timestamp
-        - name: completed_time
-          description: ""
-          meta:
-            dimension:
-              type: timestamp
-        - name: created_time
-          description: ""
-          meta:
-            dimension:
-              type: timestamp
-        - name: etag
-          description: ""
-          meta:
-            dimension:
-              type: string
-        - name: deleted
-          description: ""
-          meta:
-            dimension:
-              type: number
-        - name: kind
-          description: ""
-          meta:
-            dimension:
-              type: string
-        - name: tags
-          description: ""
-          meta:
-            dimension:
-              type: string
-        - name: repeatfrom
-          description: ""
-          meta:
-            dimension:
-              type: string
-        - name: repeattaskid
-          description: ""
-          meta:
-            dimension:
-              type: string
-        - name: repeatflag
-          description: ""
-          meta:
-            dimension:
-              type: string
-        - name: pinned_time
-          description: ""
-          meta:
-            dimension:
-              type: timestamp
-        - name: start_date
-          description: ""
-          meta:
-            dimension:
-              type: timestamp
-        - name: due_date
-          description: ""
-          meta:
-            dimension:
-              type: timestamp
-        - name: deletedtime
-          description: ""
-          meta:
-            dimension:
-              type: string
-        - name: repeatfirstdate
-          description: ""
-          meta:
-            dimension:
-              type: timestamp
-        - name: parentid
-          description: ""
-          meta:
-            dimension:
-              type: string
-        - name: remindtime
-          description: ""
-          meta:
-            dimension:
-              type: timestamp
-        - name: dim_tag
-          description: the tags parsed from tasks.
-          type: string
-          sql: >-
-            TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(${fact_todos.tags}, '[',
-            ''), ']', ''), '''', ''))
-        - name: tag_semantic
-          type: string
-          sql: >
-            case when ${fact_todos.tags} like '%clarifyme%' then 'inbox'  when
-            ${fact_todos.tags} = 'default' or ${fact_todos.tags} like '%@%' then
-            'next action' when ${fact_todos.tags} like '%someday%' then
-            'someday' when ${fact_todos.tags} like '%waiting_for%' then 'waiting
-            for'  when ${fact_todos.tags} like '%tickler%' then 'tickler'  else
-            TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(${fact_todos.tags}, '[',
-            ''), ']', ''), '''', ''))       end
-          meta:
-            metrics:
-              tags_count:
-                type: count
-        - name: task_title
-          type: string
-          sql: title
-          description: for debugging purpose; drills down to the name of task
-        - name: is_repeat
-          type: boolean
-          sql: >-
-            case when ${fact_todos.repeatFlag} <> 'default' then true else false
-            end
-        - name: is_task
-          type: boolean
-          sql: >-
-            case when NOT (${fact_todos.kind} = 'NOTE' or ${fact_todos.tags}
-            like '%tickler%') then true else false end
-        - name: is_active
-          type: boolean
-          description: >
-            the item belongs to an active folder - not in ('🚀SOMEDAY
-            lists','🛩Horizon of focus','💤on hold lists')
-          sql: >
-            case when ${fact_todos.folder_name} not in ('🚀SOMEDAY
-            lists','🛩Horizon of focus','💤on hold lists') 
-
-            AND
-
-            ${fact_todos.list_name} not in ('🧳SOMEDAY','📍ref - tickler notes
-            for the day')
-
-
-            then true else false end
+        - join: dim_dates
+          type: inner
+          alias: start_date
+          sql_on: ${start_date.date_key} = ${fact_todos.date_start_key}
+        - join: dim_dates
+          type: inner
+          alias: due_date
+          sql_on: ${due_date.date_key} = ${fact_todos.date_due_key}
+        - join: dim_dates
+          type: inner
+          alias: completed_date
+          sql_on: ${completed_date.date_key} = ${fact_todos.date_completed_key}
+        - join: dim_dates
+          type: inner
+          alias: created_date
+          sql_on: ${created_date.date_key} = ${fact_todos.date_created_key}
+        - join: dim_dates_lookahead
+          type: inner
+          alias: dim_dates_lookahead
+          sql_on: >-
+            ${dim_dates_lookahead.date_key} =
+            ${fact_todos.date_due_lookahead_key}
     columns:
-      - name: list_key
-        description: ""
-        tests:
-          - relationships:
-              field: list_key
-              to: ref('dim_lists')
-        meta:
-          dimension:
-            type: string
-      - name: folder_key
-        description: ""
-        tests:
-          - relationships:
-              field: folder_key
-              to: ref('dim_folders')
-        meta:
-          dimension:
-            type: string
-      - name: status_key
-        description: ""
-        tests:
-          - relationships:
-              field: status_key
-              to: ref('dim_statuses')
-        meta:
-          dimension:
-            type: string
       - name: date_start_key
         description: ""
         tests:
@@ -263,6 +47,7 @@ models:
               to: ref('dim_dates')
         meta:
           dimension:
+            hidden: true
             type: string
       - name: date_due_key
         description: ""
@@ -272,6 +57,7 @@ models:
               to: ref('dim_dates')
         meta:
           dimension:
+            hidden: true
             type: string
       - name: date_completed_key
         description: ""
@@ -281,6 +67,7 @@ models:
               to: ref('dim_dates')
         meta:
           dimension:
+            hidden: true
             type: string
       - name: date_created_key
         description: ""
@@ -291,26 +78,87 @@ models:
         meta:
           dimension:
             type: string
-      - name: todo_id
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: status_id
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: reminders
-        description: ""
-        meta:
-          dimension:
-            type: string
       - name: todo_key
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
+      - name: list_key
+        description: ""
+        tests:
+          - relationships:
+              field: list_key
+              to: ref('dim_lists')
+        meta:
+          dimension:
+            hidden: true
+            type: string
+      - name: folder_key
+        description: ""
+        tests:
+          - relationships:
+              field: folder_key
+              to: ref('dim_folders')
+        meta:
+          dimension:
+            hidden: true
+            type: string
+      - name: status_key
+        description: ""
+        tests:
+          - relationships:
+              field: status_key
+              to: ref('dim_statuses')
+        meta:
+          dimension:
+            hidden: true
+            type: string
+      - name: todo_id
+        description: |
+          note when joined with lookahead dates:
+            - todo_id is null meaning all dummy records inserted from the lookahead dates
+            - todo id is not null meaning all records in stg todo.
+              - apply is not null condition on most metrics except the actual lookahead metrics.
+        meta:
+          dimension:
+            type: string
+          metrics:
+            lookahead_count:
+              type: count
+              description: count of undone tasks ahead. replacement for the habit heatmap
+              filters:
+                - dim_lists.list_isActive: true
+                - dim_statuses.status_desc: undone
+                - todo_derived__is_task: true
+                - todo_derived__is_active: true
+                - todo_derived__tag_semantic: next action
+                - completed_date.year_key: "0"
+                - lookahead_flag : true
+                - dim_dates_lookahead.date_id: "!1900" # todo: how to discard the count in 1900 only.
+                # - dim_dates_lookahead.date_id: # todo : watch when LD allows this AND interval filter.
+                #     - "inThePast 5 days"
+                #     - "inTheNext 3 months"
+      - name: todo_createdtime
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: todo_completedtime
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: todo_startdate
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
+      - name: todo_duedate
+        description: ""
+        meta:
+          dimension:
+            type: timestamp
       - name: todo_projectid
         description: ""
         meta:
@@ -356,6 +204,11 @@ models:
         meta:
           dimension:
             type: string
+      - name: reminders
+        description: ""
+        meta:
+          dimension:
+            type: string
       - name: todo_exdate
         description: ""
         meta:
@@ -370,7 +223,7 @@ models:
         description: ""
         meta:
           dimension:
-            type: number
+            type: string
       - name: todo_items
         description: ""
         meta:
@@ -396,11 +249,6 @@ models:
         meta:
           dimension:
             type: boolean
-      - name: todo_createdtime
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
       - name: todo_creator
         description: ""
         meta:
@@ -451,11 +299,6 @@ models:
         meta:
           dimension:
             type: number
-      - name: todo_completedtime
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
       - name: todo_completeduserid
         description: ""
         meta:
@@ -466,16 +309,6 @@ models:
         meta:
           dimension:
             type: string
-      - name: todo_startdate
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: todo_duedate
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
       - name: todo_pinnedtime
         description: ""
         meta:
@@ -516,10 +349,30 @@ models:
         meta:
           dimension:
             type: string
+      - name: todo_createdtime_derived_date
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: todo_completedtime_derived_date
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: todo_startdate_derived_date
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: todo_duedate_derived_date
+        description: ""
+        meta:
+          dimension:
+            type: date
       - name: list_id
+        description: ""
         tests:
           - not_null
-        description: ""
         meta:
           dimension:
             type: string
@@ -530,3 +383,77 @@ models:
         meta:
           dimension:
             type: string
+      - name: status_id
+        description: ""
+        tests:
+          - not_null
+        meta:
+          dimension:
+            type: string
+      - name: date_due_lookahead_key
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: lookahead_flag
+        description: ""
+        meta:
+          dimension:
+            type: boolean
+# DERIVED DIMS
+      - name: todo_derived__tags
+        description: the tags parsed from tasks.
+        meta:
+          dimension:
+            groups: ['derived']
+            type: string
+            sql: >-
+              TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(${todo_tags}, '[',
+              ''), ']', ''), '''', ''))
+      - name: todo_derived__tag_semantic
+        meta:
+          dimension:
+            groups: ['derived']
+            label: 'tag semantic'
+            type: string
+            sql: |
+              case when ${todo_tags} like '%clarifyme%' then 'inbox' 
+              when ${todo_tags} = 'default' or ${todo_tags} like '%@%' then 'next action'
+              when ${todo_tags} like '%someday%' then 'someday'
+              when ${todo_tags} like '%waiting_for%' then 'waiting for' 
+              when ${todo_tags} like '%tickler%' then 'tickler' 
+              else TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(${todo_tags}, '[', ''), ']', ''), '''', ''))      
+              end
+          metrics:
+            tags_count:
+              type: count
+      - name: todo_derived__is_repeat
+        meta: 
+          dimension:
+            groups: ['derived']
+            label: 'is repeat'
+            type: boolean
+            sql: >-
+              case when ${todo_repeatflag} <> 'default' then true else false
+              end
+      - name : todo_derived__is_task
+        description: "derived from custom sql logic"
+        meta:
+          dimension:
+            groups: ['derived']
+            label: 'is task'
+            type: boolean
+            sql: case when NOT (${todo_kind} = 'NOTE' or ${todo_tags} like '%tickler%') then true else false end
+        
+      - name : todo_derived__is_active
+        description: |
+          the item belongs to an active folder - not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists')
+        meta:
+          dimension:
+            label: 'is active'
+            type: boolean
+            sql: |
+              case when ${dim_folders.folder_name} not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists') 
+              AND
+              ${dim_lists.list_name} not in ('🧳SOMEDAY','📍ref - tickler notes for the day')
+              then true else false end

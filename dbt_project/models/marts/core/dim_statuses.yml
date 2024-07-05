@@ -11,13 +11,13 @@ models:
         description: ""
         meta:
           dimension:
-            type: number
-      - name: status_comments
+            type: string
+      - name: status_desc
         description: ""
         meta:
           dimension:
             type: string
-      - name: status_desc
+      - name: status_comments
         description: ""
         meta:
           dimension:

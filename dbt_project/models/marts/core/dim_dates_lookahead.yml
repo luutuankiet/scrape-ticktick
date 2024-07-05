@@ -1,149 +1,144 @@
 version: 2
 models:
-  - name: stg_lists
+  - name: dim_dates_lookahead
     columns:
-      - name: list_key
+      - name: date_key
         description: ""
         meta:
           dimension:
             type: string
-      - name: list_id
+      - name: date_id
         description: ""
         meta:
           dimension:
-            type: string
-      - name: list_name
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: list_isowner
-        description: ""
-        meta:
-          dimension:
-            type: boolean
-      - name: list_color
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: list_inall
-        description: ""
-        meta:
-          dimension:
-            type: boolean
-      - name: list_sortorder
+            type: date
+      - name: day_of_year
         description: ""
         meta:
           dimension:
             type: number
-      - name: list_sortoption
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: list_sorttype
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: list_usercount
+      - name: week_key
         description: ""
         meta:
           dimension:
             type: number
-      - name: list_etag
+      - name: week_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: iso_day_of_week
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: day_name
         description: ""
         meta:
           dimension:
             type: string
-      - name: list_modifiedtime
+      - name: first_day_of_week
         description: ""
         meta:
           dimension:
-            type: timestamp
-      - name: list_closed
+            type: date
+      - name: last_day_of_week
         description: ""
         meta:
           dimension:
-            type: boolean
-      - name: list_muted
+            type: date
+      - name: month_key
         description: ""
         meta:
           dimension:
-            type: boolean
-      - name: list_transferred
+            type: number
+      - name: month_of_year
         description: ""
         meta:
           dimension:
-            type: string
-      - name: list_groupid
+            type: number
+      - name: day_of_month
         description: ""
         meta:
           dimension:
-            type: string
-      - name: list_viewmode
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: list_notificationoptions
+            type: number
+      - name: month_name_short
         description: ""
         meta:
           dimension:
             type: string
-      - name: list_teamid
+      - name: month_name
         description: ""
         meta:
           dimension:
             type: string
-      - name: list_permission
+      - name: first_day_of_month
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: last_day_of_month
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: quarter_key
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: quarter_of_year
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: day_of_quarter
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: quarter_desc_short
         description: ""
         meta:
           dimension:
             type: string
-      - name: list_kind
+      - name: quarter_desc
         description: ""
         meta:
           dimension:
             type: string
-      - name: list_timeline
+      - name: first_day_of_quarter
         description: ""
         meta:
           dimension:
-            type: string
-      - name: list_needaudit
+            type: date
+      - name: last_day_of_quarter
         description: ""
         meta:
           dimension:
-            type: boolean
-      - name: list_barcodeneedaudit
+            type: date
+      - name: year_key
         description: ""
         meta:
           dimension:
-            type: boolean
-      - name: list_opentoteam
+            type: number
+      - name: first_day_of_year
         description: ""
         meta:
           dimension:
-            type: boolean
-      - name: list_teammemberpermission
+            type: date
+      - name: last_day_of_year
         description: ""
         meta:
           dimension:
-            type: string
-      - name: list_source
+            type: date
+      - name: ordinal_weekday_of_month
         description: ""
         meta:
           dimension:
-            type: string
-      - name: list_created_time
-        description: ""
-        meta:
-          dimension:
-            type: timestamp
-      - name: list_isactive
-        description: ""
-        meta:
-          dimension:
-            type: boolean
+            type: number

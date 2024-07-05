@@ -33,9 +33,11 @@ dbt_models_metrics = os.path.join(dbt_models_path,'marts','metrics')
 user=os.environ.get('DW_USER')
 password=os.environ.get('DW_PASSWORD')
 database=os.environ.get('DW_DBNAME')
+hostname=os.environ.get('DW_HOST')
+port=os.environ.get('DW_PORT')
 password_encoded = urllib.parse.quote(password)
-target_schema = os.environ.get('TARGET_SCHEMA','prod')
-db_url = f'postgresql://{user}:{password_encoded}@boyluu0819.ddns.net:5433/{database}?options='
+target_schema = os.environ.get('TARGET_SCHEMA','dev')
+db_url = f'postgresql://{user}:{password_encoded}@{hostname}:{port}/{database}?options='
 db_url = db_url + f'-csearch_path=={target_schema}'
 
 

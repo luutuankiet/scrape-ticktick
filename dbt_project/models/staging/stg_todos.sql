@@ -28,11 +28,18 @@ dates AS (
     FROM
         {{ ref('stg_dates') }}
 ),
+dates_lookahead AS (
+    SELECT
+        *
+    FROM
+        {{ ref('stg_dates_lookahead') }}
+),
 joined AS (
     SELECT
         {# gotta handle the NULLs from this join; they are hashed. next up is to generate that hashed null in other tables #}
         {{ dbt_utils.generate_surrogate_key(['dds.date_id']) }} AS date_start_key,
         {{ dbt_utils.generate_surrogate_key(['ddd.date_id']) }} AS date_due_key,
+        {{ dbt_utils.generate_surrogate_key(['dl.date_id']) }} AS date_due_lookahead_key,
         {{ dbt_utils.generate_surrogate_key(['ddcm.date_id']) }} AS date_completed_key,
         {{ dbt_utils.generate_surrogate_key(['ddc.date_id']) }} AS date_created_key,
         {{ dbt_utils.generate_surrogate_key(['todo_id']) }} AS todo_key,
@@ -40,6 +47,15 @@ joined AS (
         {{ dbt_utils.generate_surrogate_key(['folder_id']) }} AS folder_key,
         {{ dbt_utils.generate_surrogate_key(['status_id']) }} AS status_key,
         t.*,
+        case when 
+        -- build the flag window
+        -- case1: the records from due_lookahead
+        dl.date_id is not null then true
+        when 
+        -- case2: the left records facts; grabs dummy records within the window
+        todo_id is null then true
+        else false 
+        end as lookahead_flag,
         COALESCE(
             l.list_id,
             'default'
@@ -67,7 +83,9 @@ joined AS (
         LEFT JOIN dates ddc
         ON ddc.date_id = t.todo_createdtime_derived_date
         LEFT JOIN dates ddcm
-        ON ddcm.date_id = t.todo_completedtime_derived_date
+        ON ddcm.date_id = t.todo_completedtime_derived_date full
+        OUTER JOIN dates_lookahead dl
+        ON dl.date_id = t.todo_duedate_derived_date
 )
 SELECT
     *

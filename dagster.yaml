@@ -1,0 +1,42 @@
+# Postgres storage can be set using either credentials or a connection string.  This requires that
+# the `dagster-postgres` library be installed.
+
+storage:
+  postgres:
+    postgres_db:
+      username:
+        env: DAGSTER_PG_USERNAME
+      password:
+        env: DAGSTER_PG_PASSWORD
+      hostname:
+        env: DAGSTER_PG_HOST
+      db_name:
+        env: DAGSTER_PG_DB
+      port: 5433
+
+telemetry:
+  enabled: false
+
+
+# Configures how long Dagster keeps sensor / schedule tick data
+retention:
+  schedule:
+    purge_after_days: 30 # sets retention policy for schedule ticks of all types
+  sensor:
+    purge_after_days:
+      skipped: 7
+      failure: 30
+      success: -1 # keep success ticks indefinitely
+
+
+# there are two possible ways to configure LocalArtifactStorage
+
+# example local_artifact_storage setup
+local_artifact_storage:
+  module: dagster.core.storage.root
+  class: LocalArtifactStorage
+  config:
+    base_dir:
+      env: DAGSTER_LOCAL_ARTIFACT_STORAGE_DIR
+
+

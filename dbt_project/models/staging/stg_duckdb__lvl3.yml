@@ -12,12 +12,12 @@ models:
         meta:
           dimension:
             type: number
-      - name: fld_folder_name
+      - name: folder_name
         description: ""
         meta:
           dimension:
             type: string
-      - name: l_list_name
+      - name: list_name
         description: ""
         meta:
           dimension:

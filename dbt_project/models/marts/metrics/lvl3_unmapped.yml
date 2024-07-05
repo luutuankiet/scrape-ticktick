@@ -2,12 +2,12 @@ version: 2
 models:
   - name: lvl3_unmapped
     columns:
-      - name: fld_folder_name
+      - name: folder_name
         description: ""
         meta:
           dimension:
             type: string
-      - name: l_list_name
+      - name: list_name
         description: ""
         meta:
           dimension:

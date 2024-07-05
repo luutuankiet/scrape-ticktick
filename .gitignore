@@ -1,3 +1,5 @@
+dagster_artifacts/*
+app/env
 .venv
 .env
 __pycache__

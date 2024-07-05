@@ -22,7 +22,7 @@ models:
         meta:
           dimension:
             type: number
-      - name: l_list_name
+      - name: list_name
         description: ""
         meta:
           dimension:

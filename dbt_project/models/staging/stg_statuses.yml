@@ -11,8 +11,8 @@ models:
         description: ""
         meta:
           dimension:
-            type: number
-      - name: desc
+            type: string
+      - name: status_desc
         description: ""
         meta:
           dimension:

@@ -1,3 +1,8 @@
+{{
+  config(
+    materialized = 'view'
+    )
+}}
 WITH f_todos AS (
     SELECT
         *
