@@ -2,7 +2,7 @@ todo_analytics:
   outputs:
     dev:
       type: postgres
-      host: "boyluu0819.ddns.net"
+      host: "{{env_var('DW_HOST')}}"
       port: 5433
       user: "{{env_var('DW_USER')}}"
       password: "{{env_var('DW_PASSWORD')}}"
@@ -12,7 +12,7 @@ todo_analytics:
       threads: 12
     prod:
       type: postgres
-      host: "boyluu0819.ddns.net"
+      host: "{{env_var('DW_HOST')}}"
       port: 5433
       user: "{{env_var('DW_USER')}}"
       password: "{{env_var('DW_PASSWORD')}}"
