@@ -1,8 +1,10 @@
 #!/bin/bash
-. ./.venv/bin/activate
 
-. ./env_init.sh
-/bin/bash ./source_env.sh # the git CD runner uses sh shell which dont support source commands.
+WORKDIR=$(pwd)
+
+. $WORKDIR/.venv/bin/activate
+
+. $WORKDIR/env.sh
 
 # pip install --upgrade -q -r requirements.txt
 

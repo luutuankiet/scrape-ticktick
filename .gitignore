@@ -1,5 +1,5 @@
 dagster_artifacts/*
-app/env
+app/env/*
 .venv
 .env
 __pycache__
@@ -9,7 +9,7 @@ storage
 schedules
 dbt_project/target
 ticktick-gtd/
-app/ETL/raw/
+app/ETL/raw/*
 # Ignore Python cache files
 __pycache__/
 *.pyc
