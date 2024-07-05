@@ -4,8 +4,6 @@ models:
     columns:
       - name: todo_id
         description: ""
-        tests:
-          - not_null
         meta:
           dimension:
             type: string

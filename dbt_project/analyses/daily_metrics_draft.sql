@@ -1,7 +1,7 @@
 SELECT
     due_date_id,
-    fld_folder_name,
-    l_list_name,
+    folder_name,
+    list_name,
     td_title,* {# COUNT(*) AS cnt #}
 FROM
     (
@@ -13,12 +13,12 @@ FROM
             completed_date_id IS NULL
             AND l_is_active = '1'
             AND td_kind = 'TEXT'
-            AND fld_folder_name NOT IN (
+            AND folder_name NOT IN (
                 '🚀SOMEDAY lists',
                 '🛩Horizon of focus',
                 '💤on hold lists'
             )
-            AND l_list_name NOT LIKE '%tickler note%'
+            AND list_name NOT LIKE '%tickler note%'
     ) NEW
 WHERE
     due_date_id IS NOT NULL {# GROUP BY

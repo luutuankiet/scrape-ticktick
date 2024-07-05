@@ -3,7 +3,7 @@ init_deploy:
 
 
 dagster:
-	tmux send-keys -t dagster.0 ". ./.venv/bin/activate && . ./env.sh && dbt parse && dagster dev -h 0.0.0.0 -p 3001" ENTER
+	tmux send-keys -t dagster.0 ". ./.venv/bin/activate && . ./env.sh && dagster dev -m ETL -h 0.0.0.0 -p 60001" ENTER
 
 streamlit:
 	tmux send-keys -t streamlit.0 ". ./.venv/bin/activate && . ./env.sh && cd app/charts && streamlit run main.py" ENTER

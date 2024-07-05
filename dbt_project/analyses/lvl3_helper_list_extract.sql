@@ -12,19 +12,19 @@ ref_seeds AS (
 ),
 new_seeds AS (
     SELECT
-        fld_folder_name,
-        l_list_name,
+        folder_name,
+        list_name,
         '' AS goal_ids
     FROM
         source
 )
 SELECT
-    n.fld_folder_name,
-    n.l_list_name,
+    n.folder_name,
+    n.list_name,
     r.goal_ids
 FROM
     new_seeds n
     LEFT JOIN ref_seeds r
-    ON r.fld_folder_name = n.fld_folder_name
-    AND r.l_list_name = n.l_list_name
+    ON r.folder_name = n.folder_name
+    AND r.list_name = n.list_name
 order by 1,2,3

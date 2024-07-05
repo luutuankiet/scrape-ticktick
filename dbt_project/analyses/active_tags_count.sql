@@ -36,12 +36,12 @@ WITH source AS (
         td_kind = 'TEXT'
         AND ss_desc = 'undone'
         AND (
-            fld_folder_name NOT IN (
+            folder_name NOT IN (
                 '🚀SOMEDAY lists',
                 '🛩Horizon of focus',
                 '💤on hold lists'
             )
-            OR fld_folder_name IS NULL
+            OR folder_name IS NULL
         )
 )
 SELECT

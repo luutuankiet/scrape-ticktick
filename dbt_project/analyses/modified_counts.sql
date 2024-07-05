@@ -1,13 +1,13 @@
 WITH source AS (
     SELECT
         COALESCE(
-            fld_folder_name,
+            folder_name,
             'Default'
-        ) AS fld_folder_name,
+        ) AS folder_name,
         COALESCE(
-            l_list_name,
+            list_name,
             'Inbox'
-        ) AS l_list_name,
+        ) AS list_name,
         datepart(
             'day',
             active
@@ -27,8 +27,8 @@ WITH source AS (
             SELECT
                 td_modified_time :: TIMESTAMP AS active,
                 MAX(active) over(
-                    PARTITION BY fld_folder_name,
-                    l_list_name,
+                    PARTITION BY folder_name,
+                    list_name,
                     datepart(
                         'day',
                         active
@@ -46,8 +46,8 @@ WITH source AS (
                 {{ schema }}.obt
         ) A
     GROUP BY
-        fld_folder_name,
-        l_list_name,
+        folder_name,
+        list_name,
         datepart(
             'day',
             active
@@ -64,8 +64,8 @@ WITH source AS (
 ),
 task_level AS (
     SELECT
-        fld_folder_name,
-        l_list_name,
+        folder_name,
+        list_name,
         SUM(cnt) :: INT AS tasks_active,
         max_day_active_timestamp,
         DAY,
@@ -77,8 +77,8 @@ task_level AS (
         DAY,
         MONTH,
         YEAR,
-        l_list_name,
-        fld_folder_name,
+        list_name,
+        folder_name,
         max_day_active_timestamp
 )
 SELECT
@@ -93,12 +93,12 @@ FROM
     INNER JOIN (
         SELECT
             td_timezone,
-            fld_folder_name,
-            l_list_name,
+            folder_name,
+            list_name,
             td_modified_time
         FROM
             {{ schema }}.obt
     ) o
     ON o.td_modified_time = t.max_day_active_timestamp
-    AND o.fld_folder_name = t.fld_folder_name
-    AND o.l_list_name = t.l_list_name
+    AND o.folder_name = t.folder_name
+    AND o.list_name = t.list_name
