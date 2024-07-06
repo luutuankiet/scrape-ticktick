@@ -1,7 +1,7 @@
 {{
     config(
         materialized='incremental',
-        unique_key='todo_id',
+        unique_key=['todo_id','todo_modifiedtime','todo_etag','todo_createdtime'],
     )
 }}
 
