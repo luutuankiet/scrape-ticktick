@@ -1,3 +1,10 @@
+{{
+    config(
+        materialized='incremental',
+        unique_key='todo_id',
+    )
+}}
+
 {% set datetime_list = ['todo_createdtime', 'todo_completedtime', 'todo_startdate', 'todo_duedate'] %}
 WITH source AS (
     SELECT
@@ -10,6 +17,7 @@ WITH source AS (
 ),
 renamed AS (
     SELECT
+    distinct 
         {{ adapter.quote("id") }} :: text AS "todo_id",
         {{ adapter.quote("createdtime") }} :: TIMESTAMP AS "todo_createdtime",
         {{ adapter.quote("completedtime") }} :: TIMESTAMP AS "todo_completedtime",
@@ -74,3 +82,13 @@ SELECT
     *
 FROM
     refine_dates
+{# 
+
+{% if is_incremental() %}
+
+  -- this filter will only be applied on an incremental run
+  -- (uses >= to include records whose timestamp occurred since the last run of this model)
+  -- (If event_time is NULL or the table is truncated, the condition will always be true and load all records)
+where event_time >= (select coalesce(max(event_time),'1900-01-01'::TIMESTAMP) from {{ this }} )
+
+{% endif %} #}

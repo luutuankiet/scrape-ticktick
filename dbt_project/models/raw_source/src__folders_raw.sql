@@ -1,3 +1,7 @@
+{{ config(
+    materialized = 'incremental',
+    unique_key = 'folder_id'
+) }}
 WITH source AS (
     SELECT
         {{ setup_nulls(
