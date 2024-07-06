@@ -17,9 +17,14 @@ def init_extract():
     flag = os.path.join(ETL_workdir,'force_sync.flag')
     with open(flag, 'w') as f:
         pass
+    timer = 0
+    timeout = 60
     while True:
         if os.path.exists(flag):
             time.sleep(1)
+            timer+=1
+            if timer == timeout:
+                raise Exception(f'timeout reached for {timer} ticks.')
         else:
             break
 
