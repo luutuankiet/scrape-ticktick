@@ -14,13 +14,13 @@ all_assets = load_assets_from_modules([EL,dbt_assets])
 ETL_job = define_asset_job("ETL_job",selection=all_assets)
 ETL_schedule = ScheduleDefinition(
     job=ETL_job,
-    cron_schedule="*/30 * * * *",execution_timezone="Asia/Bangkok"
+    cron_schedule="0,30 4-22 * * *",execution_timezone="Asia/Bangkok"
 )
 
 
 helper_schedule = ScheduleDefinition(
     job=load_mapping_helper,
-    cron_schedule="*/30 * * * *",execution_timezone="Asia/Bangkok"
+    cron_schedule="0,30 4-22 * * *",execution_timezone="Asia/Bangkok"
 )
 
 cleanup_schedule = ScheduleDefinition(

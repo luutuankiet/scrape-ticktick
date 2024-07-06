@@ -8,10 +8,15 @@ import urllib.parse
 # setup paths
 current_dir=os.path.dirname(os.path.abspath(__file__))
 
+# IMPORTANT TO HAVE THIS LOAD FIRST
 # source .env from project root to construct dbt paths
 project_dotenv_path=os.path.join(current_dir,'..','..','.env')
 load_dotenv(project_dotenv_path)
 
+makefile_path = os.path.join(os.environ.get('DAGSTER_HOME'),'Makefile')
+makefile_dir = os.path.dirname(makefile_path)
+
+# makefile_path = os.path.join(os.path.abspath(project_dotenv_path),'Makefile')
 raw_path = os.path.join(current_dir,'..','ETL','raw')
 dotenv_path=os.path.join(current_dir,'..','env')
 secrets_path = os.path.join(dotenv_path,'.secrets')

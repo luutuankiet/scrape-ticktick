@@ -35,3 +35,10 @@ loader:
 
 cancel_deploy:
 	tmux kill-session -t streamlit & tmux kill-session -t dagster
+
+loader_helper:
+	tmux kill-session -t loader && tmux new-session -d -s loader
+
+loader_rerun: loader_helper loader
+
+
