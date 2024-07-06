@@ -7,6 +7,7 @@ from dagster_dbt import DbtCliResource
 from .constants import DBT_PROJECT_DIR
 from . import EL,dbt_assets
 from .lvl3_helper import load_new_lvl3_data,load_mapping_helper
+from .weekly_cleanup import weekly_cleanup
 
 #%%
 all_assets = load_assets_from_modules([EL,dbt_assets])
@@ -22,11 +23,16 @@ helper_schedule = ScheduleDefinition(
     cron_schedule="*/30 * * * *",execution_timezone="Asia/Bangkok"
 )
 
+cleanup_schedule = ScheduleDefinition(
+    job=weekly_cleanup,
+    cron_schedule="0 0 * * 5",execution_timezone="Asia/Bangkok"
+)
+
 
 defs = Definitions(
     assets=all_assets,
-    jobs=[load_new_lvl3_data],
-    schedules=[ETL_schedule,helper_schedule],
+    jobs=[load_new_lvl3_data,weekly_cleanup],
+    schedules=[ETL_schedule,helper_schedule,cleanup_schedule],
     resources={
         "dbt": DbtCliResource(project_dir=DBT_PROJECT_DIR),
     },

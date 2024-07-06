@@ -77,23 +77,12 @@ def new_login(self, username, password):
     self.access_token = response['token']
     self.cookies['t'] = self.access_token
 
-TickTickClient._login = new_login
-
-
-
-auth_client = OAuth2(client_id=client_id,
-                    client_secret=client_secret,
-                    redirect_uri=redirect_uri,
-                    cache_path=cache_path
-                    )
-client = TickTickClient(username, password, auth_client)
-
 
 
 
 cutoff_date = datetime(2024, 4, 1, tzinfo=timezone.utc)
 
-def _delete_tasks(start=None, end=cutoff_date, full_load=True):
+def _delete_tasks(start=None, end=cutoff_date, full_load=True,**kwargs):
     """_summary_
     a utility to delete completed tasks. make sure you archive the data before doing this operation!
     usage : specify the cutoffdate, the start date, then _delete_tasks()
@@ -106,6 +95,7 @@ def _delete_tasks(start=None, end=cutoff_date, full_load=True):
     elif not full_load: 
         current_date=start
     while current_date <= end+timedelta(days=1):
+        client = kwargs.get('client')
         tasks=client.task.get_completed(current_date)
         if tasks != []:
             deleted = client.task.delete(tasks)
@@ -315,5 +305,13 @@ async def check_for_flag_file_forever():
         await asyncio.sleep(1)
 
 if __name__ == '__main__':
+    TickTickClient._login = new_login
+    auth_client = OAuth2(client_id=client_id,
+                        client_secret=client_secret,
+                        redirect_uri=redirect_uri,
+                        cache_path=cache_path
+                        )
+    client = TickTickClient(username, password, auth_client)
+
     asyncio.run(main())
 
