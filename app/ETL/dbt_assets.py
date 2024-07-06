@@ -17,5 +17,5 @@ conn = create_engine(db_url)
 
 @dbt_assets(manifest=dbt_manifest_path)
 def ticktick_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
-    yield from dbt.cli(["build"], context=context).stream()
+    yield from dbt.cli(["run"], context=context).stream()
 
