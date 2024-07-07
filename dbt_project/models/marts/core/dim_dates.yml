@@ -6,11 +6,13 @@ models:
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: date_id
         description: ""
         meta:
           dimension:
+            # hidden: true
             type: date
             time_intervals:
               - DAY
@@ -22,129 +24,155 @@ models:
         description: ""
         meta:
           dimension:
+            hidden: true
             type: number
       - name: week_key
         description: ""
         meta:
           dimension:
+            hidden: true
             type: number
       - name: week_of_year
         description: ""
         meta:
           dimension:
+            # hidden: true
             type: number
       - name: day_of_week
         description: ""
         meta:
           dimension:
+            hidden: true
             type: number
       - name: iso_day_of_week
         description: ""
         meta:
           dimension:
+            hidden: true
             type: number
       - name: day_name
         description: ""
         meta:
           dimension:
+            # hidden: true
             type: string
       - name: first_day_of_week
         description: ""
         meta:
           dimension:
+            hidden: true
             type: date
       - name: last_day_of_week
         description: ""
         meta:
           dimension:
+            hidden: true
             type: date
       - name: month_key
         description: ""
         meta:
           dimension:
+            hidden: true
             type: number
       - name: month_of_year
         description: ""
         meta:
           dimension:
+            hidden: true
             type: number
       - name: day_of_month
         description: ""
         meta:
           dimension:
+            hidden: true
             type: number
       - name: month_name_short
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: month_name
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: first_day_of_month
         description: ""
         meta:
           dimension:
+            hidden: true
             type: date
       - name: last_day_of_month
         description: ""
         meta:
           dimension:
+            hidden: true
             type: date
       - name: quarter_key
         description: ""
         meta:
           dimension:
+            hidden: true
             type: number
       - name: quarter_of_year
         description: ""
         meta:
           dimension:
+            # hidden: true
             type: number
       - name: day_of_quarter
         description: ""
         meta:
           dimension:
+            hidden: true
             type: number
       - name: quarter_desc_short
         description: ""
         meta:
           dimension:
+            # hidden: true
             type: string
       - name: quarter_desc
         description: ""
         meta:
           dimension:
+            # hidden: true
             type: string
       - name: first_day_of_quarter
         description: ""
         meta:
           dimension:
+            hidden: true
             type: date
       - name: last_day_of_quarter
         description: ""
         meta:
           dimension:
+            hidden: true
             type: date
       - name: year_key
         description: ""
         meta:
           dimension:
+            hidden: true
             type: number
       - name: first_day_of_year
         description: ""
         meta:
           dimension:
+            hidden: true
             type: date
       - name: last_day_of_year
         description: ""
         meta:
           dimension:
+            hidden: true
             type: date
       - name: ordinal_weekday_of_month
         description: ""
         meta:
           dimension:
+            hidden: true
             type: number

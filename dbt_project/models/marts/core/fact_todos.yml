@@ -77,12 +77,13 @@ models:
               to: ref('dim_dates')
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_key
         description: ""
         meta:
           dimension:
-            hidden: true
+            # hidden: true
             type: string
       - name: list_key
         description: ""
@@ -122,9 +123,10 @@ models:
               - apply is not null condition on most metrics except the actual lookahead metrics.
         meta:
           dimension:
+            # hidden: true
             type: string
           metrics:
-            lookahead_count:
+            lookahead_norepeat_count:
               type: count
               description: count of undone tasks ahead. replacement for the habit heatmap
               filters:
@@ -135,6 +137,23 @@ models:
                 - todo_derived__tag_semantic: next action
                 - completed_date.year_key: "0"
                 - lookahead_flag : true
+                - todo_derived__is_repeat : false
+                - dim_dates_lookahead.date_id: "!1900" # todo: how to discard the count in 1900 only.
+                # - dim_dates_lookahead.date_id: # todo : watch when LD allows this AND interval filter.
+                #     - "inThePast 5 days"
+                #     - "inTheNext 3 months"
+            lookahead_repeat_count:
+              type: count
+              description: count of undone tasks ahead. replacement for the habit heatmap
+              filters:
+                - dim_lists.list_isActive: true
+                - dim_statuses.status_desc: undone
+                - todo_derived__is_task: true
+                - todo_derived__is_active: true
+                - todo_derived__tag_semantic: next action
+                - completed_date.year_key: "0"
+                - lookahead_flag : true
+                - todo_derived__is_repeat : true
                 - dim_dates_lookahead.date_id: "!1900" # todo: how to discard the count in 1900 only.
                 # - dim_dates_lookahead.date_id: # todo : watch when LD allows this AND interval filter.
                 #     - "inThePast 5 days"
@@ -143,226 +162,271 @@ models:
         description: ""
         meta:
           dimension:
+            hidden: true
             type: timestamp
       - name: todo_completedtime
         description: ""
         meta:
           dimension:
+            hidden: true
             type: timestamp
       - name: todo_startdate
         description: ""
         meta:
           dimension:
+            hidden: true
             type: timestamp
       - name: todo_duedate
         description: ""
         meta:
           dimension:
+            hidden: true
             type: timestamp
       - name: todo_projectid
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_sortorder
         description: ""
         meta:
           dimension:
+            hidden: true
             type: number
       - name: todo_title
         description: ""
         meta:
           dimension:
+            # hidden: true
             type: string
       - name: todo_content
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_desc
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_timezone
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_isfloating
         description: ""
         meta:
           dimension:
+            hidden: true
             type: boolean
       - name: todo_isallday
         description: ""
         meta:
           dimension:
+            hidden: true
             type: boolean
       - name: todo_reminder
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: reminders
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_exdate
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_priority
         description: ""
         meta:
           dimension:
+            hidden: true
             type: number
       - name: todo_status
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_items
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_progress
         description: ""
         meta:
           dimension:
+            hidden: true
             type: number
       - name: todo_modifiedtime
         description: ""
         meta:
           dimension:
+            hidden: true
             type: timestamp
       - name: todo_etag
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_deleted
         description: ""
         meta:
           dimension:
+            hidden: true
             type: boolean
       - name: todo_creator
         description: ""
         meta:
           dimension:
+            hidden: true
             type: number
       - name: todo_focussummaries
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_columnid
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_kind
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_imgmode
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_tags
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_repeatfrom
         description: ""
         meta:
           dimension:
+            hidden: true
             type: number
       - name: todo_attachments
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_repeattaskid
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_commentcount
         description: ""
         meta:
           dimension:
+            hidden: true
             type: number
       - name: todo_completeduserid
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_repeatflag
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_pinnedtime
         description: ""
         meta:
           dimension:
+            hidden: true
             type: timestamp
       - name: childids
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_deletedtime
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_repeatfirstdate
         description: ""
         meta:
           dimension:
+            hidden: true
             type: timestamp
       - name: todo_pomodorosummaries
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_parentid
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_annoyingalert
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: todo_createdtime_derived_date
         description: ""
         meta:
           dimension:
+            hidden: true
             type: date
       - name: todo_completedtime_derived_date
         description: ""
         meta:
           dimension:
+            hidden: true
             type: date
       - name: todo_startdate_derived_date
         description: ""
         meta:
           dimension:
+            hidden: true
             type: date
       - name: todo_duedate_derived_date
         description: ""
         meta:
           dimension:
+            hidden: true
             type: date
       - name: list_id
         description: ""
@@ -370,6 +434,7 @@ models:
           - not_null
         meta:
           dimension:
+            hidden: true
             type: string
       - name: folder_id
         description: ""
@@ -377,6 +442,7 @@ models:
           - not_null
         meta:
           dimension:
+            hidden: true
             type: string
       - name: status_id
         description: ""
@@ -384,22 +450,26 @@ models:
           - not_null
         meta:
           dimension:
+            hidden: true
             type: string
       - name: date_due_lookahead_key
         description: ""
         meta:
           dimension:
+            hidden: true
             type: string
       - name: lookahead_flag
         description: ""
         meta:
           dimension:
+            # hidden: true
             type: boolean
 # DERIVED DIMS
       - name: todo_derived__tags
         description: the tags parsed from tasks.
         meta:
           dimension:
+            # hidden: true
             groups: ['derived']
             type: string
             sql: >-
@@ -408,6 +478,7 @@ models:
       - name: todo_derived__tag_semantic
         meta:
           dimension:
+            hidden: true
             groups: ['derived']
             label: 'tag semantic'
             type: string
@@ -425,6 +496,7 @@ models:
       - name: todo_derived__is_repeat
         meta: 
           dimension:
+            hidden: true
             groups: ['derived']
             label: 'is repeat'
             type: boolean
@@ -435,6 +507,7 @@ models:
         description: "derived from custom sql logic"
         meta:
           dimension:
+            hidden: true
             groups: ['derived']
             label: 'is task'
             type: boolean
@@ -445,6 +518,7 @@ models:
           the item belongs to an active folder - not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists')
         meta:
           dimension:
+            hidden: true
             label: 'is active'
             type: boolean
             sql: |

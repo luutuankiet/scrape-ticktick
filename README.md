@@ -37,3 +37,7 @@ run dbt models
 
 # to cleanup completed tasks for performance :
 - best to use interactive mode, there's a func _delete_task() found in `loader.py`
+
+
+# utils
+- install webhook to allow run dagstger from a url : `sudo apt-get install webhook`

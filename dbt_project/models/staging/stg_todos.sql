@@ -1,5 +1,6 @@
 WITH todo AS (
     SELECT
+    distinct 
         {{ coalesce_defaults(ref('src__tasks_raw')) }}
     FROM
         {{ ref('src__tasks_raw') }}

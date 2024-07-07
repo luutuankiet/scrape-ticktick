@@ -1,7 +1,7 @@
 {{
     config(
         materialized='incremental',
-        unique_key=['todo_id','todo_modifiedtime','todo_etag','todo_createdtime'],
+        unique_key=['todo_id']
     )
 }}
 
@@ -67,17 +67,20 @@ renamed AS (
         {{ adapter.quote("pomodorosummaries") }} :: text AS "todo_pomodorosummaries",
         -- array
         {{ adapter.quote("parentid") }} :: text AS "todo_parentid",
-        {{ adapter.quote("annoyingalert") }} :: text AS "todo_annoyingalert"
+        {{ adapter.quote("annoyingalert") }} :: text AS "todo_annoyingalert",
+        row_number() over(partition by id, modifiedtime order by modifiedtime desc) as rn
     FROM
         source
 ),
 refine_dates AS (
     {# create derived fields to parse date from timestamp fields #}
     SELECT
+    distinct 
         *,
         {{ parse_date(datetime_list) }}
     FROM
         renamed
+        where rn = 1
 )
 SELECT
     *
