@@ -1,12 +1,11 @@
-{{
-    config(
-        materialized='incremental',
-        unique_key=['todo_id']
-    )
-}}
+{{ config(
+    materialized = 'incremental',
+    unique_key = ['todo_id']
+) }}
 
 {% set datetime_list = ['todo_createdtime', 'todo_completedtime', 'todo_startdate', 'todo_duedate'] %}
 WITH source AS (
+
     SELECT
         {{ setup_nulls(source('raw_data', 'tasks_raw')) }}
     FROM
@@ -17,13 +16,12 @@ WITH source AS (
 ),
 renamed AS (
     SELECT
-    distinct 
-        {{ adapter.quote("id") }} :: text AS "todo_id",
+        DISTINCT {{ adapter.quote("id") }} :: text AS "todo_id",
         {{ adapter.quote("createdtime") }} :: TIMESTAMP AS "todo_createdtime",
         {{ adapter.quote("completedtime") }} :: TIMESTAMP AS "todo_completedtime",
         {# these dates MUST be converted to ETC #}
-        {{ adapter.quote("startdate") }} :: TIMESTAMP + interval '7 hours' AS "todo_startdate",
-        {{ adapter.quote("duedate") }} :: TIMESTAMP + interval '7 hours' AS "todo_duedate",
+        {{ adapter.quote("startdate") }} :: TIMESTAMP + INTERVAL '7 hours' AS "todo_startdate",
+        {{ adapter.quote("duedate") }} :: TIMESTAMP + INTERVAL '7 hours' AS "todo_duedate",
         {#                                           #}
         {{ adapter.quote("projectid") }} :: text AS "todo_projectid",
         {{ adapter.quote("sortorder") }} :: bigint AS "todo_sortorder",
@@ -68,31 +66,44 @@ renamed AS (
         -- array
         {{ adapter.quote("parentid") }} :: text AS "todo_parentid",
         {{ adapter.quote("annoyingalert") }} :: text AS "todo_annoyingalert",
-        row_number() over(partition by id, modifiedtime order by modifiedtime desc) as rn
+        ROW_NUMBER() over(
+            PARTITION BY {{ dbt_utils.star(
+                from = source(
+                    'raw_data',
+                    'tasks_raw'
+                )
+            ) }}
+            ORDER BY
+                modifiedtime DESC
+        ) AS rn
     FROM
         source
 ),
 refine_dates AS (
     {# create derived fields to parse date from timestamp fields #}
     SELECT
-    distinct 
-        *,
+        DISTINCT *,
         {{ parse_date(datetime_list) }}
     FROM
         renamed
-        where rn = 1
+    WHERE
+        rn = 1
 )
 SELECT
     *
 FROM
-    refine_dates
-{# 
+    refine_dates {#
 
 {% if is_incremental() %}
+-- this filter will only be applied on an incremental run
+-- (uses >= to include records whose timestamp occurred since the last run of this model)
+-- (If event_time is NULL or the table is truncated, the condition will always be true and load all records)
+WHERE
+    event_time >= (
+        SELECT
+            COALESCE(MAX(event_time), '1900-01-01' :: TIMESTAMP)
+        FROM
+            {{ this }})
+        {% endif %}
 
-  -- this filter will only be applied on an incremental run
-  -- (uses >= to include records whose timestamp occurred since the last run of this model)
-  -- (If event_time is NULL or the table is truncated, the condition will always be true and load all records)
-where event_time >= (select coalesce(max(event_time),'1900-01-01'::TIMESTAMP) from {{ this }} )
-
-{% endif %} #}
+        #}
