@@ -21,8 +21,10 @@ renamed AS (
         {{ adapter.quote("id") }} :: text AS "todo_id",
         {{ adapter.quote("createdtime") }} :: TIMESTAMP AS "todo_createdtime",
         {{ adapter.quote("completedtime") }} :: TIMESTAMP AS "todo_completedtime",
-        {{ adapter.quote("startdate") }} :: TIMESTAMP AS "todo_startdate",
-        {{ adapter.quote("duedate") }} :: TIMESTAMP AS "todo_duedate",
+        {# these dates MUST be converted to ETC #}
+        {{ adapter.quote("startdate") }} :: TIMESTAMP + interval '7 hours' AS "todo_startdate",
+        {{ adapter.quote("duedate") }} :: TIMESTAMP + interval '7 hours' AS "todo_duedate",
+        {#                                           #}
         {{ adapter.quote("projectid") }} :: text AS "todo_projectid",
         {{ adapter.quote("sortorder") }} :: bigint AS "todo_sortorder",
         {{ adapter.quote("title") }} :: text AS "todo_title",
