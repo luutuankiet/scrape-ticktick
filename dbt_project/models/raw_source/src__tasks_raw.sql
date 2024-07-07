@@ -65,8 +65,7 @@ renamed AS (
         {{ adapter.quote("pomodorosummaries") }} :: text AS "todo_pomodorosummaries",
         -- array
         {{ adapter.quote("parentid") }} :: text AS "todo_parentid",
-        {{ adapter.quote("annoyingalert") }} :: text AS "todo_annoyingalert",
-        {{ adapter.quote("remindtime") }} :: text AS "todo_remindtime"
+        {{ adapter.quote("annoyingalert") }} :: text AS "todo_annoyingalert"
     FROM
         source
 ),

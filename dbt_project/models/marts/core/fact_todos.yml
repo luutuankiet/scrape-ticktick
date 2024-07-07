@@ -344,11 +344,6 @@ models:
         meta:
           dimension:
             type: string
-      - name: todo_remindtime
-        description: ""
-        meta:
-          dimension:
-            type: string
       - name: todo_createdtime_derived_date
         description: ""
         meta:
