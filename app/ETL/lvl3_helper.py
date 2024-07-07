@@ -1,12 +1,13 @@
 #%%
 import os
 import sys; sys.path.append('..')
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from helper.source_env import dbt_project_dir,service_account_path,dw_path
 import gspread
 import csv
 from dagster import op,Definitions,job
 from sqlalchemy import create_engine,text
-from .EL import db_url
+from EL import db_url
 import pandas as pd
 
 #%%

@@ -1,10 +1,11 @@
 #%%
 
 import sys,os; sys.path.append('..')
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from helper.source_env import dw_path,dbt_models_core,dbt_models_metrics,db_url
 from dagster_dbt import DbtCliResource, dbt_assets,get_asset_key_for_model,get_asset_keys_by_output_name_for_source
 from dagster import AssetExecutionContext, asset
-from .constants import dbt_manifest_path
+from constants import dbt_manifest_path
 from sqlalchemy import create_engine
 
 edges = os.listdir(dbt_models_core) + os.listdir(dbt_models_metrics)
