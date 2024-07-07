@@ -13,8 +13,14 @@ from .weekly_cleanup import weekly_cleanup
 all_assets = load_assets_from_modules([EL,dbt_assets])
 ETL_job = define_asset_job("ETL_job",selection=all_assets)
 ETL_schedule = ScheduleDefinition(
+    name="ETL_schedule",
     job=ETL_job,
     cron_schedule="0,30 4-22 * * *",execution_timezone="Asia/Bangkok"
+)
+rapid_ETL_schedule = ScheduleDefinition(
+    name="rapid_ETL_schedule",
+    job=ETL_job,
+    cron_schedule="* * * * *",execution_timezone="Asia/Bangkok"
 )
 
 
@@ -32,7 +38,7 @@ cleanup_schedule = ScheduleDefinition(
 defs = Definitions(
     assets=all_assets,
     jobs=[load_new_lvl3_data,weekly_cleanup],
-    schedules=[ETL_schedule,helper_schedule,cleanup_schedule],
+    schedules=[ETL_schedule,rapid_ETL_schedule,helper_schedule,cleanup_schedule],
     resources={
         "dbt": DbtCliResource(project_dir=DBT_PROJECT_DIR),
     },
