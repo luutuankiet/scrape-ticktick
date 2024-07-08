@@ -41,3 +41,6 @@ run dbt models
 
 # utils
 - install webhook to allow run dagstger from a url : `sudo apt-get install webhook`
+
+# development
+- after each model update, should do a full dagster reload definitions for it to parse new models

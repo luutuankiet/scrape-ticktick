@@ -10,7 +10,7 @@ models:
   todo_analytics:
     raw_source:
       # utilizing the strat to allow deleting completed data from src ticktick
-      +incremental_strategy: "merge"
+      +incremental_strategy: "delete+insert"
       +materialized: table
       +tags: "raw"
     staging:
