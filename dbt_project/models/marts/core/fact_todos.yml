@@ -210,6 +210,10 @@ models:
           dimension:
             # hidden: true
             type: string
+            urls:
+              - label: "open in app"
+                url: "ticktick://ticktick.com/webapp/#p/${row.dim_lists.list_id.raw}/tasks/${row.fact_todos.todo_id.raw}"
+                
       - name: todo_content
         description: ""
         meta:
@@ -286,8 +290,14 @@ models:
         description: ""
         meta:
           dimension:
-            hidden: true
+            # hidden: true
             type: timestamp
+      - name: todo_modifiedtime_humanize
+        description: ""
+        meta:
+          dimension:
+            # hidden: true
+            type: string
       - name: todo_etag
         description: ""
         meta:

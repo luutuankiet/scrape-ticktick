@@ -12,7 +12,7 @@ models:
         description: ""
         meta:
           dimension:
-            hidden: true
+            # hidden: true
             type: string
       - name: list_name
         description: ""
@@ -20,6 +20,9 @@ models:
           dimension:
             # hidden: true
             type: string
+          urls:
+            - label: "open in app"
+              url: "ticktick://ticktick.com/webapp/#p/${row.dim_lists.list_id.raw}/tasks"
       - name: list_isowner
         description: ""
         meta:

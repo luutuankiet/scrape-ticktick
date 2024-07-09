@@ -8,3 +8,5 @@ st-gsheets-connection==0.0.4
 streamlit==1.35.0
 humanize==4.9.0
 ticktick-py
+humanize
+pytz

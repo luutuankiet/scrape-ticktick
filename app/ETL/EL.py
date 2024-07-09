@@ -6,6 +6,9 @@ import sys; sys.path.append('..') # to allow import helper which is 1 dir away
 from helper.source_env import raw_path,dw_path,ETL_workdir,db_url,target_schema
 import time
 from sqlalchemy import create_engine
+from datetime import datetime
+import pytz
+import humanize
 #%%
 
 engine = create_engine(db_url)
@@ -43,6 +46,28 @@ def raw_data():
         raw_file_path = os.path.join(raw_path,name+'.json')
         df = pd.read_json(raw_file_path,dtype=str)
         df.columns = df.columns.str.lower()
+        if name == 'tasks_raw':
+            df['modifiedtime_humanize'] = df['modifiedtime'].apply(humanize_timestamp)
         df.to_sql(name, engine, if_exists='replace', index=False, schema=target_schema+'_raw')
    
         yield Output(value=df,output_name=name)
+
+
+
+def humanize_timestamp(ts):
+    if pd.isnull(ts):
+        return 'No modified time'    
+    # Parse the timestamp
+    dt = datetime.strptime(ts, '%Y-%m-%dT%H:%M:%S.%f%z')
+    
+    # Convert to desired timezone (Ho Chi Minh)
+    target_tz = pytz.timezone('Asia/Ho_Chi_Minh')
+    dt = dt.astimezone(target_tz)
+    
+    # Get current time in the same timezone for comparison
+    now = datetime.now(target_tz)
+    
+    # Humanize the timestamp
+    return humanize.naturaltime(now - dt,months=True)
+
+#%%
