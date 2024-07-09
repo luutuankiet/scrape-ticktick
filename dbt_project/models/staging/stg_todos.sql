@@ -43,6 +43,7 @@ joined AS (
         {{ dbt_utils.generate_surrogate_key(['dl.date_id']) }} AS date_due_lookahead_key,
         {{ dbt_utils.generate_surrogate_key(['ddcm.date_id']) }} AS date_completed_key,
         {{ dbt_utils.generate_surrogate_key(['ddc.date_id']) }} AS date_created_key,
+        {{ dbt_utils.generate_surrogate_key(['ddm.date_id']) }} AS date_modified_key,
         {{ dbt_utils.generate_surrogate_key(['todo_id']) }} AS todo_key,
         {{ dbt_utils.generate_surrogate_key(['list_id']) }} AS list_key,
         {{ dbt_utils.generate_surrogate_key(['folder_id']) }} AS folder_key,
@@ -84,8 +85,10 @@ joined AS (
         LEFT JOIN dates ddc
         ON ddc.date_id = t.todo_createdtime_derived_date
         LEFT JOIN dates ddcm
-        ON ddcm.date_id = t.todo_completedtime_derived_date full
-        OUTER JOIN dates_lookahead dl
+        ON ddcm.date_id = t.todo_completedtime_derived_date
+        LEFT JOIN dates ddm
+        ON ddm.date_id = t.todo_modifiedtime_derived_date 
+        FULL OUTER JOIN dates_lookahead dl
         ON dl.date_id = t.todo_duedate_derived_date
 )
 SELECT

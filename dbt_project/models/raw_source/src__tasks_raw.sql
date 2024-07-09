@@ -1,9 +1,10 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = ['todo_id']
+    unique_key = ['todo_id'],
+    on_schema_change='append_new_columns'
 ) }}
 
-{% set datetime_list = ['todo_createdtime', 'todo_completedtime', 'todo_startdate', 'todo_duedate'] %}
+{% set datetime_list = ['todo_createdtime', 'todo_completedtime', 'todo_startdate', 'todo_duedate', 'todo_modifiedtime'] %}
 WITH source AS (
 
     SELECT
