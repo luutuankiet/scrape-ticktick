@@ -21,7 +21,7 @@ telemetry:
 # Configures how long Dagster keeps sensor / schedule tick data
 retention:
   schedule:
-    purge_after_days: 30 # sets retention policy for schedule ticks of all types
+    purge_after_days: 7 # sets retention policy for schedule ticks of all types
   sensor:
     purge_after_days:
       skipped: 7

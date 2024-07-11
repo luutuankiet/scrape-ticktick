@@ -137,6 +137,7 @@ models:
             type: string
           metrics:
             lookahead_norepeat_count:
+              groups: ['lookahead']
               type: count
               description: count of undone tasks ahead. replacement for the habit heatmap
               filters:
@@ -153,6 +154,7 @@ models:
                 #     - "inThePast 5 days"
                 #     - "inTheNext 3 months"
             lookahead_repeat_count:
+              groups: ['lookahead']
               type: count
               description: count of undone tasks ahead. replacement for the habit heatmap
               filters:
@@ -168,6 +170,27 @@ models:
                 # - dim_dates_lookahead.date_id: # todo : watch when LD allows this AND interval filter.
                 #     - "inThePast 5 days"
                 #     - "inTheNext 3 months"
+            clarified_cnt_today:
+              groups: ['daily monitor']
+              type: count
+              description: component metric to compare btwn today's modified next action, and all time inbox
+              filters:
+                - dim_lists.list_isActive: true
+                - dim_statuses.status_desc: undone
+                - todo_derived__is_task: true
+                - todo_derived__is_active: true
+                - todo_derived__tag_semantic: next action
+                - modified_date.date_id: "inTheNext 0 days"
+            all_time_inbox:
+              groups: ['daily monitor']
+              type: count
+              description: component metrics all time inbox 
+              filters:
+                - dim_lists.list_isActive: true
+                - dim_statuses.status_desc: undone
+                - todo_derived__is_task: true
+                - todo_derived__is_active: true
+                - todo_derived__tag_semantic: inbox
       - name: todo_createdtime
         description: ""
         meta:
@@ -498,7 +521,7 @@ models:
       - name: todo_derived__tag_semantic
         meta:
           dimension:
-            hidden: true
+            # hidden: true
             groups: ['derived']
             label: 'tag semantic'
             type: string
@@ -527,7 +550,7 @@ models:
         description: "derived from custom sql logic"
         meta:
           dimension:
-            hidden: true
+            # hidden: true
             groups: ['derived']
             label: 'is task'
             type: boolean
@@ -538,8 +561,9 @@ models:
           the item belongs to an active folder - not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists')
         meta:
           dimension:
-            hidden: true
+            # hidden: true
             label: 'is active'
+            groups: ['derived']
             type: boolean
             sql: |
               case when ${dim_folders.folder_name} not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists') 
