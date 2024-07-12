@@ -12,8 +12,24 @@ X_DEVICE_ = '{"platform":"web","os":"OS X","device":"Firefox 95.0","name":"unoff
 
 TickTickClient.HEADERS = {'User-Agent': USER_AGENT,
                'x-device': X_DEVICE_}
-
 # per this issue : https://github.com/lazeroffmichael/ticktick-py/issues/42
+additional_headers = {
+    "Host": "api.ticktick.com",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:128.0) Gecko/20100101 Firefox/128.0",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.5",
+    "Accept-Encoding": "gzip, deflate, br, zstd",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1",
+    "Priority": "u=0, i",
+    "TE": "trailers"
+}
+TickTickClient.HEADERS.update(additional_headers)
+
 
 from os import environ
 import os
@@ -80,8 +96,8 @@ def new_login(self, username, password):
 
 
 
-cutoff_date = datetime(2024, 4, 1, tzinfo=timezone.utc)
-
+# start_date = datetime(2024, 7, 8,tzinfo=timezone.utc)
+cutoff_date = datetime(2024, 7, 9, tzinfo=timezone.utc)
 def _delete_tasks(start=None, end=cutoff_date, full_load=True,**kwargs):
     """_summary_
     a utility to delete completed tasks. make sure you archive the data before doing this operation!
@@ -104,9 +120,26 @@ def _delete_tasks(start=None, end=cutoff_date, full_load=True,**kwargs):
     print('all specified tasks deleted.')
 
 
+# the code that had to be added in api.py
+        # if 'headers' not in kwargs:
+        #     response = self._session.get(url, headers=self.HEADERS, **kwargs)
+        # else:
+        #     kwargs['headers'].update(self.HEADERS)
+        #     response = self._session.get(url, **kwargs)
 
 
 
+# # debug
+# TickTickClient._login = new_login
+# auth_client = OAuth2(client_id=client_id,
+#                     client_secret=client_secret,
+#                     redirect_uri=redirect_uri,
+#                     cache_path=cache_path
+#                     )
+# client = TickTickClient(username, password, auth_client)
+
+
+# _delete_tasks(start=start_date, end=cutoff_date, full_load=False,client=client)
 
 
 #%%
