@@ -181,6 +181,19 @@ models:
                 - todo_derived__is_active: true
                 - todo_derived__tag_semantic: next action
                 - modified_date.date_id: "inTheNext 1 days"
+            done_cnt_today:
+              groups: ['daily monitor']
+              type: count
+              description: component metric to compare btwn today's modified next action, and all time inbox
+              filters:
+                - dim_lists.list_isActive: true
+                - dim_statuses.status_desc: done
+                - todo_derived__is_task: true
+                - todo_derived__is_active: true
+                - todo_derived__tag_semantic: 
+                  - next action
+                  - inbox
+                - modified_date.date_id: "inTheNext 1 days"
             all_time_inbox:
               groups: ['daily monitor']
               type: count
@@ -526,10 +539,10 @@ models:
             label: 'tag semantic'
             type: string
             sql: |
-              case when ${todo_tags} like '%clarifyme%' AND ${dim_statuses.status_desc} = 'undone' then 'inbox' 
-              when (${todo_tags} = 'default' or ${todo_tags} like '%@%') AND ${dim_statuses.status_desc} = 'undone' then 'next action'
-              when ${todo_tags} like '%someday%' AND ${dim_statuses.status_desc} = 'undone' then 'someday'
-              when ${todo_tags} like '%waiting_for%' AND ${dim_statuses.status_desc} = 'undone' then 'waiting for' 
+              case when ${todo_tags} like '%clarifyme%' then 'inbox' 
+              when (${todo_tags} = 'default' or ${todo_tags} like '%@%') then 'next action'
+              when ${todo_tags} like '%someday%' then 'someday'
+              when ${todo_tags} like '%waiting_for%' then 'waiting for' 
               when ${todo_tags} like '%tickler%' then 'tickler' 
               else TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(${todo_tags}, '[', ''), ']', ''), '''', ''))      
               end
