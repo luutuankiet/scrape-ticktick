@@ -1,6 +1,6 @@
 #%%
 import os,sys; sys.path.append(os.path.dirname(__file__))
-from dagster import Definitions,ScheduleDefinition,define_asset_job,load_assets_from_modules,in_process_executor
+from dagster import Definitions,ScheduleDefinition,define_asset_job,load_assets_from_modules,in_process_executor,mem_io_manager
 from dagster_dbt import DbtCliResource
 from sqlalchemy import true
 
@@ -42,6 +42,7 @@ defs = Definitions(
     schedules=[ETL_schedule,rapid_ETL_schedule,helper_schedule,cleanup_schedule],
     resources={
         "dbt": DbtCliResource(project_dir=DBT_PROJECT_DIR),
+        "io_manager": mem_io_manager,
     },
 )
 

@@ -25,8 +25,8 @@ retention:
   sensor:
     purge_after_days:
       skipped: 7
-      failure: 30
-      success: -1 # keep success ticks indefinitely
+      failure: 7
+      success: 7 # keep success ticks indefinitely
 
 
 # there are two possible ways to configure LocalArtifactStorage
@@ -39,4 +39,9 @@ local_artifact_storage:
     base_dir:
       env: DAGSTER_LOCAL_ARTIFACT_STORAGE_DIR
 
-
+compute_logs:
+  module: dagster.core.storage.local_compute_log_manager
+  class: LocalComputeLogManager
+  config:
+    base_dir:
+      env: DAGSTER_LOCAL_ARTIFACT_STORAGE_DIR

@@ -7,6 +7,7 @@ from dagster_dbt import DbtCliResource, dbt_assets,get_asset_key_for_model,get_a
 from dagster import AssetExecutionContext, asset
 from constants import dbt_manifest_path
 from sqlalchemy import create_engine
+import shutil
 
 edges = os.listdir(dbt_models_core) + os.listdir(dbt_models_metrics)
 edges = [edge.replace('.sql','') for edge in edges]
@@ -18,5 +19,11 @@ conn = create_engine(db_url)
 
 @dbt_assets(manifest=dbt_manifest_path)
 def ticktick_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
-    yield from dbt.cli(["run"], context=context).stream()
+    dbt_invocation = dbt.cli(["run"], context=context)
+    yield from dbt_invocation.stream()
+
+    #cleanup the dir after done
+    target_path = dbt_invocation.target_path
+    if target_path.exists():
+        shutil.rmtree(target_path)
 
