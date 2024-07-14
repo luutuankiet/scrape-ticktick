@@ -50,6 +50,34 @@ renamed AS (
         {{ adapter.quote("source") }} :: text AS "list_source"
     FROM
         source
+    UNION
+    SELECT
+        'inbox120295392' :: text AS "list_id",
+        'Inbox' :: text AS "list_name",
+        '1' :: BOOLEAN AS "list_isowner",
+        '' :: text AS "list_color",
+        '1' :: BOOLEAN AS "list_inall",
+        0 :: bigint AS "list_sortorder",
+        '' :: text AS "list_sortoption",
+        '' :: text AS "list_sorttype",
+        1 :: INT AS "list_usercount",
+        '' :: text AS "list_etag",
+        '1900-01-01' :: TIMESTAMP AS "list_modifiedtime",
+        '0' :: BOOLEAN AS "list_closed",
+        '0' :: BOOLEAN AS "list_muted",
+        '' :: text AS "list_transferred",
+        '' :: text AS "list_groupid",
+        '' :: text AS "list_viewmode",
+        '' :: text AS "list_notificationoptions",
+        '' :: text AS "list_teamid",
+        '' :: text AS "list_permission",
+        '' :: text AS "list_kind",
+        '' :: text AS "list_timeline",
+        '0' :: BOOLEAN AS "list_needaudit",
+        '0' :: BOOLEAN AS "list_barcodeneedaudit",
+        '0' :: BOOLEAN AS "list_opentoteam",
+        '' :: text AS "list_teammemberpermission",
+        '' :: text AS "list_source"
 )
 SELECT
     *

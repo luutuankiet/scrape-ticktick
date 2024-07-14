@@ -46,7 +46,38 @@ joined AS (
         INNER JOIN list_created t
         ON l.list_id = t.todo_projectid
         INNER JOIN list_isActive i
-        ON l.list_id = i.list_id
+        ON l.list_id = i.list_id 
+        -- ingest the inbox list
+    UNION
+    SELECT
+        'inbox120295392' :: text,
+        'Inbox' :: text,
+        '1' :: BOOLEAN,
+        'default' :: text,
+        '1' :: BOOLEAN,
+        '2413980260956790869' :: bigint,
+        '' :: text,
+        'dueDate' :: text,
+        '1' :: INTEGER,
+        '7si0ks2b' :: text,
+        '2024-06-18 08:44:47.704' :: TIMESTAMP without TIME ZONE,
+        '0' :: BOOLEAN,
+        '0' :: BOOLEAN,
+        'default' :: text,
+        '2843425faae40e6deeb4b829' :: text,
+        'default' :: text,
+        'default' :: text,
+        'default' :: text,
+        'default' :: text,
+        'TASK' :: text,
+        '' :: text,
+        '1' :: BOOLEAN,
+        '0' :: BOOLEAN,
+        '0' :: BOOLEAN,
+        'default' :: text,
+        '1' :: text,
+        '2022-08-22 15:04:29' :: TIMESTAMP without TIME ZONE,
+        '1' :: BOOLEAN
 )
 SELECT
     {{ dbt_utils.generate_surrogate_key(['list_id']) }} AS list_key,*
