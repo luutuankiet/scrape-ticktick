@@ -187,7 +187,9 @@ models:
               description: component metric to compare btwn today's modified next action, and all time inbox
               filters:
                 - dim_lists.list_isActive: true
-                - dim_statuses.status_desc: done
+                - dim_statuses.status_desc: 
+                  - done
+                  - wont do
                 - todo_derived__is_task: true
                 - todo_derived__is_active: true
                 - todo_derived__tag_semantic: 
@@ -204,6 +206,39 @@ models:
                 - todo_derived__is_task: true
                 - todo_derived__is_active: true
                 - todo_derived__tag_semantic: inbox
+            overdue_count_today:
+              groups: ['daily monitor']
+              type: count
+              description: count of tasks due today
+              filters:
+                - dim_lists.list_isActive: true
+                - dim_statuses.status_desc: undone
+                - todo_derived__is_task: true
+                - todo_derived__is_active: true
+                - todo_derived__tag_semantic: 
+                  - inbox
+                  - next action
+                - due_date.date_id: "inThePast 1 days"
+                - todo_derived__overdue: true
+            clarifytoday_count:
+              groups: ['daily monitor']
+              type: count
+              description: count of all high priority clarifytoday tasks
+              filters:
+                - dim_lists.list_isActive: true
+                - dim_statuses.status_desc: undone
+                - todo_derived__is_task: true
+                - todo_derived__is_active: true
+                - todo_derived__tag_semantic: inbox
+                - todo_title: "%clarifytoday%"
+            open_loops_count:
+              groups: ['daily monitor']
+              type: max
+              description: count of open loops in the note
+              sql: |
+                regexp_count(("fact_todos".todo_content), E'\n[A-Za-z0-9]')
+              filters:
+                - todo_id: "9be74928bd36e5772850726c"
       - name: todo_createdtime
         description: ""
         meta:
@@ -245,6 +280,7 @@ models:
         meta:
           dimension:
             # hidden: true
+            label: "(1) title"
             type: string
             urls:
               - label: "open in app"
@@ -539,8 +575,10 @@ models:
             label: 'tag semantic'
             type: string
             sql: |
-              case when ${todo_tags} like '%clarifyme%' then 'inbox' 
-              when (${todo_tags} = 'default' or ${todo_tags} like '%@%') then 'next action'
+              case when ${todo_tags} like '%clarifyme%' then 'inbox v1' 
+              when ${todo_tags} = 'default' then 'inbox' 
+              -- when (${todo_tags} = 'default' or ${todo_tags} like '%@%') then 'next action v1'
+              when (${todo_tags} like '%clarified%' or ${todo_tags} like '%@%') then 'next action'
               when ${todo_tags} like '%someday%' then 'someday'
               when ${todo_tags} like '%waiting_for%' then 'waiting for' 
               when ${todo_tags} like '%tickler%' then 'tickler' 
@@ -583,3 +621,43 @@ models:
               AND
               ${dim_lists.list_name} not in ('🧳SOMEDAY','📍ref - tickler notes for the day')
               then true else false end
+      - name: todo_derived__unplanned
+        description: |
+          tasks that are due on the same day they are created
+        meta:
+          dimension:
+            # hidden: true
+            label: 'unplanned flag'
+            groups: ['derived']
+            type: string
+            sql: |
+              case when ${created_date.date_id} = ${due_date.date_id} then 'unplanned' else 'planned' end
+      - name: todo_derived__overdue
+        description: |
+          tasks that are due compared to current date
+        meta:
+          dimension:
+            # hidden: true
+            label: 'overdue?'
+            groups: ['derived']
+            type: boolean
+            sql: |
+              date_trunc('DAY',${due_date.date_id_day}) < date_trunc('DAY',current_timestamp)
+      - name: todo_derived__repeat_semantic
+        description: |
+          flag if the task is a repeat. so that i can drill down & not getting error from a custom dimension field
+        meta:
+          dimension:
+            # hidden: true
+            label: 'repeat_semantic'
+            groups: ['derived']
+            type: string
+            sql: |
+              case when ${fact_todos.todo_derived__is_repeat} is true then 'repeat' else '' end
+      - name: dummy
+        description: dummy column for drill down purposes
+        meta:
+         dimension:
+          groups: ['boilerplate']
+          type: string
+          sql: "case when 1=1 then '' else null end"
