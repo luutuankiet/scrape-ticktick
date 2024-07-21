@@ -25,7 +25,7 @@ def cleanup():
                         )
     client = TickTickClient(username, password, auth_client)
     today = datetime.now(timezone.utc)
-    cutoff_date = today - timedelta(days=7)
+    cutoff_date = today - timedelta(days=5)
     # cutoff_date = datetime(2022, 7, 24, tzinfo=timezone.utc)
     start_date = datetime(2024, 7, 1,tzinfo=timezone.utc)
     _delete_tasks(end=cutoff_date,client=client,full_load=False,start=start_date)

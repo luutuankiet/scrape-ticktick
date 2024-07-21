@@ -9,6 +9,8 @@ import EL,dbt_assets
 from lvl3_helper import load_new_lvl3_data,load_mapping_helper
 from weekly_cleanup import weekly_cleanup
 from job_rapid_ETL_mode import rapid_ETL_mode
+from job_deploy_LD import job_deploy_LD
+
 
 #%%
 all_assets = load_assets_from_modules([EL,dbt_assets])
@@ -35,11 +37,16 @@ cleanup_schedule = ScheduleDefinition(
     cron_schedule="0 0 * * 5",execution_timezone="Asia/Bangkok"
 )
 
+deploy_schedule = ScheduleDefinition(
+    job=job_deploy_LD,
+    cron_schedule="0 0 * * *",execution_timezone="Asia/Bangkok"
+)
+
 
 defs = Definitions(
     assets=all_assets,
-    jobs=[load_new_lvl3_data,weekly_cleanup,rapid_ETL_mode],
-    schedules=[ETL_schedule,rapid_ETL_schedule,helper_schedule,cleanup_schedule],
+    jobs=[load_new_lvl3_data,weekly_cleanup,rapid_ETL_mode,job_deploy_LD],
+    schedules=[ETL_schedule,rapid_ETL_schedule,helper_schedule,cleanup_schedule,deploy_schedule],
     resources={
         "dbt": DbtCliResource(project_dir=DBT_PROJECT_DIR),
         "io_manager": mem_io_manager,
