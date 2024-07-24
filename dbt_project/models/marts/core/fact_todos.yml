@@ -166,6 +166,7 @@ models:
                 - completed_date.year_key: "0"
                 - lookahead_flag : true
                 - todo_derived__is_repeat : true
+                - todo_is_time_sensitive : false
                 - dim_dates_lookahead.date_id: "!1900" # todo: how to discard the count in 1900 only.
                 # - dim_dates_lookahead.date_id: # todo : watch when LD allows this AND interval filter.
                 #     - "inThePast 5 days"
@@ -263,6 +264,16 @@ models:
           dimension:
             hidden: true
             type: timestamp
+          additional_dimensions:
+            todo_is_time_sensitive:
+              description: "flag if the due date is time sensitive."
+              type: boolean
+              sql: |
+                case when 
+                extract(HOUR from todo_duedate) = 0 and 
+                extract(MINUTE from todo_duedate) = 0 then false else true end
+            
+            
       - name: todo_projectid
         description: ""
         meta:
@@ -365,6 +376,12 @@ models:
             # hidden: true
             type: timestamp
       - name: todo_modifiedtime_humanize
+        description: ""
+        meta:
+          dimension:
+            # hidden: true
+            type: string
+      - name: todo_duedate_humanize
         description: ""
         meta:
           dimension:

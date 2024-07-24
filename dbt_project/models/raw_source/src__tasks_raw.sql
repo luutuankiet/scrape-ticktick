@@ -69,6 +69,7 @@ renamed AS (
         {{ adapter.quote("parentid") }} :: text AS "todo_parentid",
         {{ adapter.quote("annoyingalert") }} :: text AS "todo_annoyingalert",
         {{ adapter.quote("modifiedtime_humanize") }} :: text AS "todo_modifiedtime_humanize",
+        {{ adapter.quote("duedate_humanize") }} :: text AS "todo_duedate_humanize",
         ROW_NUMBER() over(
             PARTITION BY {{ dbt_utils.star(
                 from = source(

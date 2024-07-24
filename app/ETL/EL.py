@@ -9,6 +9,7 @@ from sqlalchemy import create_engine
 from datetime import datetime
 import pytz
 import humanize
+import numpy as np
 #%%
 
 engine = create_engine(db_url)
@@ -48,6 +49,7 @@ def raw_data():
         df.columns = df.columns.str.lower()
         if name == 'tasks_raw':
             df['modifiedtime_humanize'] = df['modifiedtime'].apply(humanize_timestamp)
+            df['duedate_humanize'] = df['duedate'].apply(humanize_timestamp)
         df.to_sql(name, engine, if_exists='replace', index=False, schema=target_schema+'_raw')
    
         yield Output(value=df,output_name=name)
@@ -55,8 +57,8 @@ def raw_data():
 
 
 def humanize_timestamp(ts):
-    if pd.isnull(ts):
-        return 'No modified time'    
+    if pd.isnull(ts) or ts == '' or ts == 'nan':
+        return 'default'    
     # Parse the timestamp
     dt = datetime.strptime(ts, '%Y-%m-%dT%H:%M:%S.%f%z')
     
