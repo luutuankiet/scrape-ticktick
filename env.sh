@@ -31,7 +31,7 @@ EOENV
 # Function to source .env file
 source_env() {
     set -a  # Automatically export all variables
-    source .env
+    . ./.env
     set +a  # Stop automatically exporting variables
 }
 

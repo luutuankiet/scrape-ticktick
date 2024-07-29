@@ -39,7 +39,7 @@ cleanup_schedule = ScheduleDefinition(
 
 deploy_schedule = ScheduleDefinition(
     job=job_deploy_LD,
-    cron_schedule="0 0 * * *",execution_timezone="Asia/Bangkok"
+    cron_schedule="0 4 * * *",execution_timezone="Asia/Bangkok"
 )
 
 
