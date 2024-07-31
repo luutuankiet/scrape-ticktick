@@ -35,3 +35,5 @@ package.json
 deactivate
 
 .devcontainer_prod
+
+app.log.*

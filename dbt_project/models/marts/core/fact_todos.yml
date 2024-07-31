@@ -240,6 +240,32 @@ models:
                 regexp_count(("fact_todos".todo_content), E'\n[A-Za-z0-9]')
               filters:
                 - todo_id: "9be74928bd36e5772850726c"
+            done_count__semantic_clarification:
+              groups: ['historical']
+              type: count
+              description: | 
+                count of done tasks with semantically categorized from upstream action : 
+                  - from a clarification action - tag semantic is 'inbox'
+                  - from actual deep work action - tag semantic is 'next action'
+              filters:
+                - dim_statuses.status_desc: 
+                  - done
+                  - wont do
+                - todo_derived__is_task: true
+                - todo_derived__tag_semantic: inbox
+            done_count__semantic_deep_work:
+              groups: ['historical']
+              type: count
+              description: | 
+                count of done tasks with semantically categorized from upstream action : 
+                  - from a clarification action - tag semantic is 'inbox'
+                  - from actual deep work action - tag semantic is 'next action'
+              filters:
+                - dim_statuses.status_desc: 
+                  - done
+                  - wont do
+                - todo_derived__is_task: true
+                - todo_derived__tag_semantic: next action
       - name: todo_createdtime
         description: ""
         meta:
@@ -640,7 +666,7 @@ models:
               then true else false end
       - name: todo_derived__unplanned
         description: |
-          tasks that are due on the same day they are created
+          tasks that are due on the same day they are created OR done on the same day created
         meta:
           dimension:
             # hidden: true
@@ -648,7 +674,13 @@ models:
             groups: ['derived']
             type: string
             sql: |
-              case when ${created_date.date_id} = ${due_date.date_id} then 'unplanned' else 'planned' end
+              case when 
+              (${dim_statuses.status_desc} = 'undone' AND ${created_date.date_id} != ${due_date.date_id} )
+              OR 
+              (${dim_statuses.status_desc} in ('done', 'wont do') AND ${created_date.date_id} != ${completed_date.date_id} )
+              then 'planned' 
+              when ${dim_statuses.status_desc} not in ('undone', 'done','wont do') then 'default'
+              else 'unplanned' end
       - name: todo_derived__overdue
         description: |
           tasks that are due compared to current date
