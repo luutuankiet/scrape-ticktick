@@ -640,15 +640,6 @@ models:
             tags_count:
               type: count
         description: ""
-      - name: todo_derived__is_repeat
-        meta:
-          dimension:
-            groups:
-              - derived
-            label: is repeat
-            type: boolean
-            sql: case when ${todo_repeatflag} <> 'default' then true else false end
-        description: ""
       - name: todo_derived__is_task
         description: derived from custom sql logic
         meta:
@@ -752,8 +743,10 @@ models:
           dimension:
             type: date
             hidden: true
-      - name: todo_derived__recurring
+      - name: todo_derived__is_repeat
         description: "flag to identify true recurring tasks"
         meta:
           dimension:
-            type: string
+            type: boolean
+            groups:
+              - derived

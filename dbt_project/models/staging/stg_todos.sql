@@ -24,9 +24,9 @@ todo AS (
             OR (
                 todo_status = '0'
                 AND todo_repeatflag <> 'default'
-            ) THEN 'recurring'
-            ELSE 'default'
-        END AS todo_derived__recurring
+            ) THEN true
+            ELSE false
+        END AS todo_derived__is_repeat
     FROM
         init_todo b
 ),
