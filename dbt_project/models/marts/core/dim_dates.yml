@@ -12,7 +12,6 @@ models:
         description: ""
         meta:
           dimension:
-            # hidden: true
             type: date
             time_intervals:
               - DAY
@@ -36,7 +35,6 @@ models:
         description: ""
         meta:
           dimension:
-            # hidden: true
             type: number
       - name: day_of_week
         description: ""
@@ -54,7 +52,6 @@ models:
         description: ""
         meta:
           dimension:
-            # hidden: true
             type: string
       - name: first_day_of_week
         description: ""
@@ -120,7 +117,6 @@ models:
         description: ""
         meta:
           dimension:
-            # hidden: true
             type: number
       - name: day_of_quarter
         description: ""
@@ -132,13 +128,11 @@ models:
         description: ""
         meta:
           dimension:
-            # hidden: true
             type: string
       - name: quarter_desc
         description: ""
         meta:
           dimension:
-            # hidden: true
             type: string
       - name: first_day_of_quarter
         description: ""

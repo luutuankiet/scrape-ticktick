@@ -5,7 +5,6 @@ models:
       order_fields_by: index
       required_filters:
         - due_date.date_id: inTheNext 4 weeks
-        # - todo_id_lookahead: "!null" # todo: watch when LD allows triggers overriding this filter. for now define it @ metric level
       joins:
         - join: dim_lists
           type: inner
@@ -79,6 +78,10 @@ models:
           - relationships:
               field: date_key
               to: ref('dim_dates')
+        meta:
+          dimension:
+            type: string
+            hidden: true
       - name: date_modified_key
         description: ""
         tests:
@@ -93,7 +96,6 @@ models:
         description: ""
         meta:
           dimension:
-            # hidden: true
             type: string
       - name: list_key
         description: ""
@@ -133,7 +135,6 @@ models:
               - apply is not null condition on most metrics except the actual lookahead metrics.
         meta:
           dimension:
-            # hidden: true
             type: string
           metrics:
             lookahead_norepeat_count:
@@ -399,19 +400,16 @@ models:
         description: ""
         meta:
           dimension:
-            # hidden: true
             type: timestamp
       - name: todo_modifiedtime_humanize
         description: ""
         meta:
           dimension:
-            # hidden: true
             type: string
       - name: todo_duedate_humanize
         description: ""
         meta:
           dimension:
-            # hidden: true
             type: string
       - name: todo_etag
         description: ""
@@ -613,100 +611,149 @@ models:
       - name: todo_derived__tag_semantic
         meta:
           dimension:
-            # hidden: true
-            groups: ['derived']
-            label: 'tag semantic'
+            groups:
+              - derived
+            label: tag semantic
             type: string
-            sql: |
+            sql: >
               case when ${todo_tags} like '%clarifyme%' then 'inbox v1' 
+
               when ${todo_tags} = 'default' then 'inbox' 
-              -- when (${todo_tags} = 'default' or ${todo_tags} like '%@%') then 'next action v1'
-              when (${todo_tags} like '%clarified%' or ${todo_tags} like '%@%') then 'next action'
+
+              -- when (${todo_tags} = 'default' or ${todo_tags} like '%@%') then
+              'next action v1'
+
+              when (${todo_tags} like '%clarified%' or ${todo_tags} like '%@%')
+              then 'next action'
+
               when ${todo_tags} like '%someday%' then 'someday'
+
               when ${todo_tags} like '%waiting_for%' then 'waiting for' 
+
               when ${todo_tags} like '%tickler%' then 'tickler' 
-              else TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(${todo_tags}, '[', ''), ']', ''), '''', ''))      
+
+              else TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(${todo_tags}, '[',
+              ''), ']', ''), '''', ''))      
+
               end
           metrics:
             tags_count:
               type: count
+        description: ""
       - name: todo_derived__is_repeat
-        meta: 
+        meta:
           dimension:
-            # hidden: true
-            groups: ['derived']
-            label: 'is repeat'
+            groups:
+              - derived
+            label: is repeat
+            type: boolean
+            sql: case when ${todo_repeatflag} <> 'default' then true else false end
+        description: ""
+      - name: todo_derived__is_task
+        description: derived from custom sql logic
+        meta:
+          dimension:
+            groups:
+              - derived
+            label: is task
             type: boolean
             sql: >-
-              case when ${todo_repeatflag} <> 'default' then true else false
-              end
-      - name : todo_derived__is_task
-        description: "derived from custom sql logic"
+              case when NOT (${todo_kind} = 'NOTE' or ${todo_tags} like
+              '%tickler%') then true else false end
+      - name: todo_derived__is_active
+        description: >
+          the item belongs to an active folder - not in ('🚀SOMEDAY
+          lists','🛩Horizon of focus','💤on hold lists')
         meta:
           dimension:
-            # hidden: true
-            groups: ['derived']
-            label: 'is task'
+            label: is active
+            groups:
+              - derived
             type: boolean
-            sql: case when NOT (${todo_kind} = 'NOTE' or ${todo_tags} like '%tickler%') then true else false end
-        
-      - name : todo_derived__is_active
-        description: |
-          the item belongs to an active folder - not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists')
-        meta:
-          dimension:
-            # hidden: true
-            label: 'is active'
-            groups: ['derived']
-            type: boolean
-            sql: |
-              case when ${dim_folders.folder_name} not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists') 
+            sql: >
+              case when ${dim_folders.folder_name} not in ('🚀SOMEDAY
+              lists','🛩Horizon of focus','💤on hold lists') 
+
               AND
-              ${dim_lists.list_name} not in ('🧳SOMEDAY','📍ref - tickler notes for the day')
+
+              ${dim_lists.list_name} not in ('🧳SOMEDAY','📍ref - tickler notes
+              for the day')
+
               then true else false end
       - name: todo_derived__unplanned
-        description: |
-          tasks that are due on the same day they are created OR done on the same day created
+        description: >
+          tasks that are due on the same day they are created OR done on the
+          same day created
         meta:
           dimension:
-            # hidden: true
-            label: 'unplanned flag'
-            groups: ['derived']
+            label: unplanned flag
+            groups:
+              - derived
             type: string
-            sql: |
+            sql: >
               case when 
-              (${dim_statuses.status_desc} = 'undone' AND ${created_date.date_id} != ${due_date.date_id} )
+
+              (${dim_statuses.status_desc} = 'undone' AND
+              ${created_date.date_id} != ${due_date.date_id} )
+
               OR 
-              (${dim_statuses.status_desc} in ('done', 'wont do') AND ${created_date.date_id} != ${completed_date.date_id} )
+
+              (${dim_statuses.status_desc} in ('done', 'wont do') AND
+              ${created_date.date_id} != ${completed_date.date_id} )
+
               then 'planned' 
-              when ${dim_statuses.status_desc} not in ('undone', 'done','wont do') then 'default'
+
+              when ${dim_statuses.status_desc} not in ('undone', 'done','wont
+              do') then 'default'
+
               else 'unplanned' end
       - name: todo_derived__overdue
         description: |
           tasks that are due compared to current date
         meta:
           dimension:
-            # hidden: true
-            label: 'overdue?'
-            groups: ['derived']
+            label: overdue?
+            groups:
+              - derived
             type: boolean
-            sql: |
-              date_trunc('DAY',${due_date.date_id_day}) < date_trunc('DAY',current_timestamp)
+            sql: >
+              date_trunc('DAY',${due_date.date_id_day}) <
+              date_trunc('DAY',current_timestamp)
       - name: todo_derived__repeat_semantic
-        description: |
-          flag if the task is a repeat. so that i can drill down & not getting error from a custom dimension field
+        description: >
+          flag if the task is a repeat. so that i can drill down & not getting
+          error from a custom dimension field
         meta:
           dimension:
-            # hidden: true
-            label: 'repeat_semantic'
-            groups: ['derived']
+            label: repeat_semantic
+            groups:
+              - derived
             type: string
-            sql: |
-              case when ${fact_todos.todo_derived__is_repeat} is true then 'repeat' else '' end
+            sql: >
+              case when ${fact_todos.todo_derived__is_repeat} is true then
+              'repeat' else '' end
       - name: dummy
         description: dummy column for drill down purposes
         meta:
-         dimension:
-          groups: ['boilerplate']
-          type: string
-          sql: "case when 1=1 then '' else null end"
+          dimension:
+            groups:
+              - boilerplate
+            type: string
+            sql: case when 1=1 then '' else null end
+      - name: rn
+        description: ""
+        meta:
+          dimension:
+            type: number
+            hidden: true
+      - name: todo_modifiedtime_derived_date
+        description: ""
+        meta:
+          dimension:
+            type: date
+            hidden: true
+      - name: todo_derived__recurring
+        description: "flag to identify true recurring tasks"
+        meta:
+          dimension:
+            type: string

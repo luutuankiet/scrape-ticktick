@@ -1,9 +1,34 @@
-WITH todo AS (
+WITH init_todo AS (
     SELECT
-    distinct 
-        {{ coalesce_defaults(ref('src__tasks_raw')) }}
+        DISTINCT {{ coalesce_defaults(ref('src__tasks_raw')) }}
     FROM
         {{ ref('src__tasks_raw') }}
+),
+todo AS (
+    -- handle flagging habits
+    SELECT
+        *,
+        CASE
+            WHEN (
+                todo_status <> '0'
+                AND EXISTS (
+                    SELECT
+                        todo_id
+                    FROM
+                        init_todo A
+                    WHERE
+                        A.todo_id = b.todo_repeattaskid
+                        AND A.todo_repeatflag <> 'default'
+                )
+            )
+            OR (
+                todo_status = '0'
+                AND todo_repeatflag <> 'default'
+            ) THEN 'recurring'
+            ELSE 'default'
+        END AS todo_derived__recurring
+    FROM
+        init_todo b
 ),
 lists AS (
     SELECT
@@ -51,7 +76,7 @@ joined AS (
         t.*,
         case when 
         -- build the flag window
-        -- case1: the records from due_lookahead
+            -- case1: the records from due_lookahead
         dl.date_id is not null then true
         when 
         -- case2: the left records facts; grabs dummy records within the window
