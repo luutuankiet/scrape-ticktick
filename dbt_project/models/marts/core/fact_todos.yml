@@ -289,7 +289,7 @@ models:
         description: ""
         meta:
           dimension:
-            hidden: true
+            # hidden: true
             type: timestamp
           additional_dimensions:
             todo_is_time_sensitive:
