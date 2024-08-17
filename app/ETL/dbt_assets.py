@@ -19,7 +19,7 @@ conn = create_engine(db_url)
 
 @dbt_assets(manifest=dbt_manifest_path)
 def ticktick_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
-    dbt_invocation = dbt.cli(["run"], context=context)
+    dbt_invocation = dbt.cli(["run","-q"], context=context)
     yield from dbt_invocation.stream()
 
     #cleanup the dir after done
