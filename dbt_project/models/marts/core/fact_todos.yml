@@ -267,6 +267,20 @@ models:
                   - wont do
                 - todo_derived__is_task: true
                 - todo_derived__tag_semantic: next action
+            habit_streak_metric:
+              description: "helper pre-agg to allow hiding status in habit_streak when pivotting"
+              groups: ['habit']
+              label: "streak"
+              type: average
+              sql: todo_derived__habit_streak
+
+      - name: todo_derived__habit_streak
+        description: rolling streak of habit that +1 of each consecutive done items.
+        meta:
+          dimension:
+            groups: ['habit']
+            hidden: true
+            type: number
       - name: todo_createdtime
         description: ""
         meta:
@@ -762,4 +776,22 @@ models:
         description: "flag to identify true recurring tasks"
         meta:
           dimension:
+            groups: 
+              - derived
             type: string
+      - name: todo_derived__habit_repeat_freq
+        description: "identifies as 3 categories : daily, monthly and all other"
+        meta:
+          dimension:
+            groups: 
+              - derived
+            type: string
+            label: "repeat frequency" 
+            sql: |
+              case when ${todo_repeatflag} like '%DAILY%' then 'daily'
+              when ${todo_repeatflag} like '%WEEKLY%' then 'weekly'
+              when ${todo_repeatflag} like '%MONTHLY%' then 'monthly'
+              when ${todo_repeatflag} like '%CUSTOM%' then 'custom'
+              else 'default'
+              end
+      

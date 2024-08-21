@@ -57,13 +57,13 @@ models:
         description: ""
         meta:
           dimension:
-            hidden: true
+            # hidden: true
             type: date
       - name: last_day_of_week
         description: ""
         meta:
           dimension:
-            hidden: true
+            # hidden: true
             type: date
       - name: month_key
         description: ""
