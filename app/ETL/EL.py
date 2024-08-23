@@ -5,7 +5,7 @@ import pandas as pd
 import sys; sys.path.append('..') # to allow import helper which is 1 dir away
 from helper.source_env import raw_path,dw_path,ETL_workdir,db_url,target_schema
 import time
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine,text
 from datetime import datetime
 import pytz
 import humanize
@@ -43,16 +43,26 @@ names = ['tasks_raw', 'lists_raw', 'folders_raw']
     compute_kind='python',deps=[init_extract]
 )
 def raw_data():
-    for name in names:
-        raw_file_path = os.path.join(raw_path,name+'.json')
-        df = pd.read_json(raw_file_path,dtype=str)
-        df.columns = df.columns.str.lower()
-        if name == 'tasks_raw':
-            df['modifiedtime_humanize'] = df['modifiedtime'].apply(humanize_timestamp)
-            df['duedate_humanize'] = df['duedate'].apply(humanize_timestamp)
-        df.to_sql(name, engine, if_exists='replace', index=False, schema=target_schema+'_raw')
-   
-        yield Output(value=df,output_name=name)
+    with engine.connect() as conn:
+        for name in names:
+            raw_file_path = os.path.join(raw_path, name + '.json')
+            df = pd.read_json(raw_file_path, dtype=str)
+            df.columns = df.columns.str.lower()
+            if name == 'tasks_raw':
+                df['modifiedtime_humanize'] = df['modifiedtime'].apply(humanize_timestamp)
+                df['duedate_humanize'] = df['duedate'].apply(humanize_timestamp)
+            
+            # Use text() to execute the raw SQL command
+            conn.execute(text(f"DROP TABLE IF EXISTS {target_schema+'_raw'}.{name}"))
+            conn.commit()
+
+            # Insert the data
+            df.to_sql(name, engine, index=False, schema=target_schema+'_raw')
+       
+            yield Output(value=df, output_name=name)
+        conn.close()
+
+
 
 
 
