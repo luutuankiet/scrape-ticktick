@@ -43,8 +43,8 @@ _todo__recurring AS (
             OR (
                 todo_status = '0'
                 AND todo_repeatflag <> 'default'
-            ) THEN True
-            ELSE False
+            ) THEN 'recurring'
+            ELSE 'default'
         END AS todo_derived__is_repeat
     FROM
         init_todo b
@@ -91,7 +91,7 @@ _todo__habit_streak AS (
     FROM
         _todo__habit_streak_init
     WHERE
-        todo_derived__is_repeat is True
+        todo_derived__is_repeat = 'recurring'
 ),
 todo AS (
     SELECT
