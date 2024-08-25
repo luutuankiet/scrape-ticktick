@@ -1015,3 +1015,33 @@ models:
         meta:
           dimension:
             type: boolean
+      - name: date_modified_key
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_modifiedtime_humanize
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_duedate_humanize
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: rn
+        description: ""
+        meta:
+          dimension:
+            type: number
+      - name: todo_modifiedtime_derived_date
+        description: ""
+        meta:
+          dimension:
+            type: date
+      - name: todo_derived__recurring
+        description: ""
+        meta:
+          dimension:
+            type: string

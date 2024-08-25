@@ -1,0 +1,19 @@
+source:
+  type: "dbt"
+  config:
+    # Coordinates
+    # To use this as-is, set the environment variable DBT_PROJECT_DIR to the root folder of your dbt project
+    manifest_path: "${DBT_PROJECT_DIR}/target/manifest.json"
+    catalog_path: "${DBT_PROJECT_DIR}/target/catalog.json"
+    sources_path: "${DBT_PROJECT_DIR}/target/sources.json" # optional for freshness
+    test_results_path: "${DBT_PROJECT_DIR}/target/run_results.json" # optional for recording dbt test results after running dbt test
+
+    # Options
+    target_platform: "postgres" # e.g. bigquery/postgres/etc.
+
+# sink configs
+sink:
+  type: "datahub-rest"
+  config:
+    server: "http://192.168.1.18:8080"
+    token: eyJhbGciOiJIUzI1NiJ9.eyJhY3RvclR5cGUiOiJVU0VSIiwiYWN0b3JJZCI6ImRhdGFodWIiLCJ0eXBlIjoiUEVSU09OQUwiLCJ2ZXJzaW9uIjoiMiIsImp0aSI6ImY3NGU3YzNmLTZmNzMtNGY0NC1iZGFjLTQ0YTA3NWI5Yzc0NyIsInN1YiI6ImRhdGFodWIiLCJpc3MiOiJkYXRhaHViLW1ldGFkYXRhLXNlcnZpY2UifQ.pPwBfGmpWezmP1Uzp8GpnUnFoaD5D2e9U1JZNw2CzVA

@@ -5,7 +5,6 @@ models:
       order_fields_by: index
       required_filters:
         - due_date.date_id: inTheNext 4 weeks
-        # - todo_id_lookahead: "!null" # todo: watch when LD allows triggers overriding this filter. for now define it @ metric level
       joins:
         - join: dim_lists
           type: inner
@@ -79,6 +78,10 @@ models:
           - relationships:
               field: date_key
               to: ref('dim_dates')
+        meta:
+          dimension:
+            type: string
+            hidden: true
       - name: date_modified_key
         description: ""
         tests:
@@ -93,7 +96,6 @@ models:
         description: ""
         meta:
           dimension:
-            # hidden: true
             type: string
       - name: list_key
         description: ""
@@ -133,7 +135,6 @@ models:
               - apply is not null condition on most metrics except the actual lookahead metrics.
         meta:
           dimension:
-            # hidden: true
             type: string
           metrics:
             lookahead_norepeat_count:
@@ -166,6 +167,7 @@ models:
                 - completed_date.year_key: "0"
                 - lookahead_flag : true
                 - todo_derived__is_repeat : true
+                - todo_is_time_sensitive : false
                 - dim_dates_lookahead.date_id: "!1900" # todo: how to discard the count in 1900 only.
                 # - dim_dates_lookahead.date_id: # todo : watch when LD allows this AND interval filter.
                 #     - "inThePast 5 days"
@@ -187,7 +189,9 @@ models:
               description: component metric to compare btwn today's modified next action, and all time inbox
               filters:
                 - dim_lists.list_isActive: true
-                - dim_statuses.status_desc: done
+                - dim_statuses.status_desc: 
+                  - done
+                  - wont do
                 - todo_derived__is_task: true
                 - todo_derived__is_active: true
                 - todo_derived__tag_semantic: 
@@ -204,6 +208,79 @@ models:
                 - todo_derived__is_task: true
                 - todo_derived__is_active: true
                 - todo_derived__tag_semantic: inbox
+            overdue_count_today:
+              groups: ['daily monitor']
+              type: count
+              description: count of tasks due today
+              filters:
+                - dim_lists.list_isActive: true
+                - dim_statuses.status_desc: undone
+                - todo_derived__is_task: true
+                - todo_derived__is_active: true
+                - todo_derived__tag_semantic: 
+                  - inbox
+                  - next action
+                - due_date.date_id: "inThePast 1 days"
+                - todo_derived__overdue: true
+            clarifytoday_count:
+              groups: ['daily monitor']
+              type: count
+              description: count of all high priority clarifytoday tasks
+              filters:
+                - dim_lists.list_isActive: true
+                - dim_statuses.status_desc: undone
+                - todo_derived__is_task: true
+                - todo_derived__is_active: true
+                - todo_derived__tag_semantic: inbox
+                - todo_title: "%clarifytoday%"
+            open_loops_count:
+              groups: ['daily monitor']
+              type: max
+              description: count of open loops in the note
+              sql: |
+                regexp_count(("fact_todos".todo_content), E'\n[A-Za-z0-9]')
+              filters:
+                - todo_id: "9be74928bd36e5772850726c"
+            done_count__semantic_clarification:
+              groups: ['historical']
+              type: count
+              description: | 
+                count of done tasks with semantically categorized from upstream action : 
+                  - from a clarification action - tag semantic is 'inbox'
+                  - from actual deep work action - tag semantic is 'next action'
+              filters:
+                - dim_statuses.status_desc: 
+                  - done
+                  - wont do
+                - todo_derived__is_task: true
+                - todo_derived__tag_semantic: inbox
+            done_count__semantic_deep_work:
+              groups: ['historical']
+              type: count
+              description: | 
+                count of done tasks with semantically categorized from upstream action : 
+                  - from a clarification action - tag semantic is 'inbox'
+                  - from actual deep work action - tag semantic is 'next action'
+              filters:
+                - dim_statuses.status_desc: 
+                  - done
+                  - wont do
+                - todo_derived__is_task: true
+                - todo_derived__tag_semantic: next action
+            habit_streak_metric:
+              description: "helper pre-agg to allow hiding status in habit_streak when pivotting"
+              groups: ['habit']
+              label: "streak"
+              type: average
+              sql: todo_derived__habit_streak
+
+      - name: todo_derived__habit_streak
+        description: rolling streak of habit that +1 of each consecutive done items.
+        meta:
+          dimension:
+            groups: ['habit']
+            hidden: true
+            type: number
       - name: todo_createdtime
         description: ""
         meta:
@@ -226,8 +303,18 @@ models:
         description: ""
         meta:
           dimension:
-            hidden: true
+            # hidden: true
             type: timestamp
+          additional_dimensions:
+            todo_is_time_sensitive:
+              description: "flag if the due date is time sensitive."
+              type: boolean
+              sql: |
+                case when 
+                extract(HOUR from todo_duedate) = 0 and 
+                extract(MINUTE from todo_duedate) = 0 then false else true end
+            
+            
       - name: todo_projectid
         description: ""
         meta:
@@ -245,6 +332,7 @@ models:
         meta:
           dimension:
             # hidden: true
+            label: "(1) title"
             type: string
             urls:
               - label: "open in app"
@@ -326,9 +414,18 @@ models:
         description: ""
         meta:
           dimension:
-            # hidden: true
             type: timestamp
       - name: todo_modifiedtime_humanize
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_duedate_humanize
+        description: ""
+        meta:
+          dimension:
+            type: string
+      - name: todo_duedate_humanize
         description: ""
         meta:
           dimension:
@@ -534,52 +631,158 @@ models:
       - name: todo_derived__tag_semantic
         meta:
           dimension:
-            # hidden: true
-            groups: ['derived']
-            label: 'tag semantic'
+            groups:
+              - derived
+            label: tag semantic
             type: string
-            sql: |
-              case when ${todo_tags} like '%clarifyme%' then 'inbox' 
-              when (${todo_tags} = 'default' or ${todo_tags} like '%@%') then 'next action'
+            sql: >
+              case when ${todo_tags} like '%clarifyme%' then 'inbox v1' 
+
+              when ${todo_tags} = 'default' then 'inbox' 
+
+              -- when (${todo_tags} = 'default' or ${todo_tags} like '%@%') then
+              'next action v1'
+
+              when (${todo_tags} like '%clarified%' or ${todo_tags} like '%@%')
+              then 'next action'
+
               when ${todo_tags} like '%someday%' then 'someday'
+
               when ${todo_tags} like '%waiting_for%' then 'waiting for' 
+
               when ${todo_tags} like '%tickler%' then 'tickler' 
-              else TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(${todo_tags}, '[', ''), ']', ''), '''', ''))      
+
+              else TRIM(BOTH ' ' FROM REPLACE(REPLACE(REPLACE(${todo_tags}, '[',
+              ''), ']', ''), '''', ''))      
+
               end
           metrics:
             tags_count:
               type: count
-      - name: todo_derived__is_repeat
-        meta: 
+        description: ""
+      - name: todo_derived__is_task
+        description: derived from custom sql logic
+        meta:
           dimension:
-            # hidden: true
-            groups: ['derived']
-            label: 'is repeat'
+            groups:
+              - derived
+            label: is task
             type: boolean
             sql: >-
-              case when ${todo_repeatflag} <> 'default' then true else false
-              end
-      - name : todo_derived__is_task
-        description: "derived from custom sql logic"
+              case when NOT (${todo_kind} = 'NOTE' or ${todo_tags} like
+              '%tickler%') then true else false end
+      - name: todo_derived__is_active
+        description: >
+          the item belongs to an active folder - not in ('🚀SOMEDAY
+          lists','🛩Horizon of focus','💤on hold lists')
         meta:
           dimension:
-            # hidden: true
-            groups: ['derived']
-            label: 'is task'
+            label: is active
+            groups:
+              - derived
             type: boolean
-            sql: case when NOT (${todo_kind} = 'NOTE' or ${todo_tags} like '%tickler%') then true else false end
-        
-      - name : todo_derived__is_active
-        description: |
-          the item belongs to an active folder - not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists')
-        meta:
-          dimension:
-            # hidden: true
-            label: 'is active'
-            groups: ['derived']
-            type: boolean
-            sql: |
-              case when ${dim_folders.folder_name} not in ('🚀SOMEDAY lists','🛩Horizon of focus','💤on hold lists') 
+            sql: >
+              case when ${dim_folders.folder_name} not in ('🚀SOMEDAY
+              lists','🛩Horizon of focus','💤on hold lists') 
+
               AND
-              ${dim_lists.list_name} not in ('🧳SOMEDAY','📍ref - tickler notes for the day')
+
+              ${dim_lists.list_name} not in ('🧳SOMEDAY','📍ref - tickler notes
+              for the day')
+
               then true else false end
+      - name: todo_derived__unplanned
+        description: >
+          tasks that are due on the same day they are created OR done on the
+          same day created
+        meta:
+          dimension:
+            label: unplanned flag
+            groups:
+              - derived
+            type: string
+            sql: >
+              case when 
+
+              (${dim_statuses.status_desc} = 'undone' AND
+              ${created_date.date_id} != ${due_date.date_id} )
+
+              OR 
+
+              (${dim_statuses.status_desc} in ('done', 'wont do') AND
+              ${created_date.date_id} != ${completed_date.date_id} )
+
+              then 'planned' 
+
+              when ${dim_statuses.status_desc} not in ('undone', 'done','wont
+              do') then 'default'
+
+              else 'unplanned' end
+      - name: todo_derived__overdue
+        description: |
+          tasks that are due compared to current date
+        meta:
+          dimension:
+            label: overdue?
+            groups:
+              - derived
+            type: boolean
+            sql: >
+              date_trunc('DAY',${due_date.date_id_day}) <
+              date_trunc('DAY',current_timestamp)
+      - name: todo_derived__repeat_semantic
+        description: >
+          flag if the task is a repeat. so that i can drill down & not getting
+          error from a custom dimension field
+        meta:
+          dimension:
+            label: repeat_semantic
+            groups:
+              - derived
+            type: string
+            sql: >
+              case when ${fact_todos.todo_derived__is_repeat} is true then
+              'repeat' else '' end
+      - name: dummy
+        description: dummy column for drill down purposes
+        meta:
+          dimension:
+            groups:
+              - boilerplate
+            type: string
+            sql: case when 1=1 then '' else null end
+      - name: rn
+        description: ""
+        meta:
+          dimension:
+            type: number
+            hidden: true
+      - name: todo_modifiedtime_derived_date
+        description: ""
+        meta:
+          dimension:
+            type: date
+            hidden: true
+      - name: todo_derived__is_repeat
+        description: "flag to identify true recurring tasks"
+        meta:
+          dimension:
+            groups: 
+              - derived
+            type: boolean
+      - name: todo_derived__habit_repeat_freq
+        description: "identifies as 3 categories : daily, monthly and all other"
+        meta:
+          dimension:
+            groups: 
+              - derived
+            type: string
+            label: "repeat frequency" 
+            sql: |
+              case when ${todo_repeatflag} like '%DAILY%' then 'daily'
+              when ${todo_repeatflag} like '%WEEKLY%' then 'weekly'
+              when ${todo_repeatflag} like '%MONTHLY%' then 'monthly'
+              when ${todo_repeatflag} like '%CUSTOM%' then 'custom'
+              else 'default'
+              end
+      

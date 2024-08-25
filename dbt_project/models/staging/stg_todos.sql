@@ -1,9 +1,108 @@
-WITH todo AS (
+{# materialized='incremental', #}
+{# unique_key = ['todo_id'], #}
+{# on_schema_change='append_new_columns', #}
+{{ config(
+    materialized = 'table',
+    indexes = [ {'columns': ['list_key'],
+    'type': 'hash' },{ 'columns': ['folder_key'],
+    'type': 'hash' },{ 'columns': ['status_key'],
+    'type': 'hash' },{ 'columns': ['date_start_key'],
+    'type': 'hash' },{ 'columns': ['date_due_key'],
+    'type': 'hash' },{ 'columns': ['date_completed_key'],
+    'type': 'hash' },{ 'columns': ['date_created_key'],
+    'type': 'hash' },{ 'columns': ['date_modified_key'],
+    'type': 'hash' },{ 'columns': ['date_due_lookahead_key'],
+    'type': 'hash' },],
+    unlogged = True
+) }}
+
+WITH init_todo AS (
+
     SELECT
-    distinct 
-        {{ coalesce_defaults(ref('src__tasks_raw')) }}
+        DISTINCT {{ coalesce_defaults(ref('src__tasks_raw')) }}
     FROM
         {{ ref('src__tasks_raw') }}
+),
+_todo__recurring AS (
+    -- handle flagging habits
+    SELECT
+        *,
+        CASE
+            WHEN (
+                todo_status <> '0'
+                AND EXISTS (
+                    SELECT
+                        todo_id
+                    FROM
+                        init_todo A
+                    WHERE
+                        A.todo_id = b.todo_repeattaskid
+                        AND A.todo_repeatflag <> 'default'
+                )
+            )
+            OR (
+                todo_status = '0'
+                AND todo_repeatflag <> 'default'
+            ) THEN True
+            ELSE False
+        END AS todo_derived__is_repeat
+    FROM
+        init_todo b
+),
+_todo__habit_streak_init AS (
+    -- create buckets
+    SELECT
+        *,
+        CASE
+            WHEN todo_status = '2' THEN SUM(
+                CASE
+                    WHEN todo_status = '2' THEN 1
+                    ELSE 0
+                END
+            ) over (
+                PARTITION BY todo_repeattaskid
+                ORDER BY
+                    todo_completedtime rows BETWEEN unbounded preceding
+                    AND CURRENT ROW
+            ) - ROW_NUMBER() over (
+                PARTITION BY todo_repeattaskid
+                ORDER BY
+                    todo_completedtime
+            ) + 1
+            ELSE NULL
+        END AS _todo__habit_streak_bucket_id
+    FROM
+        _todo__recurring
+),
+_todo__habit_streak AS (
+    -- add additional column for rolling streak counter all time
+    SELECT
+        *,
+        CASE
+            WHEN todo_status = '2' THEN ROW_NUMBER() over(
+                PARTITION BY todo_repeattaskid,
+                _todo__habit_streak_bucket_id
+                ORDER BY
+                    todo_completedtime ASC
+            )
+            when todo_status = '0' then NULL
+            when todo_status = '-1' then 0
+        END AS todo_derived__habit_streak
+    FROM
+        _todo__habit_streak_init
+    WHERE
+        todo_derived__is_repeat is True
+),
+todo AS (
+    SELECT
+        r.*,
+        {# case when r.todo_derived__is_repeat is True then 'recurring' else 'default' end as todo_derived__recurring, #}
+        h.todo_derived__habit_streak,
+        h._todo__habit_streak_bucket_id
+    FROM
+        _todo__recurring r
+        LEFT JOIN _todo__habit_streak h
+        ON r.todo_id = h.todo_id
 ),
 lists AS (
     SELECT
@@ -49,15 +148,14 @@ joined AS (
         {{ dbt_utils.generate_surrogate_key(['folder_id']) }} AS folder_key,
         {{ dbt_utils.generate_surrogate_key(['status_id']) }} AS status_key,
         t.*,
-        case when 
-        -- build the flag window
-        -- case1: the records from due_lookahead
-        dl.date_id is not null then true
-        when 
-        -- case2: the left records facts; grabs dummy records within the window
-        todo_id is null then true
-        else false 
-        end as lookahead_flag,
+        CASE
+            WHEN -- build the flag window
+            -- case1: the records from due_lookahead
+            dl.date_id IS NOT NULL THEN TRUE
+            WHEN -- case2: the left records facts; grabs dummy records within the window
+            todo_id IS NULL THEN TRUE
+            ELSE FALSE
+        END AS lookahead_flag,
         COALESCE(
             l.list_id,
             'default'
@@ -87,8 +185,8 @@ joined AS (
         LEFT JOIN dates ddcm
         ON ddcm.date_id = t.todo_completedtime_derived_date
         LEFT JOIN dates ddm
-        ON ddm.date_id = t.todo_modifiedtime_derived_date 
-        FULL OUTER JOIN dates_lookahead dl
+        ON ddm.date_id = t.todo_modifiedtime_derived_date full
+        OUTER JOIN dates_lookahead dl
         ON dl.date_id = t.todo_duedate_derived_date
 )
 SELECT

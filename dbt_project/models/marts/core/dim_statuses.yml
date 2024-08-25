@@ -18,11 +18,9 @@ models:
         description: ""
         meta:
           dimension:
-            # hidden: true
             type: string
       - name: status_comments
         description: ""
         meta:
           dimension:
-            # hidden: true
             type: string

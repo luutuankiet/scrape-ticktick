@@ -5,7 +5,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from helper.source_env import dbt_project_dir,service_account_path,dw_path
 import gspread
 import csv
-from dagster import op,Definitions,job
+from dagster import op,Definitions,job,in_process_executor
 from sqlalchemy import create_engine,text
 from EL import db_url
 import pandas as pd
@@ -86,7 +86,7 @@ def dump_mapping_to_csv(results=None):
 
 
 
-@job
+@job(executor_def=in_process_executor)
 def load_new_lvl3_data():
     dump_mapping_to_csv(load_mapping_to_stg())
 

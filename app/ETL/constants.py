@@ -7,7 +7,7 @@ DBT_PROFILES_DIR=os.environ.get("DBT_PROFILES_DIR")
 
 dbt = DbtCliResource(project_dir=DBT_PROFILES_DIR,profiles_dir=DBT_PROFILES_DIR)
 
-if os.getenv("DAGSTER_DBT_PARSE_PROJECT_ON_LOAD"):
+if os.getenv("DAGSTER_DBT_PARSE_PROJECT_ON_LOAD") == 1:
     dbt_manifest_path = (
         dbt.cli(
             ["--quiet", "parse"],

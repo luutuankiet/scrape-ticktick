@@ -8,7 +8,7 @@ WITH source AS (
             'src__folders_raw'
         ) }}
 )
-
+ 
 SELECT
     {{ dbt_utils.generate_surrogate_key(['folder_id']) }} AS folder_key,*
 FROM
