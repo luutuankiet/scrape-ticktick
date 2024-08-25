@@ -6,7 +6,7 @@ on:
 
 env:
   DBT_VERSION: "1.8.1"
-  PROJECT_DIR: "./dbt_project.yml"
+  PROJECT_DIR: "./dbt_project"
 
 jobs:
   preview:
