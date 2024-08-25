@@ -6,6 +6,7 @@ on:
 
 env:
   DBT_VERSION: "1.8.1"
+  PROJECT_DIR: "./dbt_project.yml"
 
 jobs:
   preview:
@@ -16,6 +17,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3.4.1
+        with:
+          node-version: '20'
       - uses: actions/setup-python@v1
         with:
           python-version: "3.9.x"
@@ -32,9 +35,6 @@ jobs:
 
       - name: Move credentials to /tmp 
         run: mv googlecredentials.json /tmp || true
-
-      - name: Locate dbt_project.yml
-        run: echo "PROJECT_DIR=$(find ./dbt_project -name "dbt_project.yml" | head -n 1  | sed  's/dbt_project.yml//g')" >> $GITHUB_ENV
 
       - name: Get lightdash version 
         uses: sergeysova/jq-action@v2
