@@ -5,7 +5,7 @@ on:
     branches-ignore: [ "main", "master", "BETA_prod" ]
 
 env:
-  DBT_VERSION: "1.7.10"
+  DBT_VERSION: "1.8.1"
 
 jobs:
   preview:
