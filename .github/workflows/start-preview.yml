@@ -34,7 +34,7 @@ jobs:
         run: mv googlecredentials.json /tmp || true
 
       - name: Locate dbt_project.yml
-        run: echo "PROJECT_DIR=$(find . -name "dbt_project.yml"  | sed  's/dbt_project.yml//g')" >> $GITHUB_ENV
+        run: echo "PROJECT_DIR=$(find ./dbt_project -name "dbt_project.yml"  | sed  's/dbt_project.yml//g')" >> $GITHUB_ENV
 
       - name: Get lightdash version 
         uses: sergeysova/jq-action@v2
@@ -64,7 +64,7 @@ jobs:
           LIGHTDASH_URL: ${{ secrets.LIGHTDASH_URL }}    
           GOOGLE_APPLICATION_CREDENTIALS: '/tmp/googlecredentials.json'
 
-        run:  lightdash start-preview --project-dir "$PROJECT_DIR" --profiles-dir . --name ${GITHUB_REF##*/}
+        run:  lightdash start-preview --project-dir "$PROJECT_DIR" --profiles-dir ./dbt_project --name ${GITHUB_REF##*/}
 
       - uses: jwalton/gh-find-current-pr@v1
         id: finder
