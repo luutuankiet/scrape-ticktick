@@ -1,3 +1,5 @@
+[![start-preview](https://github.com/luutuankiet/scrape-ticktick/actions/workflows/start-preview.yml/badge.svg)](https://github.com/luutuankiet/scrape-ticktick/actions/workflows/start-preview.yml)
+
 # prequisite
 
 download `service_account.json` put it to /workspaces/scrape-ticktick/app/env
