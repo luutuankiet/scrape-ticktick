@@ -5,7 +5,9 @@ on:
     branches-ignore: [ "main", "master", "BETA_prod" ]
 
 env:
-  DBT_VERSION: "1.7.10"
+  DBT_VERSION: "1.8.1"
+  PROJECT_DIR: "./dbt_project"
+  DW_DBNAME: "gtd_dash"
 
 jobs:
   preview:
@@ -15,10 +17,43 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3.4.1
+
+      - name: Cache Python packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.local
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
       - uses: actions/setup-python@v1
         with:
           python-version: "3.9.x"
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install dbt-core==$DBT_VERSION dbt-postgres==$DBT_VERSION dbt-redshift==$DBT_VERSION dbt-snowflake==$DBT_VERSION dbt-bigquery==$DBT_VERSION
+          dbt deps --project-dir "$PROJECT_DIR"
+
+      - name: Cache npm packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.npm
+            ~/.cache/npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - uses: actions/setup-node@v3.4.1
+        with:
+          node-version: '20'
+
+      - name: Install npm dependencies
+        run: npm install -g "@lightdash/cli@${{ steps.version.outputs.value }}" || npm install -g @lightdash/cli@latest
 
       - name: Copy Google credentials file
         env: 
@@ -33,9 +68,6 @@ jobs:
       - name: Move credentials to /tmp 
         run: mv googlecredentials.json /tmp || true
 
-      - name: Locate dbt_project.yml
-        run: echo "PROJECT_DIR=$(find . -name "dbt_project.yml"  | sed  's/dbt_project.yml//g')" >> $GITHUB_ENV
-
       - name: Get lightdash version 
         uses: sergeysova/jq-action@v2
         id: version 
@@ -49,13 +81,6 @@ jobs:
           config: ${{ secrets.DBT_PROFILES }}          
         run: echo -e "$config" > profiles.yml      
 
-      - name: Install dbt
-        run: |
-          pip install dbt-core==$DBT_VERSION dbt-postgres==$DBT_VERSION dbt-redshift==$DBT_VERSION dbt-snowflake==$DBT_VERSION dbt-bigquery==$DBT_VERSION
-          dbt deps --project-dir "$PROJECT_DIR"
-      - name: Install lightdash CLI
-        run: npm install -g "@lightdash/cli@${{ steps.version.outputs.value }}" || npm install -g @lightdash/cli@latest
-
       - name: Lightdash CLI start preview
         id: start-preview
         env:
@@ -63,7 +88,6 @@ jobs:
           LIGHTDASH_PROJECT: ${{ secrets.LIGHTDASH_PROJECT }}          
           LIGHTDASH_URL: ${{ secrets.LIGHTDASH_URL }}    
           GOOGLE_APPLICATION_CREDENTIALS: '/tmp/googlecredentials.json'
-
         run:  lightdash start-preview --project-dir "$PROJECT_DIR" --profiles-dir . --name ${GITHUB_REF##*/}
 
       - uses: jwalton/gh-find-current-pr@v1
