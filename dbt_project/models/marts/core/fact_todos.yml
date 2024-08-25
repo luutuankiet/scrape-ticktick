@@ -769,7 +769,7 @@ models:
           dimension:
             groups: 
               - derived
-            type: string
+            type: boolean
       - name: todo_derived__habit_repeat_freq
         description: "identifies as 3 categories : daily, monthly and all other"
         meta:
