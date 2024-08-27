@@ -2,7 +2,7 @@ dagster.yaml
 dagster_artifacts/*
 app/env/*
 .venv
-.env
+.env*
 __pycache__
 history
 logs

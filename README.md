@@ -9,6 +9,10 @@ MUST already have the seeding csv "list_goal_mapping" in `dbt_project/seeds/list
 
 use this command to scaffold the seeds (sourced from google sheet) `make init_seed`, THEN continue with `make deploy-from-scratch` below
 
+for vs code intergrated terminal : add this line to bashrc/zshrc/powershell or whichever your default vs code default terminal uses
+. /workspaces/scrape-ticktick/bootstrap_env.sh
+
+
 
 # development
 clone new repo & install requirements

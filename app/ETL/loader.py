@@ -39,7 +39,7 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 import time
 import sys; sys.path.append('..') # to allow import helper which is 1 dir away
-from helper.source_env import dotenv_path,raw_path
+from helper.source_env import project_dotenv_path,raw_path
 import asyncio
 
 #%%
@@ -59,7 +59,7 @@ logger.addHandler(log_handler)
 logger.setLevel(logging.INFO)
 
 
-cache_path=os.path.join(dotenv_path,'.token-oauth')
+cache_path=os.path.join(project_dotenv_path,'.token-oauth')
 
 client_id=environ.get('client_id')
 client_secret=environ.get('client_secret')

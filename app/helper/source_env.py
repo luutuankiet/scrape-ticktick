@@ -1,27 +1,45 @@
 import os 
 from dotenv import load_dotenv
 import urllib.parse
-# from app.ETL.constants import DBT_PROJECT_DIR
 
 
 
-# setup paths
-current_dir=os.path.dirname(os.path.abspath(__file__))
+def find_project_root(current_dir, marker_file='.env'):
+    while current_dir != os.path.dirname(current_dir):
+        if os.path.exists(os.path.join(current_dir, marker_file)):
+            return current_dir
+        current_dir = os.path.dirname(current_dir)
+    raise RuntimeError("Project root with marker file '{}' not found.".format(marker_file))
 
-# IMPORTANT TO HAVE THIS LOAD FIRST
-# source .env from project root to construct dbt paths
-project_dotenv_path=os.path.join(current_dir,'..','..','.env')
+# Find the project root
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = find_project_root(current_dir)
+
+
+# Load .env.bootstrap
+
+dotenv_bootstrap_path = os.path.join(project_root, '.env.bootstrap')
+load_dotenv(dotenv_bootstrap_path)
+
+
+
+# Load .env from project root
+project_dotenv_path = os.path.join(project_root, '.env')
 load_dotenv(project_dotenv_path)
 
-makefile_path = os.path.join(os.environ.get('DAGSTER_HOME'),'Makefile')
+
+
+makefile_path = os.environ.get('MAKEFILE_PATH')
 makefile_dir = os.path.dirname(makefile_path)
 
-# makefile_path = os.path.join(os.path.abspath(project_dotenv_path),'Makefile')
 raw_path = os.path.join(current_dir,'..','ETL','raw')
-dotenv_path=os.path.join(current_dir,'..','env')
-secrets_path = os.path.join(dotenv_path,'.secrets')
-service_account_path = os.path.join(dotenv_path,'service_account.json')
+ETL_env_path=os.path.join(current_dir,'..','env')
+secrets_path = os.path.join(ETL_env_path,'.secrets')
+service_account_path = os.path.join(ETL_env_path,'service_account.json')
 ETL_workdir = os.path.join(current_dir,'..','ETL')
+
+load_dotenv(secrets_path)
+
 
 
 dbt_project_dir = os.environ.get('DBT_PROJECT_DIR')
@@ -44,6 +62,3 @@ password_encoded = urllib.parse.quote(password)
 target_schema = os.environ.get('TARGET_SCHEMA','dev')
 db_url = f'postgresql://{user}:{password_encoded}@{hostname}:{port}/{database}?options='
 db_url = db_url + f'-csearch_path=={target_schema}'
-
-
-load_dotenv(secrets_path)

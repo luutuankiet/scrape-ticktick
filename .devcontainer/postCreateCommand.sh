@@ -48,9 +48,9 @@ apt-get update && apt-get install -y python3-venv
 
 # init then source env vars
 print_section "INIT & SOURCE ENV VARS"
-chmod +x ./env.sh
+chmod +x ./bootstrap_env.sh
 
-. ./env.sh
+. ./bootstrap_env.sh
 
 
 
