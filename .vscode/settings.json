@@ -35,7 +35,7 @@
     ],
     "yaml.schemas": {
         "https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/latest/dbt_yml_files-latest.json": [
-            "/**/*.yml",
+            "/dbt_project/**/*.yml",
             "!profiles.yml",
             "!dbt_project.yml",
             "!packages.yml",
