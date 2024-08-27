@@ -1,8 +1,9 @@
-from dagster import Definitions,op,job,in_process_executor
+from dagster import Definitions,op,job,in_process_executor,mem_io_manager
 import os,time,sys; sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import subprocess
 import helper.source_env
 import logging
+import shutil
 
 exec_time_minutes = int(os.environ.get('TMP_EXEC_TIME_MINUTES',30))
 
@@ -30,8 +31,12 @@ def schedule_toggle():
 
 
 
-@job
+
+@job(executor_def=in_process_executor)
 def rapid_ETL_mode():
     schedule_toggle()
 
-defs = Definitions(jobs=[rapid_ETL_mode],executor=in_process_executor)
+defs = Definitions(jobs=[rapid_ETL_mode],
+    resources={
+        "io_manager": mem_io_manager
+    })

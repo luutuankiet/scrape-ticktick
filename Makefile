@@ -5,9 +5,6 @@ init_deploy:
 dagster:
 	tmux send-keys -t dagster.0 ". ./.venv/bin/activate && . ./env.sh && dagster dev -m ETL -h 0.0.0.0 -p 60001" ENTER
 
-streamlit:
-	tmux send-keys -t streamlit.0 ". ./.venv/bin/activate && . ./env.sh && cd app/charts && streamlit run main.py" ENTER
-
 sleeper:
 	sleep 10
 
@@ -42,3 +39,5 @@ loader_helper:
 loader_rerun: loader_helper loader
 
 
+# command after each reboot the vm
+up: init_deploy dagster loader

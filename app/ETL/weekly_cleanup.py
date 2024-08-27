@@ -2,11 +2,11 @@
 
 import os,sys; sys.path.append(os.path.dirname(__file__))
 from datetime import datetime,timezone
-
+import shutil
 from loader import *
 from loader import _delete_tasks
 
-from dagster import op,job,Definitions
+from dagster import op,job,Definitions,in_process_executor
 
 
 from helper.source_env import makefile_path,makefile_dir
@@ -25,7 +25,7 @@ def cleanup():
                         )
     client = TickTickClient(username, password, auth_client)
     today = datetime.now(timezone.utc)
-    cutoff_date = today - timedelta(days=7)
+    cutoff_date = today - timedelta(days=5)
     # cutoff_date = datetime(2022, 7, 24, tzinfo=timezone.utc)
     start_date = datetime(2024, 7, 1,tzinfo=timezone.utc)
     _delete_tasks(end=cutoff_date,client=client,full_load=False,start=start_date)
@@ -45,11 +45,23 @@ def loader_rerun(cleanup):
     
 
 
+@op
+def cleanup_logs_and_artifacts(loader_rerun):
+    target_dir = os.getenv('DAGSTER_LOCAL_ARTIFACT_STORAGE_DIR')
+    if os.path.exists(target_dir):
+        shutil.rmtree(target_dir)
+        os.makedirs(target_dir)  # Recreate the directory to ensure it exists for future runs
+        print(f"Cleaned up directory: {target_dir}")
+    else:
+        print(f"Directory does not exist: {target_dir}")
+
 
 #%%
-@job
+@job(executor_def=in_process_executor)
 def weekly_cleanup():
-    loader_rerun(cleanup())
+    cleanup_logs_and_artifacts(loader_rerun(cleanup()))
+    
+
 
 
 

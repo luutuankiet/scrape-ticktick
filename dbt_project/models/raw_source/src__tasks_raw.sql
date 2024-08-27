@@ -18,11 +18,14 @@ WITH source AS (
 renamed AS (
     SELECT
         DISTINCT {{ adapter.quote("id") }} :: text AS "todo_id",
-        {{ adapter.quote("createdtime") }} :: TIMESTAMP AS "todo_createdtime",
         {{ adapter.quote("completedtime") }} :: TIMESTAMP AS "todo_completedtime",
         {# these dates MUST be converted to ETC #}
         {{ adapter.quote("startdate") }} :: TIMESTAMP + INTERVAL '7 hours' AS "todo_startdate",
         {{ adapter.quote("duedate") }} :: TIMESTAMP + INTERVAL '7 hours' AS "todo_duedate",
+        {{ adapter.quote("modifiedtime") }} :: TIMESTAMP + INTERVAL '7 hours' AS "todo_modifiedtime",
+        {{ adapter.quote("createdtime") }} :: TIMESTAMP + INTERVAL '7 hours' AS "todo_createdtime",
+        {{ adapter.quote("repeatfirstdate") }} :: TIMESTAMP + INTERVAL '7 hours' AS "todo_repeatfirstdate",
+
         {#                                           #}
         {{ adapter.quote("projectid") }} :: text AS "todo_projectid",
         {{ adapter.quote("sortorder") }} :: bigint AS "todo_sortorder",
@@ -40,7 +43,6 @@ renamed AS (
         {{ adapter.quote("status") }} :: text AS "todo_status",
         {{ adapter.quote("items") }} :: text AS "todo_items",
         {{ adapter.quote("progress") }} :: FLOAT AS "todo_progress",
-        {{ adapter.quote("modifiedtime") }} :: TIMESTAMP AS "todo_modifiedtime",
         {{ adapter.quote("etag") }} :: text AS "todo_etag",
         {{ adapter.quote("deleted") }} :: BOOLEAN AS "todo_deleted",
         {{ adapter.quote("creator") }} :: INT AS "todo_creator",
@@ -62,12 +64,12 @@ renamed AS (
         -- array
         {{ adapter.quote("deletedtime") }} :: text AS "todo_deletedtime",
         -- some weird epoc time ? "120295392.0" >>> to_timestamp(1669956236000 / 1000)
-        {{ adapter.quote("repeatfirstdate") }} :: TIMESTAMP AS "todo_repeatfirstdate",
         {{ adapter.quote("pomodorosummaries") }} :: text AS "todo_pomodorosummaries",
         -- array
         {{ adapter.quote("parentid") }} :: text AS "todo_parentid",
         {{ adapter.quote("annoyingalert") }} :: text AS "todo_annoyingalert",
         {{ adapter.quote("modifiedtime_humanize") }} :: text AS "todo_modifiedtime_humanize",
+        {{ adapter.quote("duedate_humanize") }} :: text AS "todo_duedate_humanize",
         ROW_NUMBER() over(
             PARTITION BY {{ dbt_utils.star(
                 from = source(

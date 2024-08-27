@@ -1,3 +1,8 @@
+{{
+  config(
+    materialized = 'table',
+    )
+}}
 {% set today_offset_5 = (modules.datetime.datetime.now() - modules.datetime.timedelta(days=1)).strftime("%Y-%m-%d")%}
 {% set today_lookahead = (modules.datetime.datetime.now() + modules.datetime.timedelta(days=90)).strftime("%Y-%m-%d")%}
 WITH source AS (
