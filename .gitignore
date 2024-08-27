@@ -33,5 +33,6 @@ dbt_packages
 package-lock.json
 package.json
 deactivate
+app.log*
 
 .devcontainer_prod
