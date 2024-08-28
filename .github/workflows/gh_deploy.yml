@@ -6,6 +6,7 @@ on:
 
 env:
   DBT_VERSION: "1.8.1"
+  TARGET_SCHEMA: "prod"
   # PROJECT_DIR: "./dbt_project"
   # DW_DBNAME: "gtd_dash"
 
