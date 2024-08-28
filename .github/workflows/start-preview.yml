@@ -142,6 +142,9 @@ jobs:
           LIGHTDASH_URL: ${{ secrets.LIGHTDASH_URL }}    
           GOOGLE_APPLICATION_CREDENTIALS: '/tmp/googlecredentials.json'
         run:  lightdash start-preview --project-dir $DBT_PROJECT_DIR --profiles-dir $DBT_PROFILES_DIR --name ${GITHUB_REF##*/}
+        
+      - name: Validate preview
+        run: lightdash validate --preview
 
       - uses: jwalton/gh-find-current-pr@v1
         id: finder
