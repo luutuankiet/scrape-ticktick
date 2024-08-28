@@ -3,19 +3,19 @@ init_deploy:
 
 
 dagster:
-	tmux send-keys -t dagster.0 ". ./.venv/bin/activate && . ./env.sh && dagster dev -m ETL -h 0.0.0.0 -p 60001" ENTER
+	tmux send-keys -t dagster.0 ". ./.venv/bin/activate && . ./bootstrap_env.sh && dagster dev -m ETL -h 0.0.0.0 -p 60001" ENTER
 
 sleeper:
 	sleep 10
 
 init_seed:
 	. ./.venv/bin/activate
-	. ./env.sh
+	. ./bootstrap_env.sh
 	python app/helper/scaffold_seeds.py
 
 init_dbt: 
 	. ./.venv/bin/activate 
-	. ./env.sh 
+	. ./bootstrap_env.sh 
 	dbt deps 
 	dbt compile
 
@@ -27,7 +27,7 @@ deploy: init_deploy sleeper dagster streamlit
 deploy-from-scratch: init_seed init_deploy init_dbt sleeper loader dagster streamlit
 
 loader:
-	tmux send-keys -t loader.0 ". ./.venv/bin/activate && . ./env.sh && cd app/ETL && python loader.py" ENTER
+	tmux send-keys -t loader.0 ". ./.venv/bin/activate && . ./bootstrap_env.sh && cd app/ETL && python loader.py" ENTER
 
 
 cancel_deploy:
@@ -40,4 +40,4 @@ loader_rerun: loader_helper loader
 
 
 # command after each reboot the vm
-up: init_deploy dagster loader
+up: init_deploy sleeper dagster loader

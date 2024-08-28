@@ -4,6 +4,8 @@ name: close-preview
 on:
   pull_request:
     types: [closed]
+    branches: [ "main", "master", "BETA_prod"]
+
 
 jobs:
   preview:
@@ -12,6 +14,55 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3.4.1
+      - name: Bootstrap environment variables
+        id: load-env
+        run: |
+          # First step: initialize the file
+          . ./bootstrap_env.sh
+
+          # Check if .env.bootstrap file exists
+          if [ -f .env.bootstrap ]; then
+            # Process each line in the .env.bootstrap file
+            while IFS= read -r line; do
+              # Skip empty lines and lines starting with #
+              if [ -n "$line" ] && [[ ! "$line" =~ ^# ]]; then
+                # Export the variable to $GITHUB_ENV, removing surrounding quotes if present
+                clean_line=$(echo "$line" | awk -F= '{print $1 "=" substr($2, 2, length($2)-2)}')
+                echo "$clean_line" >> $GITHUB_ENV
+              fi
+            done < .env.bootstrap
+          else
+            echo ".env.bootstrap file not found"
+          fi
+
+      - name: Create .env file from secret
+        run: |
+          # Decode and create .env file
+          echo "$PROD_ENV" > .env
+        env:
+          PROD_ENV: ${{ secrets.PROD_ENV }}          
+
+      - name: Dynamically Mask Environment Variables
+        id: mask-env
+        run: |
+          # Read the .env file line by line
+          while IFS= read -r line; do
+            # Skip empty lines and lines starting with #
+            if [ -n "$line" ] && [[ ! "$line" =~ ^# ]]; then
+              # Extract variable name and value
+              var_name=$(echo "$line" | awk -F= '{print $1}')
+              var_value=$(echo "$line" | awk -F= '{print $2}' | sed 's/^"\(.*\)"$/\1/')
+
+              # Mask the variable value
+              echo "::add-mask::$var_value"
+
+              # Export the variable to $GITHUB_ENV without quotes
+              clean_line="$var_name=$var_value"
+              echo "$clean_line" >> "$GITHUB_ENV"
+            fi
+          done < .env
+        env:
+          PROD_ENV: ${{ secrets.PROD_ENV }}
 
       - name: Get lightdash version 
         uses: sergeysova/jq-action@v2

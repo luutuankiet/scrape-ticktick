@@ -53,5 +53,5 @@
             "packages.yml"
         ]
     },
-    "dbt.perspectiveTheme": "Monokai"
+    "dbt.perspectiveTheme": "Monokai",
 }

@@ -1,13 +1,15 @@
 name: start-preview
 
 on:
-  push:
-    branches-ignore: [ "main", "master", "BETA_prod" ]
+  # push:
+  #   branches-ignore: [ "main", "master", "BETA_prod" ]
+  pull_request:
+    types: [opened]
+    branches: [ "main", "master", "BETA_prod"]
+
 
 env:
   DBT_VERSION: "1.8.1"
-  PROJECT_DIR: "./dbt_project"
-  DW_DBNAME: "gtd_dash"
 
 jobs:
   preview:
@@ -17,6 +19,57 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v3
+
+
+      - name: Bootstrap environment variables
+        id: load-env
+        run: |
+          # First step: initialize the file
+          . ./bootstrap_env.sh
+
+          # Check if .env.bootstrap file exists
+          if [ -f .env.bootstrap ]; then
+            # Process each line in the .env.bootstrap file
+            while IFS= read -r line; do
+              # Skip empty lines and lines starting with #
+              if [ -n "$line" ] && [[ ! "$line" =~ ^# ]]; then
+                # Export the variable to $GITHUB_ENV, removing surrounding quotes if present
+                clean_line=$(echo "$line" | awk -F= '{print $1 "=" substr($2, 2, length($2)-2)}')
+                echo "$clean_line" >> $GITHUB_ENV
+              fi
+            done < .env.bootstrap
+          else
+            echo ".env.bootstrap file not found"
+          fi
+
+      - name: Create .env file from secret
+        run: |
+          # Decode and create .env file
+          echo "$PROD_ENV" > .env
+        env:
+          PROD_ENV: ${{ secrets.PROD_ENV }}          
+
+      - name: Dynamically Mask Environment Variables
+        id: mask-env
+        run: |
+          # Read the .env file line by line
+          while IFS= read -r line; do
+            # Skip empty lines and lines starting with #
+            if [ -n "$line" ] && [[ ! "$line" =~ ^# ]]; then
+              # Extract variable name and value
+              var_name=$(echo "$line" | awk -F= '{print $1}')
+              var_value=$(echo "$line" | awk -F= '{print $2}' | sed 's/^"\(.*\)"$/\1/')
+
+              # Mask the variable value
+              echo "::add-mask::$var_value"
+
+              # Export the variable to $GITHUB_ENV without quotes
+              clean_line="$var_name=$var_value"
+              echo "$clean_line" >> "$GITHUB_ENV"
+            fi
+          done < .env
+        env:
+          PROD_ENV: ${{ secrets.PROD_ENV }}
 
       - name: Cache Python packages
         uses: actions/cache@v3
@@ -36,7 +89,7 @@ jobs:
         run: |
           pip install -r requirements.txt
           pip install dbt-core==$DBT_VERSION dbt-postgres==$DBT_VERSION dbt-redshift==$DBT_VERSION dbt-snowflake==$DBT_VERSION dbt-bigquery==$DBT_VERSION
-          dbt deps --project-dir "$PROJECT_DIR"
+          dbt deps --project-dir $DBT_PROJECT_DIR
 
       - name: Cache npm packages
         uses: actions/cache@v3
@@ -88,7 +141,10 @@ jobs:
           LIGHTDASH_PROJECT: ${{ secrets.LIGHTDASH_PROJECT }}          
           LIGHTDASH_URL: ${{ secrets.LIGHTDASH_URL }}    
           GOOGLE_APPLICATION_CREDENTIALS: '/tmp/googlecredentials.json'
-        run:  lightdash start-preview --project-dir "$PROJECT_DIR" --profiles-dir . --name ${GITHUB_REF##*/}
+        run:  lightdash start-preview --project-dir $DBT_PROJECT_DIR --profiles-dir $DBT_PROFILES_DIR --name ${GITHUB_REF##*/}
+        
+      - name: Validate preview
+        run: lightdash validate --preview
 
       - uses: jwalton/gh-find-current-pr@v1
         id: finder

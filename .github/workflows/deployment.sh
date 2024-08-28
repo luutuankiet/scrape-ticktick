@@ -4,7 +4,7 @@ WORKDIR=$(pwd)
 
 . $WORKDIR/.venv/bin/activate
 
-. $WORKDIR/env.sh
+. $WORKDIR/bootstrap_env.sh
 
 
 # # setup sessions for service
