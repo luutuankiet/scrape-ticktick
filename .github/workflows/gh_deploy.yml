@@ -37,7 +37,7 @@ jobs:
       run: |
         # Add your commands here to update the server
         # Example: Replace the following with your deployment commands
-        ssh -o StrictHostKeyChecking=no ForwardAgent=yes root@$HOSTNAME -p $SSH_PORT "cd /workspaces/gtd_ETL && git pull origin main && make deploy"
+        ssh -o StrictHostKeyChecking=no -o ForwardAgent=yes root@$HOSTNAME -p $SSH_PORT "cd /workspaces/gtd_ETL && git pull origin main && make deploy"
 
 
   deploy_lightdash:
