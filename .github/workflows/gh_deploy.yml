@@ -1,5 +1,4 @@
-name: deploy-lightdash
-
+name: deploy
 on:
   push:
     branches: [ "main", "master" ]
@@ -37,7 +36,7 @@ jobs:
       run: |
         # Add your commands here to update the server
         # Example: Replace the following with your deployment commands
-        ssh -o StrictHostKeyChecking=no -A root@$HOSTNAME -p $SSH_PORT "ssh-add -L"
+        ssh -o StrictHostKeyChecking=no root@$HOSTNAME -p $SSH_PORT "cd /workspaces/gtd_ETL && git pull origin main && make deploy"
 
 
 
