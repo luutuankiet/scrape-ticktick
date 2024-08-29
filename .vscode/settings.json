@@ -54,4 +54,5 @@
         ]
     },
     "dbt.perspectiveTheme": "Monokai",
+    "dbt.sqlFmtPath": "/workspaces/scrape-ticktick/.venv/bin/sqlfmt",
 }
