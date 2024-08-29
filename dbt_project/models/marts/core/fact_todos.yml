@@ -785,4 +785,28 @@ models:
               when ${todo_repeatflag} like '%CUSTOM%' then 'custom'
               else 'default'
               end
-      
+      - name: habit_date
+        description: "wrapper for habit heat map to always anchor to today & show NULL if not done today"
+        meta: 
+         dimension:
+          groups: ['habit']
+          type: date
+          label: "habit date"
+          sql: |
+            case when ${due_date.date_id_day} = current_date then ${due_date.date_id_day} else ${completed_date.date_id} end
+      - name: habit_week
+        meta: 
+         dimension:
+          groups: ['habit']
+          type: number
+          label: "habit week"
+          sql: |
+            case when ${due_date.date_id_day} = current_date then ${due_date.week_of_year} else ${completed_date.week_of_year} end
+      - name: habit_day
+        meta: 
+         dimension:
+          groups: ['habit']
+          type: string
+          label: "habit day"
+          sql: |
+            case when ${due_date.date_id_day} = current_date then ${due_date.day_name} else ${completed_date.day_name} end

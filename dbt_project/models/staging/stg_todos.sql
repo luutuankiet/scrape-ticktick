@@ -43,8 +43,8 @@ _todo__recurring AS (
             OR (
                 todo_status = '0'
                 AND todo_repeatflag <> 'default'
-            ) THEN True
-            ELSE False
+            ) THEN TRUE
+            ELSE FALSE
         END AS todo_derived__is_repeat
     FROM
         init_todo b
@@ -85,25 +85,46 @@ _todo__habit_streak AS (
                 ORDER BY
                     todo_completedtime ASC
             )
-            when todo_status = '0' then NULL
-            when todo_status = '-1' then 0
+            WHEN todo_status = '0' THEN NULL
+            WHEN todo_status = '-1' THEN 0
         END AS todo_derived__habit_streak
     FROM
         _todo__habit_streak_init
     WHERE
-        todo_derived__is_repeat is True
+        todo_derived__is_repeat IS TRUE
+),
+_todo__habit_latest_wrapper AS (
+    -- add bunch of wrapper fields for those recurring that grabs the latest ocurrence's fields
+    SELECT
+        COALESCE(
+            b.todo_title,
+            A.todo_title
+        ) AS todo_title,
+        COALESCE(
+            b.todo_projectid,
+            A.todo_projectid
+        ) AS todo_projectid,
+        A.todo_derived__is_repeat,
+        A._todo__habit_streak_bucket_id,
+        A.todo_derived__habit_streak,
+        {{ dbt_utils.star(ref('src__tasks_raw'), relation_alias = 'A', except = ["todo_title", "todo_projectid" ]) }}
+    FROM
+        _todo__habit_streak A
+        LEFT JOIN _todo__habit_streak b
+        ON A.todo_repeattaskid = b.todo_id
 ),
 todo AS (
     SELECT
-        r.*,
-        {# case when r.todo_derived__is_repeat is True then 'recurring' else 'default' end as todo_derived__recurring, #}
+        h.todo_title,
+        h.todo_projectid,
         h.todo_derived__habit_streak,
-        h._todo__habit_streak_bucket_id
+        h._todo__habit_streak_bucket_id,
+        r.todo_derived__is_repeat,
+        {{ dbt_utils.star(ref('src__tasks_raw'), relation_alias = 'r', except = ["todo_title", "todo_projectid" ]) }}
     FROM
         _todo__recurring r
-        LEFT JOIN _todo__habit_streak h
-        ON r.todo_id = h.todo_id
-),
+        LEFT JOIN _todo__habit_latest_wrapper h
+        ON r.todo_id = h.todo_id),
 lists AS (
     SELECT
         {{ coalesce_defaults(ref('src__lists_raw')) }}
