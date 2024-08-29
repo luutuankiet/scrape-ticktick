@@ -3,16 +3,46 @@ name: deploy-lightdash
 on:
   push:
     branches: [ "main", "master" ]
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+      - master    
 
 env:
   DBT_VERSION: "1.8.1"
   TARGET_SCHEMA: "prod"
-  # PROJECT_DIR: "./dbt_project"
-  # DW_DBNAME: "gtd_dash"
 
 jobs:
-  deploy:
+  deploy_git:
     runs-on: ubuntu-latest
+    env:
+      SERVER_HOST_KEY: ${{ secrets.SERVER_HOST_KEY }}
+      CLIENT_SECRET_KEY: ${{ secrets.CLIENT_SECRET_KEY }}
+      HOSTNAME: ${{ secrets.HOSTNAME }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
+    steps:
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SERVER_HOST_KEY" > ~/.ssh/known_hosts
+        chmod 600 ~/.ssh/known_hosts
+        echo "$CLIENT_SECRET_KEY" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        eval "$(ssh-agent -s)"
+        ssh-add ~/.ssh/id_ed25519
+
+    - name: Update Server
+      run: |
+        # Add your commands here to update the server
+        # Example: Replace the following with your deployment commands
+        ssh -o StrictHostKeyChecking=no root@$HOSTNAME -p $SSH_PORT "cd /workspace/scrape-ticktick && git pull origin main && make deploy"
+
+
+  deploy_lightdash:
+    runs-on: ubuntu-latest
+
 
     steps:
       - uses: actions/checkout@v3

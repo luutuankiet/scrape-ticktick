@@ -1,12 +1,6 @@
 init_deploy:
-	. .github/workflows/deployment.sh
-
-
-dagster:
-	tmux send-keys -t dagster.0 ". ./.venv/bin/activate && . ./bootstrap_env.sh && dagster dev -m ETL -h 0.0.0.0 -p 60001" ENTER
-
-sleeper:
-	sleep 10
+	tmux new-session -s dagster -d
+	tmux new-session -s loader -d
 
 init_seed:
 	. ./.venv/bin/activate
@@ -21,23 +15,36 @@ init_dbt:
 
 init_dev: init_seed init_dbt
 
-deploy: init_deploy sleeper dagster streamlit
 
+sleeper:
+	sleep 10
 
-deploy-from-scratch: init_seed init_deploy init_dbt sleeper loader dagster streamlit
+dagster:
+	tmux send-keys -t dagster.0 'echo' ENTER
+	tmux send-keys -t dagster.0 '. ./.venv/bin/activate && . ./bootstrap_env.sh && dagster dev -m ETL -h 0.0.0.0 -p 60001' ENTER
+
 
 loader:
-	tmux send-keys -t loader.0 ". ./.venv/bin/activate && . ./bootstrap_env.sh && cd app/ETL && python loader.py" ENTER
+	tmux send-keys -t loader.0 'echo' ENTER
+	tmux send-keys -t loader.0 '. ./.venv/bin/activate && . ./bootstrap_env.sh && cd app/ETL && python loader.py' ENTER
 
 
-cancel_deploy:
-	tmux kill-session -t streamlit & tmux kill-session -t dagster
+
+
+deploy-from-scratch: init_seed init_deploy init_dbt sleeper loader dagster
+
+# command after each reboot the vm
+up: init_deploy dagster loader
+
+deploy: dagster_helper dagster
+
 
 loader_helper:
 	tmux kill-session -t loader && tmux new-session -d -s loader
 
+dagster_helper:
+	tmux kill-session -t dagster && tmux new-session -d -s dagster
+
 loader_rerun: loader_helper loader
 
 
-# command after each reboot the vm
-up: init_deploy sleeper dagster loader
