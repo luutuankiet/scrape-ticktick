@@ -90,8 +90,6 @@ _todo__habit_streak AS (
         END AS todo_derived__habit_streak
     FROM
         _todo__habit_streak_init
-    WHERE
-        todo_derived__is_repeat IS TRUE
 ),
 _todo__habit_latest_wrapper AS (
     -- add bunch of wrapper fields for those recurring that grabs the latest ocurrence's fields

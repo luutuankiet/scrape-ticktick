@@ -329,6 +329,8 @@ models:
             type: number
       - name: todo_title
         description: ""
+        tests:
+          - non_lookahead_null
         meta:
           dimension:
             # hidden: true
