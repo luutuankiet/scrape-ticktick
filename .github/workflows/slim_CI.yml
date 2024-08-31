@@ -3,7 +3,7 @@ name: slim_CI
 # for slim CIs all dbt and lightdash runs are built on dev schema; just need to overwrite TARGET_SCHEMA env which lives in the PROD_ENV secret.
 on:
   push:
-    # branches-ignore: [ "main", "master"]
+    branches-ignore: [ "main", "master"]
 
 env:
   TARGET_SCHEMA: dev

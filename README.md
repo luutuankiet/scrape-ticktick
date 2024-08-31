@@ -1,5 +1,4 @@
-[![start-preview](https://github.com/luutuankiet/scrape-ticktick/actions/workflows/start-preview.yml/badge.svg)](https://github.com/luutuankiet/scrape-ticktick/actions/workflows/start-preview.yml)
-[![deploy-lightdash](https://github.com/luutuankiet/scrape-ticktick/actions/workflows/gh_deploy.yml/badge.svg)](https://github.com/luutuankiet/scrape-ticktick/actions/workflows/gh_deploy.yml)
+[![CD](https://github.com/luutuankiet/scrape-ticktick/actions/workflows/gh_deploy.yml/badge.svg)](https://github.com/luutuankiet/scrape-ticktick/actions/workflows/gh_deploy.yml)
 
 # prequisite
 
