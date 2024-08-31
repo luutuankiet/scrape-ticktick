@@ -51,7 +51,8 @@
         ],
         "https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/latest/packages-latest.json": [
             "packages.yml"
-        ]
+        ],
+        "https://json.schemastore.org/github-workflow.json": "file:///workspaces/scrape-ticktick/.github/actions/action.yml"
     },
     "dbt.perspectiveTheme": "Monokai",
     "dbt.sqlFmtPath": "/workspaces/scrape-ticktick/.venv/bin/sqlfmt",
