@@ -1,0 +1,58 @@
+# .github/actions/setup-env/action.yml
+name: "Setup Environment"
+description: "Setup environment variables from .env.bootstrap and secrets"
+
+inputs:
+  PROD_ENV:
+    description: "The secret containing environment variables"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Bootstrap environment variables
+      shell: bash
+      run: |
+        # Initialize the environment variables using bootstrap_env.sh
+        . ./bootstrap_env.sh
+
+        # Check if .env.bootstrap file exists
+        if [ -f .env.bootstrap ]; then
+          # Process each line in the .env.bootstrap file
+          while IFS= read -r line; do
+            # Skip empty lines and lines starting with #
+            if [ -n "$line" ] && [[ ! "$line" =~ ^# ]]; then
+              # Export the variable to $GITHUB_ENV, removing surrounding quotes if present
+              clean_line=$(echo "$line" | awk -F= '{print $1 "=" substr($2, 2, length($2)-2)}')
+              echo "$clean_line" >> $GITHUB_ENV
+            fi
+          done < .env.bootstrap
+        else
+          echo ".env.bootstrap file not found"
+        fi
+
+    - name: Create .env file from secret
+      shell: bash
+      run: |
+        # Decode and create .env file
+        echo "${{ inputs.PROD_ENV }}" > .env
+
+    - name: Dynamically Mask Environment Variables
+      shell: bash
+      run: |
+        # Read the .env file line by line
+        while IFS= read -r line; do
+          # Skip empty lines and lines starting with #
+          if [ -n "$line" ] && [[ ! "$line" =~ ^# ]]; then
+            # Extract variable name and value
+            var_name=$(echo "$line" | awk -F= '{print $1}')
+            var_value=$(echo "$line" | awk -F= '{print $2}' | sed 's/^"\(.*\)"$/\1/')
+
+            # Mask the variable value
+            echo "::add-mask::$var_value"
+
+            # Export the variable to $GITHUB_ENV without quotes
+            clean_line="$var_name=$var_value"
+            echo "$clean_line" >> "$GITHUB_ENV"
+          fi
+        done < .env
