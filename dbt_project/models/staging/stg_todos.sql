@@ -167,6 +167,8 @@ joined AS (
         {{ dbt_utils.generate_surrogate_key(['folder_id']) }} AS folder_key,
         {{ dbt_utils.generate_surrogate_key(['status_id']) }} AS status_key,
         t.*,
+        COALESCE(l.list_name, 'default') AS todo_list_name,
+        COALESCE(f.folder_name, 'default') AS todo_folder_name,
         CASE
             WHEN -- build the flag window
             -- case1: the records from due_lookahead
