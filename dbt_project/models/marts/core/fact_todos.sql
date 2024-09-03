@@ -14,7 +14,8 @@
       {'columns': ['date_due_lookahead_key'], 'type': 'hash'},
       {'columns': ['todo_key'], 'unique': True},
     ],
-    unlogged=True
+    unlogged=True,
+    pre_hook="delete from {{this}} where todo_id is null"
 ) }}
 WITH source AS (
     SELECT
