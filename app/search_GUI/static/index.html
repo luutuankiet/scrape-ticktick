@@ -13,7 +13,7 @@
 
   <script>
     // API endpoint URL
-    const url = `${window.location.protocol}//${window.location.hostname}:5000/search`;
+    const url = `${window.location.protocol}//${window.location.hostname}:60005/search`;
 
     window.search = (query) => fetch(url + `?query=${encodeURIComponent(query)}`, {
       method: 'GET',
