@@ -28,7 +28,9 @@ loader:
 	tmux send-keys -t loader.0 'echo' ENTER
 	tmux send-keys -t loader.0 '. ./.venv/bin/activate && . ./bootstrap_env.sh && cd app/ETL && python loader.py' ENTER
 
-
+gtd_search:
+	tmux send-keys -t gtd_search.0 'echo' ENTER
+	tmux send-keys -t gtd_search.0 '. ./.venv/bin/activate && . ./bootstrap_env.sh && cd app/search_GUI && python app.py' ENTER
 
 
 deploy-from-scratch: init_seed init_deploy init_dbt sleeper loader dagster
