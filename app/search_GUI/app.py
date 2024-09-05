@@ -3,6 +3,7 @@ import psycopg2
 import psycopg2.extras
 from helper.source_env import hostname, database, user, password, port, target_schema
 import os
+from flask_cors import CORS
 
 # Flask app setup
 app = Flask(__name__, static_folder='static')
@@ -15,6 +16,11 @@ connection = psycopg2.connect(
     password=password,
     port=port
 )
+
+
+# Configure CORS
+CORS(app, resources={r"/*": {"origins": "*"}})  # Allow all origins (adjust as needed)
+
 
 # Route for serving the index.html file
 @app.route('/')

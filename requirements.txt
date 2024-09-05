@@ -10,5 +10,6 @@ humanize==4.9.0
 ticktick-py==2.0.1
 humanize
 pytz
-Flask 
 psycopg2-binary
+Flask==3.0.3
+Flask-Cors==5.0.0
