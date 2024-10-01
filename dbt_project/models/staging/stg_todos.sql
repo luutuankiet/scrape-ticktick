@@ -128,7 +128,7 @@ init_todo_add_consecutive_undone AS (
     SELECT
         todo_habit_stg.*,
         CASE
-            {# WHEN todo_status in ('-1') THEN SUM( -- add in 0 to also wrap undone NEW tasks to the count #}
+            
             WHEN todo_status in ('-1','2') THEN SUM( -- add in 0 to also wrap undone NEW tasks to the count
                 CASE
                     WHEN todo_status = '-1' THEN 1
@@ -145,7 +145,9 @@ init_todo_add_consecutive_undone AS (
                     todo_completedtime
             ) + 1
             ELSE NULL
-        END AS _todo__habit_undone_streak_bucket_id
+        END AS _todo__habit_undone_streak_bucket_id,
+        lag(todo_status) over (partition by todo_repeattaskid order by todo_duedate) as _status_lag,
+        lead(todo_status) over (partition by todo_repeattaskid order by todo_duedate) as _status_lead
     FROM
         todo_habit_stg
 ),
@@ -153,21 +155,23 @@ todo_add_consecutive_undone AS (
     SELECT
         init_todo_add_consecutive_undone.*,
         CASE
-            {# WHEN todo_status in ('-1') #}
+            
             WHEN todo_status in ('-1','2')
             AND _todo__habit_undone_streak_bucket_id = MIN(_todo__habit_undone_streak_bucket_id) over (
                 PARTITION BY todo_repeattaskid
-            ) THEN SUM(
+            )
+            THEN SUM(
                 CASE
                     WHEN todo_status = '-1' THEN 1
-                    WHEN todo_status = '2' THEN -99999
+                    WHEN todo_status = '2' and (_status_lag = '-1' and _status_lead in ('2','0')) 
+                    THEN -99999
 
                     ELSE 0
                 END
             ) over(
                 PARTITION BY todo_repeattaskid,
                 _todo__habit_undone_streak_bucket_id
-            ) - 1 -- streak = 2 consecutive undone
+            )
             ELSE 0
         END AS _todo_derived__consecutive_undone
     FROM
@@ -176,7 +180,8 @@ todo_add_consecutive_undone AS (
 stg_todo_undone AS (
     select todo_add_consecutive_undone.*,
         case
-            when max(_todo_derived__consecutive_undone) over(partition by todo_title) > 0 then max(_todo_derived__consecutive_undone) over (partition by todo_title)
+            when max(_todo_derived__consecutive_undone) over(partition by todo_title) > 0 
+            then max(_todo_derived__consecutive_undone) over (partition by todo_title)
             else null
         end as todo_derived__consecutive_undone
     from todo_add_consecutive_undone
