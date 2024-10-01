@@ -31,7 +31,7 @@ jobs:
 
     - name: Update Server
       run: |
-        ssh -o StrictHostKeyChecking=no root@$HOSTNAME -p $SSH_PORT << 'EOF'
+        ssh -o StrictHostKeyChecking=no ForwardAgent=yes root@$HOSTNAME -p $SSH_PORT << 'EOF'
           cd /workspaces/gtd_ETL
           git pull origin main
           . ./bootstrap_env.sh
