@@ -27,11 +27,12 @@ jobs:
         chmod 600 ~/.ssh/known_hosts
         echo "$CLIENT_SECRET_KEY" > ~/.ssh/id_ed25519
         chmod 600 ~/.ssh/id_ed25519
-        eval "$(ssh-agent -s)"
-        ssh-add ~/.ssh/id_ed25519
+
 
     - name: Update Server
       run: |
+        eval "$(ssh-agent -s)"
+        ssh-add ~/.ssh/id_ed25519
         ssh -o StrictHostKeyChecking=no -o ForwardAgent=yes root@$HOSTNAME -p $SSH_PORT << 'EOF'
           cd /workspaces/gtd_ETL
           git pull origin main
