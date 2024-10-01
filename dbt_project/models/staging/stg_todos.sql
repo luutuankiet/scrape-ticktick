@@ -111,7 +111,7 @@ _todo__habit_latest_wrapper AS (
         LEFT JOIN _todo__habit_streak b
         ON A.todo_repeattaskid = b.todo_id
 ),
-todo AS (
+todo_habit_stg AS (
     SELECT
         h.todo_title,
         h.todo_projectid,
@@ -123,6 +123,71 @@ todo AS (
         _todo__recurring r
         LEFT JOIN _todo__habit_latest_wrapper h
         ON r.todo_id = h.todo_id),
+
+init_todo_add_consecutive_undone AS (
+    SELECT
+        todo_habit_stg.*,
+        CASE
+            {# WHEN todo_status in ('-1') THEN SUM( -- add in 0 to also wrap undone NEW tasks to the count #}
+            WHEN todo_status in ('-1','2') THEN SUM( -- add in 0 to also wrap undone NEW tasks to the count
+                CASE
+                    WHEN todo_status = '-1' THEN 1
+                    ELSE 0
+                END
+            ) over (
+                PARTITION BY todo_repeattaskid
+                ORDER BY
+                    todo_completedtime rows BETWEEN unbounded preceding
+                    AND CURRENT ROW
+            ) - ROW_NUMBER() over (
+                PARTITION BY todo_repeattaskid
+                ORDER BY
+                    todo_completedtime
+            ) + 1
+            ELSE NULL
+        END AS _todo__habit_undone_streak_bucket_id
+    FROM
+        todo_habit_stg
+),
+todo_add_consecutive_undone AS (
+    SELECT
+        init_todo_add_consecutive_undone.*,
+        CASE
+            {# WHEN todo_status in ('-1') #}
+            WHEN todo_status in ('-1','2')
+            AND _todo__habit_undone_streak_bucket_id = MIN(_todo__habit_undone_streak_bucket_id) over (
+                PARTITION BY todo_repeattaskid
+            ) THEN SUM(
+                CASE
+                    WHEN todo_status = '-1' THEN 1
+                    WHEN todo_status = '2' THEN -99999
+
+                    ELSE 0
+                END
+            ) over(
+                PARTITION BY todo_repeattaskid,
+                _todo__habit_undone_streak_bucket_id
+            ) - 1 -- streak = 2 consecutive undone
+            ELSE 0
+        END AS _todo_derived__consecutive_undone
+    FROM
+        init_todo_add_consecutive_undone
+),
+stg_todo_undone AS (
+    select todo_add_consecutive_undone.*,
+        case
+            when max(_todo_derived__consecutive_undone) over(partition by todo_title) > 0 then max(_todo_derived__consecutive_undone) over (partition by todo_title)
+            else null
+        end as todo_derived__consecutive_undone
+    from todo_add_consecutive_undone
+),
+todo AS (
+    -- this be the final table
+    SELECT
+        *
+    FROM
+        stg_todo_undone
+),
 lists AS (
     SELECT
         {{ coalesce_defaults(ref('src__lists_raw')) }}

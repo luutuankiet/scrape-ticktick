@@ -281,6 +281,20 @@ models:
             groups: ['habit']
             hidden: true
             type: number
+
+      - name: todo_derived__consecutive_undone
+        meta:
+          dimension:
+            description: building block to later be summed up for analysis if task is consecutively undone
+            groups: ['derived']
+            # hidden: true
+            type: number
+            sql: todo_derived__consecutive_undone
+          # metrics:
+          #   consecutive_undone:
+          #     groups: ['habit']
+          #     type: sum
+          #     sql: ${fact_todos.todo_derived__consecutive_undone}
       - name: todo_createdtime
         description: ""
         meta:
