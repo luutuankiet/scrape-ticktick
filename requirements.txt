@@ -1,3 +1,4 @@
+pandas
 dbt-core==1.8.1
 dbt-postgres==1.8.1
 dagster==1.7.8
@@ -13,3 +14,4 @@ pytz
 psycopg2-binary
 Flask==3.0.3
 Flask-Cors==5.0.0
+gspread

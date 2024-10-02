@@ -6,29 +6,41 @@ import secrets
 from ticktick.oauth2 import OAuth2        # OAuth2 Manager
 from ticktick.api import TickTickClient   # Main Interface
 
-USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:95.0) Gecko/20100101 Firefox/95.0"
-X_DEVICE_ = '{"platform":"web","os":"OS X","device":"Firefox 95.0","name":"unofficial api!","version":4531,' \
-                '"id":"6490' + secrets.token_hex(10) + '","channel":"website","campaign":"","websocket":""}'
+USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:130.0) Gecko/20100101 Firefox/130.0"
+X_DEVICE_ = '{"platform":"web","os":"macOS 10.15","device":"Firefox 130.0","name":"","version":6060,"id":"66666db22ee6d03d8bb8def7","channel":"website","campaign":"","websocket":"66fc8e566740d02c0c53973a"}'
 
 TickTickClient.HEADERS = {'User-Agent': USER_AGENT,
                'x-device': X_DEVICE_}
 # per this issue : https://github.com/lazeroffmichael/ticktick-py/issues/42
-additional_headers = {
-    "Host": "api.ticktick.com",
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:128.0) Gecko/20100101 Firefox/128.0",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.5",
-    "Accept-Encoding": "gzip, deflate, br, zstd",
-    "Connection": "keep-alive",
-    "Upgrade-Insecure-Requests": "1",
-    "Sec-Fetch-Dest": "document",
-    "Sec-Fetch-Mode": "navigate",
-    "Sec-Fetch-Site": "none",
-    "Sec-Fetch-User": "?1",
-    "Priority": "u=0, i",
-    "TE": "trailers"
-}
-TickTickClient.HEADERS.update(additional_headers)
+# additional_headers = {
+#     "Content-Type": "application/json",
+#     "Accept": "*/*",
+#     "Accept-Encoding": "gzip, deflate, br",
+#     "Connection": "keep-alive",
+# }
+
+# # https://github.com/lazeroffmichael/ticktick-py/issues/25
+# additional_headers = {
+#     'authority': 'api.ticktick.com',
+#     'sec-ch-ua': '" Not;A Brand";v="99", "Google Chrome";v="97", "Chromium";v="97"',
+#     'x-device-user-agent': USER_AGENT,
+#     'x-requested-with': 'XMLHttpRequest',
+#     'sec-ch-ua-mobile': '?0',
+#     'content-type': 'application/json',
+#     'User-Agent': USER_AGENT,
+#     'sec-ch-ua-platform': '"Windows"',
+#     'accept': '*/*',
+#     'origin': 'https://ticktick.com',
+#     'sec-fetch-site': 'same-site',
+#     'sec-fetch-mode': 'cors',
+#     'sec-fetch-dest': 'empty',
+#     'referer': 'https://ticktick.com/',
+#     'accept-language': 'es,en-US;q=0.9,en;q=0.8'
+# }
+
+
+
+# TickTickClient.HEADERS.update(additional_headers)
 
 
 from os import environ
@@ -79,7 +91,8 @@ date_format = '%Y-%m-%dT%H:%M:%S.%f%z'
 
 
 def new_login(self, username, password):
-    url = self.BASE_URL + 'user/signon?wc=true&remember=true'
+    url = self.BASE_URL + 'user/signon'
+    # url = self.BASE_URL + 'user/signon?wc=true&remember=true'
     user_info = {
         'username': username,
         'password': password,
@@ -89,7 +102,8 @@ def new_login(self, username, password):
         'remember': True
     }
 
-    response = self.http_post(url, json=user_info, params=parameters, headers=self.HEADERS)
+    response = self.http_post(url, json=user_info, headers=self.HEADERS)
+    # response = self.http_post(url, json=user_info, params=parameters, headers=self.HEADERS)
     self.access_token = response['token']
     self.cookies['t'] = self.access_token
 

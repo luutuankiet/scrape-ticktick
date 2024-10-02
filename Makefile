@@ -1,6 +1,7 @@
 init_deploy:
 	tmux new-session -s dagster -d
 	tmux new-session -s loader -d
+	tmux new-session -s gtd_search -d
 
 init_seed:
 	. ./.venv/bin/activate
