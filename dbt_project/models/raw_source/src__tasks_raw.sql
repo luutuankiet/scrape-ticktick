@@ -18,8 +18,9 @@ WITH source AS (
 renamed AS (
     SELECT
         DISTINCT {{ adapter.quote("id") }} :: text AS "todo_id",
-        {{ adapter.quote("completedtime") }} :: TIMESTAMP AS "todo_completedtime",
+        {# {{ adapter.quote("completedtime") }} :: TIMESTAMP AS "todo_completedtime", #}
         {# these dates MUST be converted to ETC #}
+        {{ adapter.quote("completedtime") }} :: TIMESTAMP + INTERVAL '7 hours' AS "todo_completedtime",
         {{ adapter.quote("startdate") }} :: TIMESTAMP + INTERVAL '7 hours' AS "todo_startdate",
         {{ adapter.quote("duedate") }} :: TIMESTAMP + INTERVAL '7 hours' AS "todo_duedate",
         {{ adapter.quote("modifiedtime") }} :: TIMESTAMP + INTERVAL '7 hours' AS "todo_modifiedtime",
