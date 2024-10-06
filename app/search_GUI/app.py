@@ -8,6 +8,11 @@ from flask_cors import CORS
 # Flask app setup
 app = Flask(__name__, static_folder='static')
 
+# for nginx
+from werkzeug.middleware.proxy_fix import ProxyFix
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
+
+
 # Configure CORS
 CORS(app, resources={r"/*": {"origins": "*"}})  # Allow all origins (adjust as needed)
 
