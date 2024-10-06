@@ -4,7 +4,7 @@ sources:
   - name: raw_data
     description: A replica of the extracted ticktick data.
     database: "{{env_var('DW_DBNAME')}}"
-    schema: "{{env_var('TARGET_SCHEMA','dev')}}_raw"
+    schema: "prod_raw"
     tables:
       - name: tasks_raw
         description: raw tasks data from tickpy
