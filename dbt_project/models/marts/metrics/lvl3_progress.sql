@@ -1,23 +1,28 @@
-with source as (
-    select * from {{ ref('stg_duckdb__lvl3') }}
-    where goal_name is not null
+WITH source AS (
+    SELECT
+        *
+    FROM
+        {{ ref('stg_duckdb__lvl3') }}
+    WHERE
+        goal IS NOT NULL
 ),
-
-progress as (
-    select * from {{ ref('lvl1_lvl2_progress') }}
+progress AS (
+    SELECT
+        *
+    FROM
+        {{ ref('lvl1_lvl2_progress') }}
 )
-
-select
+SELECT
     goal_id,
-    goal_name as lvl3_goal,
-    cast(avg(done_progress) over (partition by goal_name) as decimal(10,2)) as lvl3_done_progress,
-    cast(avg(clarify_progress) over (partition by goal_name) as decimal(10,2)) as lvl3_clarify_progress,
+    goal AS lvl3_goal,
+    CAST(AVG(done_progress) over (PARTITION BY goal) AS DECIMAL(10, 2)) AS lvl3_done_progress,
+    CAST(AVG(clarify_progress) over (PARTITION BY goal) AS DECIMAL(10, 2)) AS lvl3_clarify_progress,
     source.list_name,
-    progress.done_progress as l_done_progress,
-    progress.clarify_progress as l_clarify_progress
-
-
-from source
-left join progress
-    on source.list_name = progress.list_name
-order by 1
+    progress.done_progress AS l_done_progress,
+    progress.clarify_progress AS l_clarify_progress
+FROM
+    source
+    LEFT JOIN progress
+    ON source.list_name = progress.list_name
+ORDER BY
+    1

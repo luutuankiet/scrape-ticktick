@@ -14,14 +14,16 @@ new_seeds AS (
     SELECT
         folder_name,
         list_name,
-        '' AS goal_ids
+        '' AS goals
     FROM
         source
+    WHERE folder_name != 'default'
+    
 )
 SELECT
     n.folder_name,
     n.list_name,
-    r.goal_ids
+    r.goals
 FROM
     new_seeds n
     LEFT JOIN ref_seeds r

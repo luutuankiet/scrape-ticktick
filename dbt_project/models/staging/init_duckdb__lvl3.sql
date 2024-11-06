@@ -1,29 +1,15 @@
 WITH source AS (
     SELECT
-        todo_title AS goal_name,
-        ROW_NUMBER() over (
+        ROW_NUMBER() over(
             ORDER BY
-                todo_title
-        ) AS goal_id
+                todo_sortorder
+        ) AS goal_id,
+        todo_title AS goal
     FROM
-        {{ ref(
-            'stg_todos'
-        ) }}
-        t
-        LEFT JOIN {{ ref(
-            'stg_lists'
-        ) }}
-        l
-        ON l.list_key = t.list_key
-        LEFT JOIN {{ ref(
-            'stg_folders'
-        ) }}
-        f
-        ON f.folder_key = t.folder_key
+        {{ ref("fact_todos") }}
     WHERE
-        f.folder_name = '🛩Horizon of focus'
-        AND l.list_name LIKE '%lvl3%'
-        AND t.todo_kind = 'TEXT'
+        todo_list_name = 'lvl3 - 1 - 2 years goals'
+        AND todo_tags = 'default'
 )
 SELECT
     *
