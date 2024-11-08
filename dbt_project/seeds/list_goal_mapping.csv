@@ -1,91 +1,94 @@
-folder_name,list_name,goal_ids
-▶️lvl2 - Innovature,-----------------------,
-▶️lvl2 - Innovature,1H 2024 comm pi SOP dev handbook,"5,4"
-▶️lvl2 - Innovature,1H 2024 commitment doc mngmnt system,"5,4"
-▶️lvl2 - Innovature,ATT NSS worker issue in fFinancial,"5,4"
-▶️lvl2 - Innovature,ATT conform first revision fields naming,"5,4"
-▶️lvl2 - Innovature,ATT update supplier distro,"5,4"
-▶️lvl2 - Innovature,Innovature check out for Joons,"5,4"
-▶️lvl2 - Innovature,UA BR change snap at 1000 2000 hrs,
-▶️lvl2 - Innovature,UA GL codes phase 1,
-▶️lvl2 - Innovature,UA SOW service fee AND PreID,
-▶️lvl2 - Innovature,UA inconsistent financial codes at historical level,
-▶️lvl2 - Innovature,UA ingest analytics user data,"5,4"
-▶️lvl2 - Innovature,UA phase 2 GL code,
-▶️lvl2 - Innovature,address integrity issues in inno dw,"5,4"
-▶️lvl2 - Innovature,apply recursive query to inno hierrachy needs,"5,11"
-▶️lvl2 - Innovature,beef up pi scripting for deployment,"11,5"
-▶️lvl2 - Innovature,beef up testing united (h2 comm sub list),"5,11,4"
-▶️lvl2 - Innovature,biweekly notes,5
-▶️lvl2 - Innovature,build logic for applicants and requests activity inno dw,"5,4"
-▶️lvl2 - Innovature,inno capturing historical employee hierrachy,"5,4"
-▶️lvl2 - Innovature,inno dw prep schema for HR metrics,"5,3"
-▶️lvl2 - Innovature,python for ad hoc csv,"5,11"
-▶️lvl2 - Innovature,reverse engineer & learn Pi etl design,5
-▶️lvl2 - Innovature,setup pi VPC for scripting tasks,11
-▶️lvl2 - Innovature,update inno ETL dag notif mechanism,
-▶️lvl2 - Innovature,▶️BAU NEXT ACTION,5
+folder_name,list_name,goals
+💵lvl2 - Finance,-----------------------,
+💵lvl2 - Finance,financing for next 3 months,"FIRE : a profitable savings account, support sis university - 50m a year, ""support family - financially, emotionally, physically"""
+💵lvl2 - Finance,maintain a saving account,"support sis university - 50m a year, ""support family - financially, emotionally, physically"", FIRE : a profitable savings account"
+💵lvl2 - Finance,ynab workflow learn,"FIRE : a profitable savings account, support sis university - 50m a year, ""support family - financially, emotionally, physically"""
+🎯lvl2 - Joons,-----------------------,
+🎯lvl2 - Joons,▶️BAU NEXT ACTION,"experienced with on prem DE stack. Both enterprise and OSS., dip into DE for big data and machine learning, experienced / certified in one of the major cloud platforms for DE : AWS/Azure/GCP, utilize a scripting language (python) to automate my own workflows, take on a side DE gig using my technical experience, get a 30% pay bump at least once"
+🎯lvl2 - Joons,BI and looker onboard,
+🎯lvl2 - Joons,blogging,get a 30% pay bump at least once
+🎯lvl2 - Joons,csv diff enhancements,"get a 30% pay bump at least once, utilize a scripting language (python) to automate my own workflows, take on a side DE gig using my technical experience"
+🎯lvl2 - Joons,dbt onboard & cert,
+🎯lvl2 - Joons,DE path data engineer GCP,
+🎯lvl2 - Joons,estrid dbt migration,
+🎯lvl2 - Joons,estrid research data audit strat,
+🎯lvl2 - Joons,Git onboard,
+🎯lvl2 - Joons,joon genai package check out,
+🎯lvl2 - Joons,joons onboarding,
+🎯lvl2 - Joons,looker sense port from ONE,
+🎯lvl2 - Joons,monthly goal retro area of improvement,
+🎯lvl2 - Joons,seaco dbt & cortex training,
+🎯lvl2 - Joons,seaco looker training,
+🎯lvl2 - Joons,seaco workshop,
+🎯lvl2 - Joons,setup integration for productivity,
+🎯lvl2 - Joons,shadow some CI CD done by Joon,
+🎯lvl2 - Joons,sql and bigquery onboard,
+📥lvl2 - organized inbox,-----------------------,
+📥lvl2 - organized inbox,⏭NEXT,"turn GTD system into second nature (includes deep work and routines), ""stable, or at least try to understand my mental and physical health"""
+📥lvl2 - organized inbox,⏲WAITING FOR,
 🏚lvl2 - Personal,-----------------------,
-🏚lvl2 - Personal,a day in a day implementation,
-🏚lvl2 - Personal,caress for my body and soul under soltitude,6
-🏚lvl2 - Personal,dai hoc sis mission control,"7,8"
-🏚lvl2 - Personal,emergency plan for phone lost situations,1
-🏚lvl2 - Personal,keeping healthy habits in check,"6,10"
-🏚lvl2 - Personal,list activities metric gtd dashboard,"10,6"
+🏚lvl2 - Personal,a day in a day implementation,"turn GTD system into second nature (includes deep work and routines), ""stable, or at least try to understand my mental and physical health"""
+🏚lvl2 - Personal,⚓breaking a bad habit pmo,
+🏚lvl2 - Personal,caress for my body and soul under soltitude,
+🏚lvl2 - Personal,dalat 2024,
+🏚lvl2 - Personal,emergency plan for phone lost situations,
+🏚lvl2 - Personal,family support,
+🏚lvl2 - Personal,keeping healthy habits in check,
+🏚lvl2 - Personal,list activities metric gtd dashboard,
+🏚lvl2 - Personal,music practice guitar and bass,
 🏚lvl2 - Personal,nas backup,
 🏚lvl2 - Personal,nas upgrade,
-🏚lvl2 - Personal,peace of mind for the reduncany,"10,6"
-🏚lvl2 - Personal,people observation,6
-🏚lvl2 - Personal,philosophy on our relationship,6
-🏚lvl2 - Personal,prep for her bday,
-🏚lvl2 - Personal,room org,6
-🏚lvl2 - Personal,setup new fish tank,
-🏚lvl2 - Personal,setup photo studio for mom,7
-🏚lvl2 - Personal,sis career and schooling path insights,"7,8"
-🏚lvl2 - Personal,support her career search,7
-🏚lvl2 - Personal,⚓breaking a bad habit pmo,6
-💤on hold lists,-----------------------,
-💤on hold lists,fix workflow cycle time UA,"5,4"
-💵lvl2 - Finance,-----------------------,
-💵lvl2 - Finance,financing for next 3 months,1
+🏚lvl2 - Personal,peace of mind for the reduncany,
+🏚lvl2 - Personal,people observation,
+🏚lvl2 - Personal,philosophy on our relationship,
+🏚lvl2 - Personal,pi backup,
+🏚lvl2 - Personal,pi setup for home,
+🏚lvl2 - Personal,room org,
+🏚lvl2 - Personal,setup photo studio for mom,
+🏚lvl2 - Personal,sis career and schooling path insights,
 💻lvl2 - Professional,-----------------------,
-💻lvl2 - Professional,GTD implementation,10
-💻lvl2 - Professional,applicant dash,"10,6,5"
-💻lvl2 - Professional,backup my mac workstation,
-💻lvl2 - Professional,build scripts and utils with python,11
-💻lvl2 - Professional,checkout big data with pyspark,"2,3"
-💻lvl2 - Professional,checkout serverless container migrate calibre,
+💻lvl2 - Professional,alfred scripting with alfred pane,"utilize a scripting language (python) to automate my own workflows, take on a side DE gig using my technical experience"
+💻lvl2 - Professional,backup devcontainer to cloud,
+💻lvl2 - Professional,build scripts and utils with python,
+💻lvl2 - Professional,checkout big data with pyspark,
+💻lvl2 - Professional,check out of 2024 quarterly goals,
 💻lvl2 - Professional,choose a serverless db for my personal etls,
 💻lvl2 - Professional,clean debt with gtd dash,
-💻lvl2 - Professional,cloud DE,3
-💻lvl2 - Professional,data core,"2,3,4"
-💻lvl2 - Professional,deep implement quota to shallow work endeavor in the month,"10,6"
-💻lvl2 - Professional,deep work implementations,"6,10"
+💻lvl2 - Professional,cloud DE,
+💻lvl2 - Professional,data core,
+💻lvl2 - Professional,deep implement quota to shallow work endeavor in the month,
+💻lvl2 - Professional,deep work implementations,
+💻lvl2 - Professional,dotenv vault learn and implement in my proj,
+💻lvl2 - Professional,extend gtd dash capture historical,
+💻lvl2 - Professional,gen ai upskill,
 💻lvl2 - Professional,gtd activity dash for archivals,
-💻lvl2 - Professional,gtd lvl3 quarterly review,"10,6"
-💻lvl2 - Professional,gtd weekly review recurring tasks,"10,6"
-💻lvl2 - Professional,hands on Azure synapse,
-💻lvl2 - Professional,job hoppin - getting ready,"5,1,9"
-💻lvl2 - Professional,joon itw,
+💻lvl2 - Professional,gtd dash v2,
+💻lvl2 - Professional,gtd full text search,
+💻lvl2 - Professional,gtd goals mapping,
+💻lvl2 - Professional,GTD implementation,
+💻lvl2 - Professional,gtd lvl3 quarterly review,
+💻lvl2 - Professional,gtd weekly review recurring tasks,
+💻lvl2 - Professional,habit dashboard,
+💻lvl2 - Professional,job hoppin - getting ready,
 💻lvl2 - Professional,lear graph db neo4j,
 💻lvl2 - Professional,learn azure resource management,
+💻lvl2 - Professional,learn CI CD and git commands via gtd,
 💻lvl2 - Professional,learn cloud VPC and networking,
-💻lvl2 - Professional,learn columnar db processing,2
+💻lvl2 - Professional,learn columnar db processing,
+💻lvl2 - Professional,learn IAC yaml based deployment,
+💻lvl2 - Professional,learn k8s,
 💻lvl2 - Professional,learn schema on read for DE,
 💻lvl2 - Professional,learn snowflake and dbt,
 💻lvl2 - Professional,learn stream processing,
 💻lvl2 - Professional,learn terminal with games,
 💻lvl2 - Professional,personal GTD dashboard,
-💻lvl2 - Professional,scrape tictick habit data for data driven next action,"11,10"
-💻lvl2 - Professional,set up learning a cert," 2,3,4,5"
+💻lvl2 - Professional,personal knowledge management,
+💻lvl2 - Professional,pyspark course with the DE guy,
+💻lvl2 - Professional,set up learning a cert,
 💻lvl2 - Professional,start a pet project that involves cloud services,
-💻lvl2 - Professional,take on dbt courses,
 💻lvl2 - Professional,test driven development with python,
 💻lvl2 - Professional,tryout a datalake service,
 💻lvl2 - Professional,up my digital security game,
-💻lvl2 - Professional,up my documentation skills,"9,5"
-💻lvl2 - Professional,util fuzzy search gtd dash,
-💻lvl2 - Professional,wildly important goal and any benefit mindset,"10,6"
-📥lvl2 - organized inbox,-----------------------,
-📥lvl2 - organized inbox,⏭NEXT,10
-📥lvl2 - organized inbox,⏲WAITING FOR,
+💻lvl2 - Professional,up my documentation skills,
+💻lvl2 - Professional,utilize prompts gpt for productivity,
+💻lvl2 - Professional,wildly important goal and any benefit mindset,

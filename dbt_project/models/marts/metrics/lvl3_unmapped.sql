@@ -1,15 +1,13 @@
-with source as (
-    select * from {{ ref('lvl1_lvl2_progress') }}
-),
-
-map as (
-    select * from {{ ref('lvl3_progress') }}
+WITH source AS (
+    SELECT
+        *
+    FROM
+        {{ ref('stg_duckdb__lvl3') }}
 )
-
-select source.*
-
-
-from source left join map on source.list_name = map.list_name
-where
-    map.list_name is null
-    and source.list_name not like '%------%'
+SELECT
+    *
+FROM
+    source
+WHERE
+    goal_id IS NULL
+    AND list_name NOT LIKE '%-%'
