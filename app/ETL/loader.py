@@ -1,46 +1,9 @@
 # a standalone job to run once and stay on for the duration of the machine.
 # this helps retain one tick tick api call in the duration.
 
-#%%
-import secrets
 from ticktick.oauth2 import OAuth2        # OAuth2 Manager
 from ticktick.api import TickTickClient   # Main Interface
 
-USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:130.0) Gecko/20100101 Firefox/130.0"
-X_DEVICE_ = '{"platform":"web","os":"macOS 10.15","device":"Firefox 130.0","name":"","version":6060,"id":"66666db22ee6d03d8bb8def7","channel":"website","campaign":"","websocket":"66fc8e566740d02c0c53973a"}'
-
-TickTickClient.HEADERS = {'User-Agent': USER_AGENT,
-               'x-device': X_DEVICE_}
-# per this issue : https://github.com/lazeroffmichael/ticktick-py/issues/42
-# additional_headers = {
-#     "Content-Type": "application/json",
-#     "Accept": "*/*",
-#     "Accept-Encoding": "gzip, deflate, br",
-#     "Connection": "keep-alive",
-# }
-
-# # https://github.com/lazeroffmichael/ticktick-py/issues/25
-# additional_headers = {
-#     'authority': 'api.ticktick.com',
-#     'sec-ch-ua': '" Not;A Brand";v="99", "Google Chrome";v="97", "Chromium";v="97"',
-#     'x-device-user-agent': USER_AGENT,
-#     'x-requested-with': 'XMLHttpRequest',
-#     'sec-ch-ua-mobile': '?0',
-#     'content-type': 'application/json',
-#     'User-Agent': USER_AGENT,
-#     'sec-ch-ua-platform': '"Windows"',
-#     'accept': '*/*',
-#     'origin': 'https://ticktick.com',
-#     'sec-fetch-site': 'same-site',
-#     'sec-fetch-mode': 'cors',
-#     'sec-fetch-dest': 'empty',
-#     'referer': 'https://ticktick.com/',
-#     'accept-language': 'es,en-US;q=0.9,en;q=0.8'
-# }
-
-
-
-# TickTickClient.HEADERS.update(additional_headers)
 
 
 from os import environ
@@ -54,7 +17,6 @@ import sys; sys.path.append('..') # to allow import helper which is 1 dir away
 from helper.source_env import ETL_env_path,raw_path
 import asyncio
 
-#%%
 
 logging.basicConfig(
     level=logging.INFO,
@@ -92,7 +54,6 @@ date_format = '%Y-%m-%dT%H:%M:%S.%f%z'
 
 def new_login(self, username, password):
     url = self.BASE_URL + 'user/signon'
-    # url = self.BASE_URL + 'user/signon?wc=true&remember=true'
     user_info = {
         'username': username,
         'password': password,
@@ -103,7 +64,6 @@ def new_login(self, username, password):
     }
 
     response = self.http_post(url, json=user_info, headers=self.HEADERS)
-    # response = self.http_post(url, json=user_info, params=parameters, headers=self.HEADERS)
     self.access_token = response['token']
     self.cookies['t'] = self.access_token
 
