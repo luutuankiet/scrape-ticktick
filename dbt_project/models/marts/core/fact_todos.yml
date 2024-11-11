@@ -41,6 +41,9 @@ models:
           sql_on: >-
             ${dim_dates_lookahead.date_key} =
             ${fact_todos.date_due_lookahead_key}
+        - join: lvl3_progress
+          sql_on: ${lvl3_progress.list_name} = ${fact_todos.todo_list_name}
+          type: left
     columns:
       - name: date_start_key
         description: ""
@@ -633,6 +636,14 @@ models:
           dimension:
             # hidden: true
             type: boolean
+
+      - name: todo_list_name
+        description: ""
+        meta:
+          dimension:
+            type: string
+
+
 # DERIVED DIMS
       - name: todo_derived__tags
         description: the tags parsed from tasks.
