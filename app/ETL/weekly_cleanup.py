@@ -3,8 +3,22 @@
 import os,sys; sys.path.append(os.path.dirname(__file__))
 from datetime import datetime,timezone
 import shutil
-from loader import *
+from loader import (
+cache_path,
+client_id,
+client_secret,
+username,
+password,
+redirect_uri,
+)
+from datetime import datetime, timedelta,timezone
+
 from loader import _delete_tasks
+from loader import new_login as t_new_login
+
+from ticktick.oauth2 import OAuth2 as t_OAuth2        # OAuth2 Manager
+from ticktick.api import TickTickClient as t_TickTickClient   # Main Interface
+
 
 from dagster import op,job,Definitions,in_process_executor
 
@@ -17,18 +31,18 @@ import subprocess
 
 @op
 def cleanup():
-    TickTickClient._login = new_login
-    auth_client = OAuth2(client_id=client_id,
+    t_TickTickClient._login = t_new_login
+    t_auth_client = t_OAuth2(client_id=client_id,
                         client_secret=client_secret,
                         redirect_uri=redirect_uri,
                         cache_path=cache_path
                         )
-    client = TickTickClient(username, password, auth_client)
+    t_client = t_TickTickClient(username, password, t_auth_client)
     today = datetime.now(timezone.utc)
     cutoff_date = today - timedelta(days=5)
     # cutoff_date = datetime(2022, 7, 24, tzinfo=timezone.utc)
     start_date = datetime(2024, 7, 1,tzinfo=timezone.utc)
-    _delete_tasks(end=cutoff_date,client=client,full_load=False,start=start_date)
+    _delete_tasks(end=cutoff_date,client=t_client,full_load=False,start=start_date)
 
 @op
 def loader_rerun(cleanup):
