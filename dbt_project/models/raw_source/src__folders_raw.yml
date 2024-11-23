@@ -4,6 +4,9 @@ models:
     columns:
       - name: folder_id
         description: ""
+        data_tests:
+          - unique
+          - not_null
         meta:
           dimension:
             type: string

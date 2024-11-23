@@ -1,7 +1,8 @@
 {{ config(
     materialized = 'incremental',
     unique_key = ['todo_id'],
-    on_schema_change='append_new_columns'
+    on_schema_change='append_new_columns',
+    full_refresh = false
 ) }}
 
 {% set datetime_list = ['todo_createdtime', 'todo_completedtime', 'todo_startdate', 'todo_duedate', 'todo_modifiedtime'] %}

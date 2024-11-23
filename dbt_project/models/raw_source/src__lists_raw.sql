@@ -1,6 +1,5 @@
 {{ config(
-    materialized = 'incremental',
-    unique_key = 'list_id'
+    materialized = 'table'
 ) }}
 
 WITH source AS (
