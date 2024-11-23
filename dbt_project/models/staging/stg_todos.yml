@@ -23,7 +23,10 @@ models:
           dimension:
             type: string
       - name: todo_key
-        description: ""
+        description: "surrogate key by joining todo_id and todo_modifiedtime"
+        data_tests:
+          - unique
+          - not_null
         meta:
           dimension:
             type: string
@@ -44,6 +47,8 @@ models:
             type: string
       - name: todo_id
         description: ""
+        data_tests:
+          - unique
         meta:
           dimension:
             type: string
