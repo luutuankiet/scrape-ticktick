@@ -20,10 +20,10 @@ jobs:
         run: echo "PR_schema=${{ env.schema_var }}" >> $GITHUB_ENV
         if: ${{ steps.PR.outputs.pr_found == 'true' }}
         env:
-          schema_var: '{"schema_name": "ci_PR_${{ steps.PR.outputs.number }}"}'
+          schema_var: '{\"schema_name\": \"ci_PR_${{ steps.PR.outputs.number }}\"}'
 
       - name: debug
-        run: echo \'"$PR_schema"\'
+        run: echo "${{ env.PR_schema }}"
         
 
       - uses: actions/checkout@v3
