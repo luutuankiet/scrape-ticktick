@@ -5,6 +5,7 @@ profile: todo_analytics
 model-paths: ["models"]
 seed-paths: ["seeds"]
 macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
 
 models:
   todo_analytics:
