@@ -81,12 +81,12 @@ jobs:
 
 
       - name: dbt build models
-        run: dbt build --target ci --vars '"$PR_schema"'
+        run: dbt build --target ci --vars '${{env.PR_schema}}'
           
 
       - name: validate LD
         id: validate-lightdash
-        run: lightdash validate --target ci --vars '"$PR_schema"'
+        run: lightdash validate --target ci --vars '${{env.PR_schema}}'
         env:
           LIGHTDASH_API_KEY: ${{ secrets.LIGHTDASH_API_KEY }}
           LIGHTDASH_PROJECT: ${{ secrets.LIGHTDASH_PROJECT }}
