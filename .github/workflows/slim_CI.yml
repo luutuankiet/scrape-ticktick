@@ -16,10 +16,15 @@ jobs:
       - uses: 8BitJonny/gh-get-current-pr@3.0.0
         id: PR
 
-      - name: set var PR_schema
-        run: echo "PR_schema={\"schema_name\": \"ci_PR_${{ steps.PR.outputs.number }}\"}" >> $GITHUB_ENV
-        if: steps.PR.outputs.pr_found == 'true'
-      
+      - name: Set var PR_schema
+        run: echo "PR_schema=${{ env.schema_var }}" >> $GITHUB_ENV
+        if: ${{ steps.PR.outputs.pr_found == 'true' }}
+        env:
+          schema_var: '{"schema_name": "ci_PR_${{ steps.PR.outputs.number }}"}'
+
+      - name: debug
+        run: echo '"$PR_schema"'
+        
 
       - uses: actions/checkout@v3
 
@@ -76,12 +81,12 @@ jobs:
 
 
       - name: dbt build models
-        run: dbt build --target ci --vars \'"$PR_schema"\'
+        run: dbt build --target ci --vars '"$PR_schema"'
           
 
       - name: validate LD
         id: validate-lightdash
-        run: lightdash validate --target ci --vars \'"$PR_schema"\'
+        run: lightdash validate --target ci --vars '"$PR_schema"'
         env:
           LIGHTDASH_API_KEY: ${{ secrets.LIGHTDASH_API_KEY }}
           LIGHTDASH_PROJECT: ${{ secrets.LIGHTDASH_PROJECT }}
