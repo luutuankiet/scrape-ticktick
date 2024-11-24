@@ -1,20 +1,38 @@
 {{ config(
     materialized = 'table'
 ) }}
-WITH source AS (
+WITH source_active AS (
+    {# direct pull from tick api. contains current data. #}
+
     SELECT
-        {{ setup_nulls(
-            source(
-                'raw_data',
-                'folders_raw'
-            )
-        ) }}
+        *
     FROM
         {{ source(
             'raw_data',
             'folders_raw'
         ) }}
 ),
+source_snp AS (
+    {# pulls the deleted portion of the data that is gone from tick api. #}
+    SELECT
+        *
+    FROM
+        {{ ref(
+            'snp_folders_raw',
+        ) }}
+    WHERE dbt_valid_to is not null
+),
+
+source as (
+    select 
+        {{ setup_nulls(source('raw_data', 'folders_raw')) }}
+        from source_active
+    UNION ALL
+    select 
+        {{ setup_nulls(source('raw_data', 'folders_raw')) }}
+        from source_snp
+),
+
 renamed AS (
     SELECT
         {{ adapter.quote("id") }} :: text AS "folder_id",
