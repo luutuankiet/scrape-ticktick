@@ -1,22 +1,14 @@
-{# materialized='incremental', #}
-{# unique_key = ['todo_id'], #}
-{# on_schema_change='append_new_columns', #}
+
 {{ config(
-    materialized = 'table',
-    indexes = [ {'columns': ['list_key'],
-    'type': 'hash' },{ 'columns': ['folder_key'],
-    'type': 'hash' },{ 'columns': ['status_key'],
-    'type': 'hash' },{ 'columns': ['date_start_key'],
-    'type': 'hash' },{ 'columns': ['date_due_key'],
-    'type': 'hash' },{ 'columns': ['date_completed_key'],
-    'type': 'hash' },{ 'columns': ['date_created_key'],
-    'type': 'hash' },{ 'columns': ['date_modified_key'],
-    'type': 'hash' },{ 'columns': ['date_due_lookahead_key'],
-    'type': 'hash' },],
-    unlogged = True
+    materialized='incremental',
+    unique_key = ['todo_id', 'date_due_lookahead_key'],
+    incremental_strategy = 'merge',
+    on_schema_change='append_new_columns',
+    pre_hook = ['{{cleanup_nulls("todo_id")}}']
 ) }}
 
 WITH init_todo AS (
+    
 
     SELECT
         DISTINCT {{ coalesce_defaults(ref('src__tasks_raw')) }}
@@ -232,7 +224,6 @@ joined AS (
         {{ dbt_utils.generate_surrogate_key(['ddcm.date_id']) }} AS date_completed_key,
         {{ dbt_utils.generate_surrogate_key(['ddc.date_id']) }} AS date_created_key,
         {{ dbt_utils.generate_surrogate_key(['ddm.date_id']) }} AS date_modified_key,
-        {{ dbt_utils.generate_surrogate_key(['todo_id']) }} AS todo_key,
         {{ dbt_utils.generate_surrogate_key(['list_id']) }} AS list_key,
         {{ dbt_utils.generate_surrogate_key(['folder_id']) }} AS folder_key,
         {{ dbt_utils.generate_surrogate_key(['status_id']) }} AS status_key,
@@ -281,6 +272,14 @@ joined AS (
         ON dl.date_id = t.todo_duedate_derived_date
 )
 SELECT
+    {{ dbt_utils.generate_surrogate_key(['todo_id','date_due_lookahead_key']) }} AS todo_key,
     *
 FROM
     joined
+
+{% if is_incremental() %}
+  WHERE 
+  todo_modifiedtime >= (select coalesce(max(todo_modifiedtime),'1900-01-01 00:00:00') from {{ this }} )
+  OR
+  todo_modifiedtime IS NULL
+{% endif %}

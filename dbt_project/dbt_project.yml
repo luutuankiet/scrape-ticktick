@@ -5,6 +5,7 @@ profile: todo_analytics
 model-paths: ["models"]
 seed-paths: ["seeds"]
 macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
 
 models:
   todo_analytics:
@@ -31,6 +32,7 @@ seeds:
       +column_types:
         goal_ids: "text"
     date_seed:
+      full_refresh: false
         
 vars:
     "dbt_date:time_zone": "Asia/Ho_Chi_Minh"

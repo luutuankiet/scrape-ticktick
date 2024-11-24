@@ -93,7 +93,11 @@ models:
             hidden: true
             type: string
       - name: todo_key
-        description: ""
+        description: "surrogate key by joining todo_id and todo_modifiedtime"
+        data_tests:
+          - unique:
+              severity: warn
+          - not_null        
         meta:
           dimension:
             type: string

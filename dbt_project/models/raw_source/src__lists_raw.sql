@@ -1,23 +1,49 @@
 {{ config(
-    materialized = 'incremental',
-    unique_key = 'list_id'
+    materialized = 'table'
 ) }}
 
-WITH source AS (
+WITH source_active AS (
+    {# direct pull from tick api. contains current data. #}
 
     SELECT
-        {{ setup_nulls(
-            source(
-                'raw_data',
-                'lists_raw'
-            )
-        ) }}
+        {{dbt_utils.star(
+            from=source('raw_data','lists_raw'),
+            except=['modifiedtime']
+        )}},
+        -- gotta explicitly handle this cauaes snap's data casted as timestamp
+        modifiedtime :: text as modifiedtime
     FROM
         {{ source(
             'raw_data',
             'lists_raw'
         ) }}
 ),
+source_snp AS (
+    {# pulls the deleted portion of the data that is gone from tick api. #}
+    SELECT
+        {{dbt_utils.star(
+            from=source('raw_data','lists_raw'),
+            except=['modifiedtime']
+        )}},
+        -- gotta explicitly handle this cauaes snap's data casted as timestamp
+        modifiedtime :: text as modifiedtime
+    FROM
+        {{ ref(
+            'snp_lists_raw',
+        ) }}
+    WHERE dbt_valid_to is not null
+),
+
+source as (
+    select 
+        {{ setup_nulls(source('raw_data', 'lists_raw')) }}
+        from source_active
+    UNION ALL
+    select 
+        {{ setup_nulls(source('raw_data', 'lists_raw')) }}
+        from source_snp
+),
+
 renamed AS (
     SELECT
         {{ adapter.quote("id") }} :: text AS "list_id",
