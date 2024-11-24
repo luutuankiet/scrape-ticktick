@@ -8,6 +8,7 @@
 ) }}
 
 WITH init_todo AS (
+    
 
     SELECT
         DISTINCT {{ coalesce_defaults(ref('src__tasks_raw')) }}
