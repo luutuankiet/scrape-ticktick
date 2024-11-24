@@ -23,7 +23,7 @@ jobs:
           schema_var: '{"schema_name": "ci_PR_${{ steps.PR.outputs.number }}"}'
 
       - name: debug
-        run: echo '"$PR_schema"'
+        run: echo \'"$PR_schema"\'
         
 
       - uses: actions/checkout@v3
