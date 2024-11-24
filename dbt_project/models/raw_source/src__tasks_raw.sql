@@ -1,21 +1,52 @@
 {{ config(
     materialized = 'incremental',
     unique_key = ['todo_id'],
-    on_schema_change='append_new_columns',
-    full_refresh = false
+    on_schema_change = 'append_new_columns',
 ) }}
 
 {% set datetime_list = ['todo_createdtime', 'todo_completedtime', 'todo_startdate', 'todo_duedate', 'todo_modifiedtime'] %}
-WITH source AS (
+WITH source_active AS (
+    {# direct pull from tick api. contains current data. #}
 
     SELECT
-        {{ setup_nulls(source('raw_data', 'tasks_raw')) }}
+        {{dbt_utils.star(
+            from=source('raw_data','tasks_raw'),
+            except=['modifiedtime']
+        )}},
+        -- gotta explicitly handle this cauaes snap's data casted as timestamp
+        modifiedtime :: text as modifiedtime
     FROM
         {{ source(
             'raw_data',
             'tasks_raw'
         ) }}
 ),
+source_snp AS (
+    {# pulls the deleted portion of the data that is gone from tick api. #}
+    SELECT
+        {{dbt_utils.star(
+            from=source('raw_data','tasks_raw'),
+            except=['modifiedtime']
+        )}},
+        -- gotta explicitly handle this cauaes snap's data casted as timestamp
+        modifiedtime :: text as modifiedtime
+    FROM
+        {{ ref(
+            'snp_tasks_raw',
+        ) }}
+    WHERE dbt_valid_to is not null
+),
+
+source as (
+    select 
+        {{ setup_nulls(source('raw_data', 'tasks_raw')) }}
+        from source_active
+    UNION ALL
+    select 
+        {{ setup_nulls(source('raw_data', 'tasks_raw')) }}
+        from source_snp
+),
+
 renamed AS (
     SELECT
         DISTINCT {{ adapter.quote("id") }} :: text AS "todo_id",
@@ -27,7 +58,6 @@ renamed AS (
         {{ adapter.quote("modifiedtime") }} :: TIMESTAMP + INTERVAL '7 hours' AS "todo_modifiedtime",
         {{ adapter.quote("createdtime") }} :: TIMESTAMP + INTERVAL '7 hours' AS "todo_createdtime",
         {{ adapter.quote("repeatfirstdate") }} :: TIMESTAMP + INTERVAL '7 hours' AS "todo_repeatfirstdate",
-
         {#                                           #}
         {{ adapter.quote("projectid") }} :: text AS "todo_projectid",
         {{ adapter.quote("sortorder") }} :: bigint AS "todo_sortorder",
@@ -106,3 +136,10 @@ SELECT
     *
 FROM
     refine_dates
+WHERE
+
+{% if is_incremental() %}
+   todo_modifiedtime >= coalesce((select max(todo_modifiedtime) from {{ this }}), '1900-01-01 00:00:00')
+{% else %}
+  1=1
+{% endif %}
