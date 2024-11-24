@@ -3,7 +3,8 @@
     materialized='incremental',
     unique_key = ['todo_id', 'date_due_lookahead_key'],
     incremental_strategy = 'merge',
-    on_schema_change='append_new_columns'
+    on_schema_change='append_new_columns',
+    pre_hook = ['{{cleanup_nulls("todo_id")}}']
 ) }}
 
 WITH init_todo AS (
@@ -274,8 +275,10 @@ SELECT
     *
 FROM
     joined
-WHERE todo_id IS NOT NULL
 
 {% if is_incremental() %}
-  AND todo_modifiedtime >= (select coalesce(max(todo_modifiedtime),'1900-01-01 00:00:00') from {{ this }} )
+  WHERE 
+  todo_modifiedtime >= (select coalesce(max(todo_modifiedtime),'1900-01-01 00:00:00') from {{ this }} )
+  OR
+  todo_modifiedtime IS NULL
 {% endif %}
