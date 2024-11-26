@@ -4,9 +4,13 @@ models:
     columns:
       - name: todo_id
         description: ""
+        data_tests:
+          - unique
+          - not_null
         meta:
           dimension:
             type: string
+        
       - name: todo_createdtime
         description: ""
         meta:

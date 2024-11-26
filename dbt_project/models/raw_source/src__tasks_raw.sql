@@ -1,7 +1,5 @@
 {{ config(
-    materialized = 'incremental',
-    unique_key = ['todo_id'],
-    on_schema_change = 'append_new_columns',
+    materialized = 'view'
 ) }}
 
 {% set datetime_list = ['todo_createdtime', 'todo_completedtime', 'todo_startdate', 'todo_duedate', 'todo_modifiedtime'] %}
@@ -35,6 +33,9 @@ source_snp AS (
             'snp_tasks_raw',
         ) }}
     WHERE dbt_valid_to is not null
+    and id not in (
+        select distinct id from source_active
+        ) -- filters out those deleted with same id but diff etag, in which we favors the active data.
 ),
 
 source as (
@@ -136,10 +137,3 @@ SELECT
     *
 FROM
     refine_dates
-WHERE
-
-{% if is_incremental() %}
-   todo_modifiedtime >= coalesce((select max(todo_modifiedtime) from {{ this }}), '1900-01-01 00:00:00')
-{% else %}
-  1=1
-{% endif %}
