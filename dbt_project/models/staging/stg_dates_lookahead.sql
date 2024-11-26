@@ -1,10 +1,10 @@
 {{
   config(
-    materialized = 'table',
+    materialized = 'view',
     )
 }}
-{% set today_offset_5 = (modules.datetime.datetime.now() - modules.datetime.timedelta(days=1)).strftime("%Y-%m-%d")%}
-{% set today_lookahead = (modules.datetime.datetime.now() + modules.datetime.timedelta(days=90)).strftime("%Y-%m-%d")%}
+{% set today_offset_1 = (modules.datetime.datetime.now() - modules.datetime.timedelta(days=1)).strftime("%Y-%m-%d")%}
+{% set today_lookahead = (modules.datetime.datetime.now() + modules.datetime.timedelta(days=var('lookahead_window'))).strftime("%Y-%m-%d")%}
 WITH source AS (
     SELECT
         *
@@ -14,7 +14,7 @@ WITH source AS (
         ) }}
 
         where 
-        date_id::date >= '{{today_offset_5}}'::date
+        date_id::date >= '{{today_offset_1}}'::date
         and
         date_id::date <= '{{today_lookahead}}'::date
 )

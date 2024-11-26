@@ -11,8 +11,6 @@ models:
   todo_analytics:
     raw_source:
       # utilizing the strat to allow deleting completed data from src ticktick
-      +incremental_strategy: "delete+insert"
-      +materialized: table
       +tags: "raw"
     staging:
       +materialized: view
@@ -36,3 +34,5 @@ seeds:
         
 vars:
     "dbt_date:time_zone": "Asia/Ho_Chi_Minh"
+    # be used in model stg_dates_lookahead
+    "lookahead_window": 90

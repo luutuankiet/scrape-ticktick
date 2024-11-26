@@ -25,9 +25,7 @@ models:
       - name: todo_key
         description: "surrogate key by joining todo_id and todo_modifiedtime"
         data_tests:
-          - unique:
-              config:
-                severity: warn
+          - unique
           - not_null
         meta:
           dimension:
@@ -50,9 +48,7 @@ models:
       - name: todo_id
         description: ""
         data_tests:
-          - unique:
-              config:
-                severity: warn
+          - unique
         meta:
           dimension:
             type: string
