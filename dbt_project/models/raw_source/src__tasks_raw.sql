@@ -3,51 +3,75 @@
 ) }}
 
 {% set datetime_list = ['todo_createdtime', 'todo_completedtime', 'todo_startdate', 'todo_duedate', 'todo_modifiedtime'] %}
-WITH source_active AS (
+WITH raw_source_active AS (
     {# direct pull from tick api. contains current data. #}
 
     SELECT
-        {{dbt_utils.star(
-            from=source('raw_data','tasks_raw'),
-            except=['modifiedtime']
-        )}},
+        {{ dbt_utils.star(
+            from = source(
+                'raw_data',
+                'tasks_raw'
+            ),
+            except = ['modifiedtime']
+        ) }},
         -- gotta explicitly handle this cauaes snap's data casted as timestamp
-        modifiedtime :: text as modifiedtime
+        modifiedtime :: text AS modifiedtime,
+        ROW_NUMBER() over (
+            PARTITION BY id
+            ORDER BY
+                modifiedtime DESC
+        ) AS rn
     FROM
         {{ source(
             'raw_data',
             'tasks_raw'
         ) }}
 ),
+source_active AS (
+    {# to handle de dupes #}
+    SELECT
+        *
+    FROM
+        raw_source_active
+    WHERE
+        rn = 1
+),
 source_snp AS (
     {# pulls the deleted portion of the data that is gone from tick api. #}
     SELECT
-        {{dbt_utils.star(
-            from=source('raw_data','tasks_raw'),
-            except=['modifiedtime']
-        )}},
+        {{ dbt_utils.star(
+            from = source(
+                'raw_data',
+                'tasks_raw'
+            ),
+            except = ['modifiedtime']
+        ) }},
         -- gotta explicitly handle this cauaes snap's data casted as timestamp
-        modifiedtime :: text as modifiedtime
+        modifiedtime :: text AS modifiedtime
     FROM
         {{ ref(
             'snp_tasks_raw',
         ) }}
-    WHERE dbt_valid_to is not null
-    and id not in (
-        select distinct id from source_active
+    WHERE
+        dbt_valid_to IS NOT NULL
+        AND id NOT IN (
+            SELECT
+                DISTINCT id
+            FROM
+                source_active
         ) -- filters out those deleted with same id but diff etag, in which we favors the active data.
 ),
-
-source as (
-    select 
+source AS (
+    SELECT
         {{ setup_nulls(source('raw_data', 'tasks_raw')) }}
-        from source_active
+    FROM
+        source_active
     UNION ALL
-    select 
+    SELECT
         {{ setup_nulls(source('raw_data', 'tasks_raw')) }}
-        from source_snp
+    FROM
+        source_snp
 ),
-
 renamed AS (
     SELECT
         DISTINCT {{ adapter.quote("id") }} :: text AS "todo_id",

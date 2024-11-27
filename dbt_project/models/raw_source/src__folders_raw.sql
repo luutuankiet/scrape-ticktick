@@ -1,16 +1,34 @@
 {{ config(
     materialized = 'table'
 ) }}
-WITH source_active AS (
+WITH raw_source_active AS (
     {# direct pull from tick api. contains current data. #}
 
     SELECT
-        *
+        {{ dbt_utils.star(
+            from = source(
+                'raw_data',
+                'folders_raw'
+            )
+        ) }},
+        ROW_NUMBER() over (
+            PARTITION BY id
+            order by etag DESC
+        ) AS rn
     FROM
         {{ source(
             'raw_data',
             'folders_raw'
         ) }}
+),
+source_active AS (
+    {# to handle de dupes #}
+    SELECT
+        *
+    FROM
+        raw_source_active
+    WHERE
+        rn = 1
 ),
 source_snp AS (
     {# pulls the deleted portion of the data that is gone from tick api. #}
@@ -21,6 +39,9 @@ source_snp AS (
             'snp_folders_raw',
         ) }}
     WHERE dbt_valid_to is not null
+    and id not in (
+        select distinct id from source_active
+        ) -- filters out those deleted with same id but diff etag, in which we favors the active data.
 ),
 
 source as (
