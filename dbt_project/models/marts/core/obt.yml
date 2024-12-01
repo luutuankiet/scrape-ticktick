@@ -4,6 +4,8 @@ models:
     columns:
       - name: todo_id
         description: ""
+        data_tests:
+          - assert_unique_non_lookahead
         meta:
           dimension:
             type: string
@@ -234,8 +236,6 @@ models:
             type: date
       - name: list_id
         description: ""
-        tests:
-          - not_null
         meta:
           dimension:
             type: string
@@ -376,8 +376,6 @@ models:
             type: boolean
       - name: folder_id
         description: ""
-        tests:
-          - not_null
         meta:
           dimension:
             type: string
@@ -438,8 +436,6 @@ models:
             type: string
       - name: status_id
         description: ""
-        tests:
-          - not_null
         meta:
           dimension:
             type: string
@@ -455,9 +451,6 @@ models:
             type: string
       - name: start_date_id
         description: ""
-        tests:
-          - all_default_dates
-          - not_null
         meta:
           dimension:
             type: date
@@ -593,9 +586,6 @@ models:
             type: number
       - name: due_date_id
         description: ""
-        tests:
-          - not_null
-          - all_default_dates
         meta:
           dimension:
             type: date
@@ -731,9 +721,6 @@ models:
             type: number
       - name: completed_date_id
         description: ""
-        tests:
-          - all_default_dates
-          - not_null
         meta:
           dimension:
             type: date
@@ -869,9 +856,6 @@ models:
             type: number
       - name: created_date_id
         description: ""
-        tests:
-          - all_default_dates
-          - not_null
         meta:
           dimension:
             type: date

@@ -1,12 +1,13 @@
-{% test assert_no_dupes_in_todos_lookahead(model, column_name) %}
+{% test assert_unique_non_lookahead(model, column_name) %}
 WITH test1_within_window AS (
     -- buid data points
     SELECT
-        COUNT(*) AS cnt_lookahead_dates
+        'lookahead_dummy' as col
+        ,COUNT(*) AS cnt
     FROM
         {{ model }}
     WHERE
-        todo_id IS NULL
+        {{ column_name }} IS NULL
 ),
 test1_result AS (
     SELECT
@@ -14,19 +15,20 @@ test1_result AS (
     FROM
         test1_within_window
     WHERE
-        cnt_lookahead_dates >= {{ var('lookahead_window') }} + 5
+        cnt >= {{ var('lookahead_window') }} + 5
 ),
 test2_no_dupes AS (
     SELECT
-        1
+        {{ column_name }} :: text as col
+        ,COUNT(*) AS cnt
     FROM
         {{ model }}
     WHERE
-        todo_id IS NOT NULL
+        {{ column_name }} IS NOT NULL
     GROUP BY
-        todo_id
+        {{ column_name }}
     HAVING
-        COUNT(todo_id) > 2
+        COUNT({{ column_name }}) > 2
 )
 SELECT
     *
