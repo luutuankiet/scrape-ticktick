@@ -20,6 +20,7 @@ joined AS (
     SELECT
         t.*,
         {{ dbt_utils.generate_surrogate_key(['dl.date_id']) }} AS date_due_lookahead_key,
+        {{ dbt_utils.generate_surrogate_key(['dl.date_id','todo_id']) }} AS todo_lookahead_skey,
         CASE
             WHEN -- build the flag window
             -- case1: the records from due_lookahead

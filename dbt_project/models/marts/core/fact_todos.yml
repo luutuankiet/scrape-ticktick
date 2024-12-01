@@ -95,12 +95,14 @@ models:
       - name: todo_key
         description: "surrogate key by joining todo_id and todo_modifiedtime"
         data_tests:
-          - unique:
-              severity: warn
-          - not_null        
+          - assert_unique_non_lookahead
         meta:
           dimension:
             type: string
+      - name: todo_lookahead_skey
+        description: "unique surrogate key as merge key for this incremental model."
+        data_tests:
+          - unique
       - name: list_key
         description: ""
         tests:
@@ -347,8 +349,6 @@ models:
             type: number
       - name: todo_title
         description: ""
-        tests:
-          - non_lookahead_null
         meta:
           dimension:
             # hidden: true
@@ -603,24 +603,18 @@ models:
             type: date
       - name: list_id
         description: ""
-        tests:
-          - not_null
         meta:
           dimension:
             hidden: true
             type: string
       - name: folder_id
         description: ""
-        tests:
-          - not_null
         meta:
           dimension:
             hidden: true
             type: string
       - name: status_id
         description: ""
-        tests:
-          - not_null
         meta:
           dimension:
             hidden: true

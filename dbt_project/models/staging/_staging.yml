@@ -8,6 +8,10 @@ models:
     columns:
       - name: todo_id
         data_tests:
-          - assert_no_dupes_in_todos_lookahead
+          - assert_unique_non_lookahead
+      - name: todo_lookahead_skey
+        data_tests:
+          - unique
+            
 
     
