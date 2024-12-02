@@ -1,0 +1,3 @@
+[submodule "dbt_project"]
+	path = dbt_project
+	url = https://github.com/luutuankiet/ticktick-py-dbt.git
