@@ -40,4 +40,4 @@ app.log*
 
 app.log.*
 
-dbt_project/seeds/*
+dbt_project/seeds/*dbt_project/*
