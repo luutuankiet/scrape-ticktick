@@ -5,21 +5,33 @@ on:
   push:
     branches-ignore: [ "main", "master"]
 
-env:
-  TARGET_SCHEMA: dev
 
 jobs:
   validate_dbt_models:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      pull-requests: write
     steps:
+      - uses: 8BitJonny/gh-get-current-pr@3.0.0
+        id: PR
+
+      - name: Set var PR_schema
+        run: echo "PR_schema=${{ env.schema_var }}" >> $GITHUB_ENV
+        if: ${{ steps.PR.outputs.pr_found == 'true' }}
+        env:
+          schema_var: '{\"schema_name\": \"ci_PR_${{ steps.PR.outputs.number }}\"}'
+
+      - name: debug
+        run: echo "${{ env.PR_schema }}"
+        
+
       - uses: actions/checkout@v3
 
       - uses: ./.github/actions/setup-env
         with: 
           PROD_ENV: ${{ secrets.PROD_ENV }}           
-      
+
 
       - name: Cache Python packages
         uses: actions/cache@v3
@@ -68,14 +80,14 @@ jobs:
         run: npm install -g "@lightdash/cli@${{ steps.version.outputs.value }}" || npm install -g @lightdash/cli@latest
 
 
-      - name: validate dbt models
-        run: dbt build
+      - name: dbt build models
+        run: dbt build --target ci --vars '${{env.PR_schema}}'
           
 
       - name: validate LD
         id: validate-lightdash
+        run: lightdash validate --target ci --vars '${{env.PR_schema}}'
         env:
           LIGHTDASH_API_KEY: ${{ secrets.LIGHTDASH_API_KEY }}
           LIGHTDASH_PROJECT: ${{ secrets.LIGHTDASH_PROJECT }}
           LIGHTDASH_URL: ${{ secrets.LIGHTDASH_URL }}
-        run: lightdash validate
