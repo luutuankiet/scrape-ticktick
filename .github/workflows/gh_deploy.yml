@@ -37,6 +37,7 @@ jobs:
         ssh -o StrictHostKeyChecking=no -o ForwardAgent=yes root@$HOSTNAME -p $SSH_PORT << 'EOF'
           cd /workspaces/gtd_ETL
           git pull origin main
+          git submodule update --init --remote --merge
           . ./bootstrap_env.sh
           . ./venv/bin/activate
           pip install -r requirements.txt
