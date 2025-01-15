@@ -4,7 +4,7 @@ from dagster import Definitions,ScheduleDefinition,define_asset_job,load_assets_
 from dagster_dbt import DbtCliResource
 from sqlalchemy import true
 
-from constants import DBT_PROJECT_DIR
+from constants import DBT_DIR
 import EL,dbt_assets
 from lvl3_helper import load_new_lvl3_data,load_mapping_helper
 from weekly_cleanup import weekly_cleanup
@@ -48,7 +48,7 @@ defs = Definitions(
     jobs=[load_new_lvl3_data,weekly_cleanup,rapid_ETL_mode,job_deploy_LD],
     schedules=[ETL_schedule,rapid_ETL_schedule,helper_schedule,cleanup_schedule,deploy_schedule],
     resources={
-        "dbt": DbtCliResource(project_dir=DBT_PROJECT_DIR),
+        "dbt": DbtCliResource(project_dir=DBT_DIR),
         "io_manager": mem_io_manager,
     },
 )
