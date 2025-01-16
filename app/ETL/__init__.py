@@ -48,7 +48,7 @@ defs = Definitions(
     jobs=[load_new_lvl3_data,weekly_cleanup,rapid_ETL_mode,job_deploy_LD],
     schedules=[ETL_schedule,rapid_ETL_schedule,helper_schedule,cleanup_schedule,deploy_schedule],
     resources={
-        "dbt": DbtCliResource(project_dir=DBT_DIR),
+        "dbt": DbtCliResource(project_dir=DBT_DIR, profiles_dir=DBT_DIR),
         "io_manager": mem_io_manager,
     },
 )
