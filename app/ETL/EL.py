@@ -10,13 +10,12 @@ from datetime import datetime
 import pytz
 import humanize
 import numpy as np
-#%%
 
 engine = create_engine(db_url)
 
 
 
-@asset()
+@asset(key=AssetKey('init_extract').with_prefix(target_schema))
 def init_extract():
     flag = os.path.join(ETL_workdir,'force_sync.flag')
     with open(flag, 'w') as f:
@@ -35,9 +34,9 @@ def init_extract():
 names = ['tasks_raw', 'lists_raw', 'folders_raw']
 @multi_asset(
     outs={
-        'tasks_raw': AssetOut(key=AssetKey('tasks_raw')),
-        'lists_raw': AssetOut(key=AssetKey('lists_raw')),
-        'folders_raw': AssetOut(key=AssetKey('folders_raw'))
+        'tasks_raw': AssetOut(key=AssetKey('tasks_raw').with_prefix(target_schema)),
+        'lists_raw': AssetOut(key=AssetKey('lists_raw').with_prefix(target_schema)),
+        'folders_raw': AssetOut(key=AssetKey('folders_raw').with_prefix(target_schema))
 
     },
     compute_kind='python',deps=[init_extract]
