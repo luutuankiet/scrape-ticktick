@@ -1,4 +1,0 @@
-- id: ETL_exec
-  execute-command: "/bin/bash"
-  command-working-directory: "/workspaces/gtd_ETL/app"
-  
