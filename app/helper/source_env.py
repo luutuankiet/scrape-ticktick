@@ -27,7 +27,10 @@ load_dotenv(project_dotenv_path)
 makefile_path = project_root.joinpath('Makefile')
 makefile_dir = project_root
 
-raw_path = current_dir.joinpath('..', 'ETL', 'raw').resolve(strict=True)
+raw_path = current_dir.joinpath('..', 'ETL', 'raw').resolve()
+if not raw_path.exists():
+    os.makedirs(raw_path)
+
 ETL_env_path = current_dir.joinpath('..', 'env').resolve(strict=True)
 secrets_path = ETL_env_path.joinpath('.secrets')
 service_account_path = ETL_env_path.joinpath('service_account.json')
