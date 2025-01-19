@@ -1,6 +1,7 @@
 import os 
 from dotenv import load_dotenv
 import urllib.parse
+from pathlib import Path
 
 
 
@@ -8,49 +9,44 @@ def find_project_root(current_dir, marker_file='.env'):
     while current_dir != os.path.dirname(current_dir):
         if os.path.exists(os.path.join(current_dir, marker_file)):
             return current_dir
-        current_dir = os.path.dirname(current_dir)
+        current_dir = Path(os.path.dirname(current_dir)).resolve(strict=True)
     raise RuntimeError("Project root with marker file '{}' not found.".format(marker_file))
 
 # Find the project root
-current_dir = os.path.dirname(os.path.abspath(__file__))
+current_dir = Path(__file__).parent.resolve(strict=True)
 project_root = find_project_root(current_dir)
 
 
-# Load .env.bootstrap
-
-dotenv_bootstrap_path = os.path.join(project_root, '.env.bootstrap')
-load_dotenv(dotenv_bootstrap_path)
-
-
-
 # Load .env from project root
-project_dotenv_path = os.path.join(project_root, '.env')
+project_dotenv_path = project_root.joinpath('.env')
 load_dotenv(project_dotenv_path)
 
 
 
-makefile_path = os.environ.get('MAKEFILE_PATH')
-makefile_dir = os.path.dirname(makefile_path)
 
-raw_path = os.path.join(current_dir,'..','ETL','raw')
-ETL_env_path=os.path.join(current_dir,'..','env')
-secrets_path = os.path.join(ETL_env_path,'.secrets')
-service_account_path = os.path.join(ETL_env_path,'service_account.json')
-ETL_workdir = os.path.join(current_dir,'..','ETL')
+makefile_path = project_root.joinpath('Makefile')
+makefile_dir = project_root
+
+raw_path = current_dir.joinpath('..', 'ETL', 'raw').resolve()
+if not raw_path.exists():
+    os.makedirs(raw_path)
+
+ETL_env_path = current_dir.joinpath('..', 'env').resolve(strict=True)
+secrets_path = ETL_env_path.joinpath('.secrets')
+service_account_path = ETL_env_path.joinpath('service_account.json')
+ETL_workdir = current_dir.joinpath('..', 'ETL').resolve(strict=True)
+
 
 load_dotenv(secrets_path)
 
 
 
-dbt_project_dir = os.environ.get('DBT_PROJECT_DIR')
-dbt_models_path=os.path.join(dbt_project_dir,'models')
-dw_path = os.environ.get("DW_PATH")
-st_logs_path = os.environ.get("ST_LOGS_PATH")
-venv_path = os.environ.get("VIRTUAL_ENV")
+dbt_project_dir = project_root.joinpath('dbt_project')
+dbt_models_path=dbt_project_dir.joinpath('models')
 
 
-dbt_models_core = os.path.join(dbt_models_path,'marts','core')
-dbt_models_metrics = os.path.join(dbt_models_path,'marts','metrics')
+dbt_models_core = dbt_models_path.joinpath('marts','core').resolve(strict=True)
+dbt_models_metrics = dbt_models_path.joinpath('marts','metrics').resolve(strict=True)
 
 # db connection
 user=os.environ.get('DW_USER')

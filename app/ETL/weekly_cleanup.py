@@ -1,5 +1,3 @@
-#%%
-
 import os,sys; sys.path.append(os.path.dirname(__file__))
 from datetime import datetime,timezone
 import shutil
@@ -25,9 +23,6 @@ from dagster import op,job,Definitions,in_process_executor
 
 from helper.source_env import makefile_path,makefile_dir
 import subprocess
-#%%
-
-
 
 @op
 def cleanup():

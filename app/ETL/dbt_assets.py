@@ -1,29 +1,25 @@
-#%%
-
-import sys,os; sys.path.append('..')
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from helper.source_env import dw_path,dbt_models_core,dbt_models_metrics,db_url
-from dagster_dbt import DbtCliResource, dbt_assets,get_asset_key_for_model,get_asset_keys_by_output_name_for_source
-from dagster import AssetExecutionContext, asset
+# import sys,os; sys.path.append('..')
+# sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from dagster_dbt import DbtCliResource, dbt_assets, DagsterDbtTranslator
+from dagster import AssetExecutionContext, AssetKey
 from constants import dbt_manifest_path
-from sqlalchemy import create_engine
 import shutil
+from helper.source_env import target_schema
+from typing import Any, Mapping
 
-edges = os.listdir(dbt_models_core) + os.listdir(dbt_models_metrics)
-edges = [edge.replace('.sql','') for edge in edges]
-edges = [edge for edge in edges if '.yml' not in edge]
-# edges = core + metrics
-#%%
 
-conn = create_engine(db_url)
+class CustomDagsterDbtTranslator(DagsterDbtTranslator):
+    def get_asset_key(self, dbt_resource_props: Mapping[str, Any]) -> AssetKey:
+        return super().get_asset_key(dbt_resource_props).with_prefix(target_schema)
 
-@dbt_assets(manifest=dbt_manifest_path)
+
+@dbt_assets(manifest=dbt_manifest_path, dagster_dbt_translator=CustomDagsterDbtTranslator())
 def ticktick_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
-    dbt_invocation = dbt.cli(["run","-q"], context=context)
+    dbt_invocation = dbt.cli(["run"], context=context)
     yield from dbt_invocation.stream()
 
     #cleanup the dir after done
-    target_path = dbt_invocation.target_path
-    if target_path.exists():
-        shutil.rmtree(target_path)
+    # target_path = dbt_invocation.target_path
+    # if target_path.exists():
+    #     shutil.rmtree(target_path)
 

@@ -1,18 +1,15 @@
-pandas
-dbt-core==1.8.1
-dbt-postgres==1.8.1
-dagster==1.7.8
-dagster-dbt==0.23.8
-dagster-postgres
-dagster-webserver==1.7.8
-# st-gsheets-connection==0.0.4
-# streamlit==1.35.0
+pandas==2.2.3
+dbt-core==1.9.1
+dbt-postgres==1.9.0
+dagster==1.9.8
+dagster-dbt==0.25.8
+dagster-postgres==0.25.8
 humanize==4.9.0
 # ticktick-py==2.0.1
 git+https://github.com/luutuankiet/ticktick-py.git
-humanize
-pytz
-psycopg2-binary
+humanize==4.9.0
+pytz==2021.1
+psycopg2-binary==2.9.10
 Flask==3.0.3
 Flask-Cors==5.0.0
 gspread
