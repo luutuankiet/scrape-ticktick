@@ -16,6 +16,7 @@ import time
 import sys; sys.path.append('..') # to allow import helper which is 1 dir away
 from helper.source_env import ETL_env_path,raw_path
 import asyncio
+from dagster import OpExecutionContext
 
 
 logging.basicConfig(
@@ -72,7 +73,7 @@ def new_login(self, username, password):
 
 # start_date = datetime(2024, 7, 8,tzinfo=timezone.utc)
 cutoff_date = datetime(2024, 7, 9, tzinfo=timezone.utc)
-def _delete_tasks(start=None, end=cutoff_date, full_load=True,**kwargs):
+def _delete_tasks(context: OpExecutionContext, start=None, end=cutoff_date, full_load=True, **kwargs):
     """_summary_
     a utility to delete completed tasks. make sure you archive the data before doing this operation!
     usage : specify the cutoffdate, the start date, then _delete_tasks()
@@ -84,14 +85,17 @@ def _delete_tasks(start=None, end=cutoff_date, full_load=True,**kwargs):
         current_date=default_start
     elif not full_load: 
         current_date=start
+    context.log.info(f'start deleting tasks from {current_date} to {end}')
     while current_date <= end+timedelta(days=1):
         client = kwargs.get('client')
         tasks=client.task.get_completed(current_date)
+        context.log.info(f'loaded {len(tasks)} completed tasks from {current_date}.')
         if tasks != []:
             deleted = client.task.delete(tasks)
             logging.info(f'deleted {len(deleted)} tasks from {current_date}. next interation...')
+            context.log.info(f'deleted {len(deleted)} tasks from {current_date}. next interation...')
         current_date += timedelta(days=1)
-    print('all specified tasks deleted.')
+    context.log.info('all specified tasks deleted.')
 
 
 # the code that had to be added in api.py

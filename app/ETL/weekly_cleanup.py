@@ -18,14 +18,14 @@ from ticktick.oauth2 import OAuth2 as t_OAuth2        # OAuth2 Manager
 from ticktick.api import TickTickClient as t_TickTickClient   # Main Interface
 
 
-from dagster import op,job,Definitions,in_process_executor
+from dagster import op,job,Definitions,in_process_executor,OpExecutionContext
 
 
 from helper.source_env import makefile_path,makefile_dir
 import subprocess
 
 @op
-def cleanup():
+def cleanup(context: OpExecutionContext):
     t_TickTickClient._login = t_new_login
     t_auth_client = t_OAuth2(client_id=client_id,
                         client_secret=client_secret,
@@ -36,8 +36,8 @@ def cleanup():
     today = datetime.now(timezone.utc)
     cutoff_date = today - timedelta(days=5)
     # cutoff_date = datetime(2022, 7, 24, tzinfo=timezone.utc)
-    start_date = datetime(2024, 7, 1,tzinfo=timezone.utc)
-    _delete_tasks(end=cutoff_date,client=t_client,full_load=False,start=start_date)
+    start_date = today - timedelta(days=14)
+    _delete_tasks(context, end=cutoff_date,client=t_client,full_load=False,start=start_date)
 
 @op
 def loader_rerun(cleanup):
@@ -63,12 +63,10 @@ def cleanup_logs_and_artifacts(loader_rerun):
         print(f"Cleaned up directory: {target_dir}")
     else:
         print(f"Directory does not exist: {target_dir}")
-
-
-#%%
 @job(executor_def=in_process_executor)
 def weekly_cleanup():
-    cleanup_logs_and_artifacts(loader_rerun(cleanup()))
+    cleanup()
+    # cleanup_logs_and_artifacts(loader_rerun(cleanup()))
     
 
 
@@ -88,9 +86,13 @@ def weekly_cleanup():
 
 defs =  Definitions(jobs=[weekly_cleanup])
 
-#%%
 
-
+if __name__ == "__main__":
+    result = weekly_cleanup.execute_in_process()
+    if result.success:
+        print("Job executed successfully.")
+    else:
+        print("Job execution failed.")
 
 
 
