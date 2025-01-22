@@ -3,7 +3,7 @@ from dagster import Definitions,ScheduleDefinition,define_asset_job,load_assets_
 from dagster_dbt import DbtCliResource
 from sqlalchemy import true
 
-from constants import DBT_DIR
+from constants import DBT_DIR,dbt
 import EL,dbt_assets
 from lvl3_helper import load_new_lvl3_data,load_mapping_helper
 from weekly_cleanup import weekly_cleanup
@@ -20,21 +20,24 @@ ETL_job = define_asset_job(
                 EL.raw_data
             ],
     executor_def=in_process_executor,
-    config=
-            {
-                "ops": {
-                    "ticktick_dbt_assets": {
-                        "config": {
-                            "cli_args": [
-                                "run"
-                            ]
-                        }
-                    }
-                }
-            }
+    config={"ops": {"ticktick_dbt_assets": {"config": {"cli_args": ["run"]}}}}
     )
 
+ETL_full_job = define_asset_job(
+    name="ETL_full_job",
+    selection=[dbt_assets.ticktick_dbt_assets,
+               EL.init_extract,
+               EL.raw_data
+               ],
+    config={"ops": {"ticktick_dbt_assets": {"config": {"cli_args": ["build"]}}}},
+    executor_def=in_process_executor
+)
 
+ETL_full_schedule = ScheduleDefinition(
+    name="ETL_full_schedule",
+    job=ETL_full_job,
+    cron_schedule="0 21 * * 6",execution_timezone="Asia/Bangkok"
+)
 
 ETL_schedule = ScheduleDefinition(
     name="ETL_schedule",
@@ -72,11 +75,18 @@ defs = Definitions(
         rapid_ETL_mode,
         job_deploy_LD,
         job_add_stale_tags,
-        dbt_assets.dbt_build_job
+        ETL_job,
+        ETL_full_job
           ],
-    schedules=[ETL_schedule,rapid_ETL_schedule,helper_schedule,cleanup_schedule,deploy_schedule],
+    schedules=[ETL_schedule,
+               ETL_full_schedule,
+               rapid_ETL_schedule,
+               helper_schedule,
+               cleanup_schedule,
+               deploy_schedule
+               ],
     resources={
-        "dbt": DbtCliResource(project_dir=DBT_DIR, profiles_dir=DBT_DIR),
+        "dbt": dbt,
         "io_manager": mem_io_manager,
     },
 )
