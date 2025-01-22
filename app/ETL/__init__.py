@@ -13,7 +13,29 @@ from job_add_stale_tag import job_add_stale_tags
 
 
 all_assets = load_assets_from_modules([EL,dbt_assets])
-ETL_job = define_asset_job("ETL_job",selection=all_assets,executor_def=in_process_executor)
+ETL_job = define_asset_job(
+    "ETL_job",selection=[
+                dbt_assets.ticktick_dbt_assets,
+                EL.init_extract,
+                EL.raw_data
+            ],
+    executor_def=in_process_executor,
+    config=
+            {
+                "ops": {
+                    "ticktick_dbt_assets": {
+                        "config": {
+                            "cli_args": [
+                                "run"
+                            ]
+                        }
+                    }
+                }
+            }
+    )
+
+
+
 ETL_schedule = ScheduleDefinition(
     name="ETL_schedule",
     job=ETL_job,
@@ -44,7 +66,14 @@ deploy_schedule = ScheduleDefinition(
 
 defs = Definitions(
     assets=all_assets,
-    jobs=[load_new_lvl3_data,weekly_cleanup,rapid_ETL_mode,job_deploy_LD,job_add_stale_tags],
+    jobs=[
+        load_new_lvl3_data,
+        weekly_cleanup,
+        rapid_ETL_mode,
+        job_deploy_LD,
+        job_add_stale_tags,
+        dbt_assets.dbt_build_job
+          ],
     schedules=[ETL_schedule,rapid_ETL_schedule,helper_schedule,cleanup_schedule,deploy_schedule],
     resources={
         "dbt": DbtCliResource(project_dir=DBT_DIR, profiles_dir=DBT_DIR),
