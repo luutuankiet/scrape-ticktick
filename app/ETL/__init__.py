@@ -10,6 +10,8 @@ from weekly_cleanup import weekly_cleanup
 from job_rapid_ETL_mode import rapid_ETL_mode
 from job_deploy_LD import job_deploy_LD
 from job_add_stale_tag import job_add_stale_tags
+from jobs.dbt_clean import job_dbt_clean
+from schedules.dbt_clean import schedule_dbt_clean
 
 
 all_assets = load_assets_from_modules([EL,dbt_assets])
@@ -76,14 +78,16 @@ defs = Definitions(
         job_deploy_LD,
         job_add_stale_tags,
         ETL_job,
-        ETL_full_job
+        ETL_full_job,
+        job_dbt_clean
           ],
     schedules=[ETL_schedule,
                ETL_full_schedule,
                rapid_ETL_schedule,
                helper_schedule,
                cleanup_schedule,
-               deploy_schedule
+               deploy_schedule,
+               schedule_dbt_clean
                ],
     resources={
         "dbt": dbt,
