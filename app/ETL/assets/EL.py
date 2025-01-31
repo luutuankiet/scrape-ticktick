@@ -1,4 +1,3 @@
-#%%
 import os
 from dagster import Output, asset,AssetOut, multi_asset, AssetKey
 import pandas as pd
@@ -80,5 +79,3 @@ def humanize_timestamp(ts):
     
     # Humanize the timestamp
     return humanize.naturaltime(now - dt,months=True)
-
-#%%

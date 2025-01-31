@@ -7,7 +7,7 @@ import gspread
 import csv
 from dagster import op,Definitions,job,in_process_executor
 from sqlalchemy import create_engine,text
-from EL import db_url
+from assets.EL import db_url
 import pandas as pd
 from constants import dbt
 from dagster import Out, Nothing

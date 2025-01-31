@@ -55,8 +55,23 @@
         "https://json.schemastore.org/github-workflow.json": "file:///workspaces/scrape-ticktick/.github/actions/action.yml"
     },
     "dbt.perspectiveTheme": "Monokai",
-    "dbt.sqlFmtPath": "/workspaces/scrape-ticktick/.venv/bin/sqlfmt",
+    "dbt.sqlFmtPath": "${workspaceFolder}/.venv/bin/sqlfmt",
     "python.analysis.extraPaths": [
         "./app/ETL"
     ],
+    "terminal.integrated.enableMultiLinePasteWarning": "never",
+    "terminal.integrated.env.osx": {
+        "PYTHONPATH": "${env:PYTHONPATH}",
+    },
+    "terminal.integrated.env.linux": {
+        "PYTHONPATH": "${env:PYTHONPATH}",
+    },
+    "terminal.integrated.env.windows": {
+        "PYTHONPATH": "${env:PYTHONPATH}",
+    },
+    "python.envFile": "${workspaceFolder}/.env",
+    "python.terminal.activateEnvironment": true,
+    "terminal.integrated.inheritEnv": true,
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+    "postman.settings.dotenv-detection-notification-visibility": false,
 }

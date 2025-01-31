@@ -1,4 +1,3 @@
-#%%
 from importlib import resources
 from dagster import job, mem_io_manager,op, Definitions, mem_io_manager,in_process_executor
 import os, subprocess
@@ -7,7 +6,7 @@ import helper.source_env
 
 
 @op
-def deploy_LD():
+def op_deploy_LD():
     cmd_venv = "source .venv/bin/activate"
     LD_cmd = "lightdash deploy"
     cmd = f"{cmd_venv} && {LD_cmd}"
@@ -22,14 +21,13 @@ def deploy_LD():
         raise Exception("Failed to toggle ETL rapid schedule")
     
 
-@job(executor_def=in_process_executor)
+@job(name="deploy_LD",executor_def=in_process_executor)
 def job_deploy_LD():
-    deploy_LD()
+    op_deploy_LD()
 
-defs = Definitions(jobs=[job_deploy_LD],
+defs = Definitions(
+                    jobs=[job_deploy_LD],
                    resources={
                        "io_manager": mem_io_manager
                    }
-)
-    
-#%%
+        )

@@ -4,19 +4,19 @@ from dagster_dbt import DbtCliResource
 from sqlalchemy import true
 
 from constants import DBT_DIR,dbt
-import EL,dbt_assets
-from lvl3_helper import load_new_lvl3_data,load_mapping_helper
-from weekly_cleanup import weekly_cleanup
-from job_rapid_ETL_mode import rapid_ETL_mode
-from job_deploy_LD import job_deploy_LD
-from job_add_stale_tag import job_add_stale_tags
+import assets.EL as EL,assets.dbt_assets as dbt_assets
+from jobs.lvl3_helper import load_new_lvl3_data,load_mapping_helper
+from jobs.weekly_cleanup import weekly_cleanup
+from jobs.rapid_ETL_mode import rapid_ETL_mode
+from jobs.deploy_LD import job_deploy_LD
+from jobs.add_stale_tag import job_add_stale_tags
 from jobs.dbt_clean import job_dbt_clean
 from schedules.dbt_clean import schedule_dbt_clean
 
 
 all_assets = load_assets_from_modules([EL,dbt_assets])
 ETL_job = define_asset_job(
-    "ETL_job",selection=[
+    "dbt_run",selection=[
                 dbt_assets.ticktick_dbt_assets,
                 EL.init_extract,
                 EL.raw_data
@@ -26,7 +26,7 @@ ETL_job = define_asset_job(
     )
 
 ETL_full_job = define_asset_job(
-    name="ETL_full_job",
+    "dbt_build",
     selection=[dbt_assets.ticktick_dbt_assets,
                EL.init_extract,
                EL.raw_data
