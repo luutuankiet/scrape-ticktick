@@ -25,7 +25,6 @@ all_assets = load_assets_from_modules([EL, dbt_assets])
 
 
 ETL_full_schedule = ScheduleDefinition(
-    name="ETL_full_schedule",
     job=ETL_full_job,
     cron_schedule="0 21 * * 6",
     execution_timezone="Asia/Bangkok",
@@ -57,17 +56,23 @@ cleanup_schedule = ScheduleDefinition(
     execution_timezone="Asia/Bangkok"
 )
 
-deploy_schedule = ScheduleDefinition(
+schedule_deploy = ScheduleDefinition(
     job=job_deploy_LD, cron_schedule="0 4 * * *", 
     execution_timezone="Asia/Bangkok"
 )
 
 schedule_dbt_clean = ScheduleDefinition(
-    name="dbt_clean_weekly",
     job=job_dbt_clean,
     cron_schedule="0 0 * * 6",
     execution_timezone="Asia/Bangkok",
 )
+
+schedule_stale_tag = ScheduleDefinition(
+    job=job_add_stale_tags,
+    cron_schedule="0 0 * * 6",
+    execution_timezone="Asia/Bangkok",
+)
+
 
 all_jobs = [
     load_new_lvl3_data,
@@ -86,8 +91,9 @@ all_schedules = [
     rapid_ETL_schedule,
     helper_schedule,
     cleanup_schedule,
-    deploy_schedule,
+    schedule_deploy,
     schedule_dbt_clean,
+    schedule_stale_tag
 ]
 
 all_resources = {
