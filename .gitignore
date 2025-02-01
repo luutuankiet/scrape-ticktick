@@ -42,3 +42,4 @@ app.log*
 app.log.*
 
 dbt_project
+ticktick-py-dbt

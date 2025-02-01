@@ -1,15 +1,12 @@
 import os
 from pathlib import Path
 from dagster_dbt import DbtCliResource
-import helper.source_env
-
-DBT_DIR = Path(__file__).joinpath("..","..","..","dbt_project").resolve(strict=True)
-DBT_TARGET_DIR = DBT_DIR.joinpath("target")
+from helper.source_env import dbt_project_dir, dbt_target_path
 
 
-dbt = DbtCliResource(project_dir=DBT_DIR,profiles_dir=DBT_DIR)
+dbt = DbtCliResource(project_dir=dbt_project_dir,profiles_dir=dbt_project_dir)
 
-if not DBT_TARGET_DIR.exists():
+if not dbt_target_path.exists():
     # scaffold the project target dir
     dbt.cli(["deps"], target_path=Path("target")).wait()
     dbt.cli(["compile"], target_path=Path("target")).wait()
@@ -22,4 +19,4 @@ if not DBT_TARGET_DIR.exists():
             .target_path.joinpath("manifest.json")
         )
 else:
-    dbt_manifest_path = DBT_DIR.joinpath("target", "manifest.json").resolve(strict=True)
+    dbt_manifest_path = dbt_project_dir.joinpath("target", "manifest.json").resolve(strict=True)

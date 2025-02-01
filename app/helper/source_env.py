@@ -41,7 +41,8 @@ load_dotenv(secrets_path)
 
 
 
-dbt_project_dir = project_root.joinpath('dbt_project')
+dbt_project_dir = project_root.joinpath('ticktick-py-dbt')
+dbt_target_path=dbt_project_dir.joinpath('target')
 dbt_models_path=dbt_project_dir.joinpath('models')
 
 
