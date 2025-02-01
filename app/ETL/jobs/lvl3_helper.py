@@ -1,7 +1,5 @@
 #%%
 import os
-import sys; sys.path.append('..')
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from helper.source_env import dbt_project_dir,service_account_path
 import gspread
 import csv

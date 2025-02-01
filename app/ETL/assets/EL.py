@@ -1,7 +1,6 @@
 import os
 from dagster import Output, asset,AssetOut, multi_asset, AssetKey
 import pandas as pd
-import sys; sys.path.append('..') # to allow import helper which is 1 dir away
 from helper.source_env import raw_path,ETL_workdir,db_url,target_schema
 import time
 from sqlalchemy import create_engine,text

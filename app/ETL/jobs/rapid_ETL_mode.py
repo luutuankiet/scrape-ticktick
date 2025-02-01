@@ -1,5 +1,5 @@
 from dagster import Definitions,op,job,in_process_executor,mem_io_manager
-import os,time,sys; sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import os,time
 import subprocess
 import helper.source_env
 import logging

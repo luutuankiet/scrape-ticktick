@@ -1,11 +1,6 @@
 #%%
 import os,sys
 
-# to use packages in current dir
-sys.path.append(os.path.dirname((__file__))) 
-
-# to use packages in other relative dir
-sys.path.append(os.path.join(os.path.dirname(__file__),'..'))
 
 # from ETL.lvl3_helper import mapping_sheet
 from helper.source_env import dbt_project_dir,service_account_path

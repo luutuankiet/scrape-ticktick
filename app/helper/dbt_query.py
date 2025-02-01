@@ -1,5 +1,4 @@
 #%%
-import os, sys; sys.path.append(os.path.dirname(__file__)); sys.path.append('..')
 import pandas as pd 
 import subprocess
 from source_env import dbt_project_dir
