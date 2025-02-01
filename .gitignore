@@ -1,6 +1,7 @@
 dagster.yaml
 dagster_artifacts/*
 app/env/*
+!app/env/.gitkeep
 .venv
 .env*
 __pycache__
@@ -10,6 +11,7 @@ storage
 dbt_project/target
 ticktick-gtd/
 app/ETL/raw/*
+!app/ETL/raw/.gitkeep
 # Ignore Python cache files
 __pycache__/
 *.pyc
