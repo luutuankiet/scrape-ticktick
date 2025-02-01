@@ -4,6 +4,7 @@ import subprocess
 from source_env import dbt_project_dir
 import io
 import tempfile
+import os
 
 #%%
 
