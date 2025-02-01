@@ -13,7 +13,7 @@ engine = create_engine(db_url)
 
 
 
-@asset(key=AssetKey('init_extract').with_prefix(target_schema))
+@asset(key=AssetKey('init_extract').with_prefix(target_schema), group_name='raw')
 def init_extract():
     flag = os.path.join(ETL_workdir,'force_sync.flag')
     with open(flag, 'w') as f:
@@ -37,7 +37,8 @@ names = ['tasks_raw', 'lists_raw', 'folders_raw']
         'folders_raw': AssetOut(key=AssetKey('folders_raw').with_prefix(target_schema))
 
     },
-    compute_kind='python',deps=[init_extract]
+    compute_kind='python',deps=[init_extract], 
+    group_name='raw'
 )
 def raw_data():
     with engine.connect() as conn:
