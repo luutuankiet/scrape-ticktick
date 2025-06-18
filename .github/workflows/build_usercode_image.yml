@@ -2,6 +2,9 @@ name: build usercode image
 
 on: 
   workflow_dispatch:
+  push: 
+    branches:
+      - main
 env: 
   RELEASE: ${{ vars.DOCKERHUB_USER }}/${{ vars.IMAGE_NAME }}
 

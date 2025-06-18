@@ -1,4 +1,4 @@
-[![CD](https://github.com/luutuankiet/scrape-ticktick/actions/workflows/gh_deploy.yml/badge.svg)](https://github.com/luutuankiet/scrape-ticktick/actions/workflows/gh_deploy.yml)
+[![build usercode image](https://github.com/luutuankiet/scrape-ticktick/actions/workflows/build_usercode_image.yml/badge.svg)](https://github.com/luutuankiet/scrape-ticktick/actions/workflows/build_usercode_image.yml)
 
 # prequisite
 
