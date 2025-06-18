@@ -6,7 +6,7 @@ dagster-dbt==0.25.8
 dagster-postgres==0.25.8
 humanize==4.9.0
 # ticktick-py==2.0.1
-git+https://github.com/luutuankiet/ticktick-py.git
+ticktick_py_fork
 humanize==4.9.0
 pytz==2021.1
 psycopg2-binary==2.9.10
