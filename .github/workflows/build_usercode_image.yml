@@ -1,0 +1,30 @@
+name: build usercode image
+
+on: 
+  workflow_dispatch:
+env: 
+  RELEASE: ${{ vars.DOCKERHUB_USER }}/${{ vars.IMAGE_NAME }}
+
+jobs:
+  build_docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      
+      - name: Checkout DBT
+        uses: actions/checkout@v4
+        with:
+          repository: luutuankiet/ticktick-py-dbt
+          # path: ./dbtproj  
+
+      - name: log in to dockerhub
+        uses: docker/login-action@v3
+        with: 
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build docker image
+        run: docker build -t ${{ env.RELEASE }}:latest .
+
+  
