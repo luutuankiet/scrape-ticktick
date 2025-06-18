@@ -25,6 +25,9 @@ RUN uv pip install --no-cache --system -r requirements.txt
 
 COPY app app
 
+# dbt proj under a different dir here due to how GHA works
+COPY ./dbt/ ticktick-py-dbt
+
 
 ENTRYPOINT ["python","-m","dagster","code-server","start"]
-CMD ["-p","4000","-h","0.0.0.0"]
+CMD ["-p","4000","-h","0.0.0.0", "-m", "ETL"]

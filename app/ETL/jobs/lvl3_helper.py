@@ -23,8 +23,7 @@ order by todo_sortorder
 analyses_path = os.path.join(dbt_project_dir,'target/compiled/todo_analytics/analyses')
 helper_query_path = os.path.join(analyses_path,'lvl3_helper_list_extract.sql')
 seed_path = os.path.join(dbt_project_dir,'seeds/list_goal_mapping.csv')
-with open(helper_query_path,'r') as f:
-    helper_query = f.read()
+
 
 
 client = gspread.service_account(service_account_path)
@@ -61,6 +60,8 @@ def mapping_helper():
     """
 
     with conn.connect() as con:
+        with open(helper_query_path,'r') as f:
+            helper_query = f.read()
         # clears the sheet
         helper_sheet.clear()
 
